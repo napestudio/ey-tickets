@@ -1,0 +1,362 @@
+generator client {
+  provider   = "prisma-client-js"
+  //output     = "../app/generated/prisma"
+  engineType = "library" // <--- Añade esta línea
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                    String             @id @default(cuid())
+  name                  String?
+  email                 String?            @unique
+  emailVerified         DateTime?
+  image                 String?
+  type                  UserType           @default(SELLER)
+  password              String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  accounts              Account[]
+  sessions              Session[]
+  events                Event[]
+  invitations           Invitation[]
+  configuration         UserConfiguration?
+  clientId              String
+  client                Client             @relation(fields: [clientId], references: [id])
+  paymentMethods        PaymentMethod[]
+  createdPaymentMethods PaymentMethod[]    @relation("CreatedPaymentMethods")
+}
+
+model Client {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  phone          String?
+  city           String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  users          User[]
+  paymentMethods PaymentMethod[]
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model Event {
+  id             String           @id @default(cuid())
+  title          String
+  description    String
+  address        String
+  location       String
+  image          String?
+  dates          String?
+  startDate      DateTime?
+  endDate        DateTime?
+  status         GlobalStatus
+  userId         String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  discountCode   DiscountCode[]
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders         Order[]
+  promotion      Promotion[]
+  tickets        TicketOrder[]
+  ticketTypes    TicketType[]
+  validatorToken ValidatorToken[]
+  eventPayments  EventPayment[]
+
+  @@map("events")
+}
+
+model TicketType {
+  id           String           @id @default(cuid())
+  title        String
+  date         DateTime?
+  time         String?
+  price        Float
+  discount     Float?           @default(0)
+  limit        Int?
+  buyGet       Int?
+  eventId      String
+  status       TicketTypeStatus
+  type         TicketTypes
+  startDate    DateTime?        @default(now())
+  endDate      DateTime?
+  quantity     Int
+  position     Int
+  dates        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  isFree       Boolean          @default(false)
+  discountCode DiscountCode[]
+  orders       Order[]
+  promotion    Promotion[]
+  ticketOrder  TicketOrder[]
+  event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_types")
+}
+
+model Order {
+  id           String        @id @default(cuid())
+  name         String?
+  lastName     String?
+  dni          String?
+  email        String?
+  phone        String?
+  totalPrice   Float?
+  hasPromo     Boolean       @default(false)
+  hasCode      Boolean       @default(false)
+  discountCode String?       @default("")
+  status       OrderStatus
+  ticketTypeId String
+  eventId      String
+  quantity     Int
+  isInvitation Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketType   TicketType    @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  tickets      TicketOrder[]
+
+  @@map("orders")
+}
+
+model TicketOrder {
+  id           String            @id @default(cuid())
+  name         String?
+  lastName     String?
+  dni          String?
+  email        String?
+  base64Qr     String?
+  date         DateTime
+  orderId      String
+  eventId      String
+  status       TicketOrderStatus
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  code         Int?              @default(autoincrement())
+  ticketTypeId String?
+  event        Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  order        Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ticketType   TicketType?       @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  isInvitation Boolean           @default(false)
+
+  @@map("ticket_orders")
+}
+
+model ValidatorToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  endDate   DateTime?
+  eventId   String
+  useCount  Int       @default(0)
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("validator_tokens")
+}
+
+model DiscountCode {
+  id           String       @id @default(cuid())
+  eventId      String?
+  ticketTypeId String?
+  code         String
+  discount     Int?         @default(0)
+  createdAt    DateTime     @default(now())
+  expiresAt    DateTime
+  updatedAt    DateTime     @updatedAt
+  status       GlobalStatus @default(ACTIVE)
+  event        Event?       @relation(fields: [eventId], references: [id])
+  ticketType   TicketType?  @relation(fields: [ticketTypeId], references: [id])
+
+  @@map("discount_codes")
+}
+
+model UserConfiguration {
+  id                              String  @id @default(cuid())
+  userId                          String  @unique
+  mpAccessToken                   String?
+  eventSoldOutNotification        Boolean @default(false)
+  ticketTypeSoldOutNotification   Boolean @default(false)
+  eventToBeSoldOutNotification    Boolean @default(false)
+  ticketTypePublishedNotification Boolean @default(false)
+  serviceCharge                   Int?    @default(0)
+  maxInvitesAmount                Int?    @default(0)
+  maxValidatorsAmount             Int?    @default(1)
+  maxTicketsAmount                Int?    @default(0)
+  user                            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_configurations")
+}
+
+model Promotion {
+  id           String          @id @default(cuid())
+  title        String
+  description  String?
+  type         PromotionType
+  discount     Float?
+  limit        Int?
+  startDate    DateTime
+  endDate      DateTime
+  eventId      String?
+  ticketTypeId String?
+  status       PromotionStatus
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  event        Event?          @relation(fields: [eventId], references: [id])
+  ticketType   TicketType?     @relation(fields: [ticketTypeId], references: [id])
+
+  @@map("promotions")
+}
+
+model PaymentMethod {
+  id        String      @id @default(cuid())
+  type      PaymentType
+  name      String?
+  clientId  String
+  userId    String? // Solo se usa si es CASH
+  creatorId String // Usuario que creó este método
+  apiKey    String? // Solo para métodos tipo DIGITAL (ej: MP)
+  enabled   Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  client  Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user    User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creator User           @relation("CreatedPaymentMethods", fields: [creatorId], references: [id])
+  events  EventPayment[] // Relación con eventos
+
+  @@map("payment_methods")
+}
+
+model EventPayment {
+  id              String @id @default(cuid())
+  eventId         String
+  paymentMethodId String
+
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, paymentMethodId])
+  @@map("event_payments")
+}
+
+enum PaymentType {
+  CASH
+  DIGITAL
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String
+  role      UserType @default(SELLER)
+  inviterId String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+  accepted  Boolean  @default(false)
+  inviter   User     @relation(fields: [inviterId], references: [id])
+  clientId  String
+
+  @@map("invitations")
+}
+
+enum UserType {
+  SELLER
+  ADMIN
+  SUPERADMIN
+  PRODUCER
+}
+
+enum GlobalStatus {
+  DRAFT
+  ACTIVE
+  CONCLUDED
+  DELETED
+  CANCELED
+}
+
+enum TicketTypes {
+  NORMAL
+  ABONO
+  PROMO
+  DESCUENTO
+  COMPRA_X_OBTEN_Y
+}
+
+enum TicketTypeStatus {
+  ACTIVE
+  INACTIVE
+  ENDED
+  DELETED
+  SOLDOUT
+}
+
+enum OrderStatus {
+  ACTIVE
+  PAID
+  PENDING
+  EXPIRED
+}
+
+enum TicketOrderStatus {
+  VALIDATED
+  NOT_VALIDATED
+}
+
+enum PromotionType {
+  DESCUENTO
+  COMPRA_X_OBTEN_Y
+}
+
+enum PromotionStatus {
+  ACTIVA
+  INACTIVA
+}
