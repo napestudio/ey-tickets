@@ -1,4 +1,4 @@
-import NewTokenDialog from "@/app/dashboard/components/new-token-dialog/new-token-dialog";
+import NewTokenDialog from "@/app/(dashboard)/dashboard/components/new-token-dialog/new-token-dialog";
 import {
   Card,
   CardContent,

@@ -3,7 +3,7 @@ import { getEventsByUserId } from "@/lib/api/eventos";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
 
-import EditCodeForm from "@/app/dashboard/components/edit-discount-code/edit-discount-code-form";
+import EditCodeForm from "@/app/(dashboard)/dashboard/components/edit-discount-code/edit-discount-code-form";
 import { DiscountCode } from "@/types/discount-code";
 import { Evento } from "@/types/event";
 

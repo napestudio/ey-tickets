@@ -1,14 +1,13 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import SignInButton from "@/app/dashboard/components/sign-in-button/sign-in-button";
 import NewPasswordForm from "./new-password-form";
-import { getInvitationsById } from "@/lib/actions";
-import { isExpired } from "@/lib/utils";
 
-
-export default async function NewPassword({ params }: { params: { token: string } }) {
+export default async function NewPassword({
+  params,
+}: {
+  params: { token: string };
+}) {
   const session = await getServerSession(authOptions);
 
   if (session && session.user) {
@@ -25,7 +24,7 @@ export default async function NewPassword({ params }: { params: { token: string 
               RECUPERAR CONTRASEÑA
             </h1>
           </div>
-          <NewPasswordForm token={params.token}/>
+          <NewPasswordForm token={params.token} />
         </div>
       </div>
     </div>

@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
-import { FileUploader } from "@/app/dashboard/components/file-uploader/file-uploader";
+import { FileUploader } from "@/app/(dashboard)/dashboard/components/file-uploader/file-uploader";
 
 import { CalendarIcon, Loader2 } from "lucide-react";
 import Box from "@/components/dashboard/box";
@@ -91,7 +91,7 @@ export default function CreateEventForm({ userId }: { userId: string }) {
 
   const handleRemoveDateTime = (id: number) => {
     setDateTimeSelections(
-      dateTimeSelections.filter((selection) => selection.id !== id)
+      dateTimeSelections.filter((selection) => selection.id !== id),
     );
   };
 
@@ -281,7 +281,7 @@ export default function CreateEventForm({ userId }: { userId: string }) {
                                 variant={"outline"}
                                 className={cn(
                                   "w-full font-normal",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value
@@ -301,7 +301,7 @@ export default function CreateEventForm({ userId }: { userId: string }) {
                                 const updated = new Date(date!);
                                 updated.setHours(
                                   current.getHours(),
-                                  current.getMinutes()
+                                  current.getMinutes(),
                                 );
                                 field.onChange(updated);
                               }}

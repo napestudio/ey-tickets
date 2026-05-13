@@ -1,4 +1,4 @@
-import PaymentMethodsLoader from "@/app/dashboard/metodos-de-pago/methods-loader";
+import PaymentMethodsLoader from "@/app/(dashboard)/dashboard/metodos-de-pago/methods-loader";
 import {
   Card,
   CardContent,

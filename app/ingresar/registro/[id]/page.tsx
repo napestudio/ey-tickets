@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import SignInButton from "@/app/dashboard/components/sign-in-button/sign-in-button";
+import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import RegisterForm from "./register-form";
 import { getInvitationsById } from "@/lib/actions";
 import { isExpired } from "@/lib/utils";
