@@ -1,7 +1,7 @@
 import { Metadata } from "next/types";
 
 export const metadata: Metadata = {
-  title: "Yendo.ar | Eventos en vivo",
+  title: "EyTickets | Eventos en vivo",
   description: "Venta de tickets online para eventos en vivo.",
 };
 
@@ -14,7 +14,7 @@ export default function TerminosYCondiciones() {
         </h1>
         <div>
           <p className="text-xl text-white mb-4">
-            {`1. Aceptación de los Términos Al utilizar la plataforma yendo.ar
+            {`1. Aceptación de los Términos Al utilizar la plataforma EyTickets
             (en adelante, "la Plataforma"), el usuario (en adelante, "el
             Organizador" o "el Comprador") acepta estos Términos y Condiciones,
             que regulan la venta de tickets para eventos. La Plataforma es
@@ -22,7 +22,7 @@ export default function TerminosYCondiciones() {
             Rosario, Santa Fe, Argentina.`}
           </p>
           <p className="text-xl text-white mb-4">
-           {`2. Definiciones Plataforma: yendo.ar, sistema autogestivo para venta
+            {`2. Definiciones Plataforma: EyTickets, sistema autogestivo para venta
             de tickets. Organizador: Productor o responsable del evento que
             publica tickets en la Plataforma. Comprador: Persona que adquiere
             tickets a través de la Plataforma. QR: Código vinculado al DNI del
@@ -33,7 +33,7 @@ export default function TerminosYCondiciones() {
             intermediario entre el Organizador y el Comprador. El Organizador
             configura los datos del evento (precio, fecha, condiciones). El pago
             se procesa a través de Mercado Pago; los fondos son recibidos
-            directamente por el Organizador. Comisión: yendo.ar retiene un 3%
+            directamente por el Organizador. Comisión: EyTickets retiene un 3%
             del valor de cada ticket vendido, abonable post-evento mediante
             transferencia bancaria o efectivo.`}
           </p>
@@ -42,7 +42,7 @@ export default function TerminosYCondiciones() {
             cancelaciones, devoluciones ni cambios una vez emitido el ticket. En
             caso de postergación o cancelación del evento, la responsabilidad
             recae exclusivamente en el Organizador, quien debe gestionar
-            soluciones con los Compradores. yendo.ar no interviene en
+            soluciones con los Compradores. EyTickets no interviene en
             reembolsos.`}
           </p>
           <p className="text-xl text-white mb-4">
@@ -50,7 +50,7 @@ export default function TerminosYCondiciones() {
             información del evento. Cumplir con las obligaciones legales (ej:
             reembolsos si el evento no se realiza). Del Comprador: Verificar los
             datos del evento antes de comprar. Presentar el QR asociado a su DNI
-            para ingresar al evento. De yendo.ar: No es responsable por la
+            para ingresar al evento. De EyTickets: No es responsable por la
             realización, calidad o cambios en los eventos. Garantiza la
             autenticidad del QR emitido, pero no su validez si el evento es
             cancelado.`}
@@ -74,7 +74,7 @@ export default function TerminosYCondiciones() {
             a cualquier otro fuero.`}
           </p>
           <p className="text-xl text-white mb-4">
-            {`9. Modificaciones yendo.ar puede actualizar estos Términos en
+            {`9. Modificaciones EyTickets puede actualizar estos Términos en
             cualquier momento. Los cambios serán notificados en la Plataforma y
             entrarán en vigor inmediatamente después de su publicación.`}
           </p>

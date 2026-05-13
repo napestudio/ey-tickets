@@ -39,7 +39,7 @@ export default function PreFooter() {
           />
           <div className="text-center md:text-right">
             <p>
-              <strong>yendo.ar</strong> es un producto de{" "}
+              <strong>EyTickets</strong> es un producto de{" "}
               <Link
                 href={"https://www.mug.ar/"}
                 target="_blank"

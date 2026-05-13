@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import SignInButton from "../dashboard/components/sign-in-button/sign-in-button";
+import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import { redirect } from "next/navigation";
 import { authOptions } from "../api/auth/[...nextauth]/options";
 import LoginForm from "./login-form";
@@ -33,7 +33,9 @@ export default async function Ingresar() {
               className="font-medium underline"
               prefetch={false}
             >
-              <h4 className="font-bold text-black hover:text-gray-500">¿Olvidaste la contraseña?</h4>
+              <h4 className="font-bold text-black hover:text-gray-500">
+                ¿Olvidaste la contraseña?
+              </h4>
             </Link>
           </div>
         </div>
