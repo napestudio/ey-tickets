@@ -11,7 +11,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/constants";
 
 export async function generateMetadata(
   { params }: { params: { id: string } },
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const param = await params;
   const eventData = await getEventData(param.id);
@@ -99,10 +99,10 @@ export default async function Evento({ params }: { params: { id: string } }) {
                   discountCode={
                     evento?.discountCode &&
                     (evento.discountCode as DiscountCode[]).filter(
-                      (dc) => dc.status !== "DELETED"
+                      (dc) => dc.status !== "DELETED",
                     ).length > 0
                       ? (evento.discountCode as DiscountCode[]).filter(
-                          (dc) => dc.status !== "DELETED"
+                          (dc) => dc.status !== "DELETED",
                         )
                       : undefined
                   }

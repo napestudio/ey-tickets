@@ -3,8 +3,8 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import "@uploadthing/react/styles.css";
 
-import { authOptions } from "../api/auth/[...nextauth]/options";
-import SideBar from "../../components/dashboard/side-bar";
+import { authOptions } from "../../api/auth/[...nextauth]/options";
+import SideBar from "../../../components/dashboard/side-bar";
 import { MobileSidebar } from "@/components/dashboard/mobile-nav";
 import SessionProvider from "@/components/session-provider/session-provider";
 import { Toaster } from "@/components/ui/toaster";

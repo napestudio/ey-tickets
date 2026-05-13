@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 
 import { Evento } from "@/types/event";
-import { authOptions } from "../api/auth/[...nextauth]/options";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import EventsDisplay from "@/components/dashboard/events-display";
