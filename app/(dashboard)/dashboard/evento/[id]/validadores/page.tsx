@@ -10,19 +10,20 @@ import Link from "next/link";
 export default async function Validators({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const tokens = await getTokensByEvent(params.id);
+  const { id } = await params;
+  const tokens = await getTokensByEvent(id);
   return (
     <>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-7xl">
         Tokens de validadores
       </h1>
       <div className="flex gap-5 items-center justify-center py-4">
-        <Link href={`/validar/${params.id}`} target="_blank">
+        <Link href={`/validar/${id}`} target="_blank">
           Ir a validar
         </Link>
-        <NewTokenDialog eventId={params.id} />
+        <NewTokenDialog eventId={id} />
       </div>
       <div className="flex flex-col justify-center items-center gap-5">
         {tokens && tokens.length === 0 && (

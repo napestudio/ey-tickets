@@ -18,14 +18,15 @@ import { GetSingleEventResponse } from "@/lib/api/eventos";
 export default async function OrderPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const order = await getOrderById(params.id);
+  const { id } = await params;
+  const order = await getOrderById(id);
   const ticketType = await getTyicketTypeById(order?.ticketTypeId as string);
   const evento = order?.event;
   let serviceCharge;
   if (evento) {
-    const sC = await getServiceCharge(evento?.userId);
+    const sC = await getServiceCharge(evento?.producerId);
     serviceCharge = sC || null;
   }
   const groupedEventDates = datesFormater(evento?.dates as string);
@@ -55,10 +56,10 @@ export default async function OrderPage({
           Datos de tu orden
         </h2>
         <OrderTotal
-          order={order as Order}
+          order={order as unknown as Order}
           groupedEventDates={groupedEventDates}
           groupedTicketDates={groupedTicketDates}
-          ticketType={ticketType as TicketType}
+          ticketType={ticketType as unknown as TicketType}
           serviceCharge={serviceCharge || undefined}
         />
       </section>
@@ -71,9 +72,9 @@ export default async function OrderPage({
           Una vez completados tus datos vas a poder realizar el pago. <br /> Vas
           a recibir tus entradas a tu casilla de email.
         </p>
-        <OrderTimeOut order={order as Order} />
+        <OrderTimeOut order={order as unknown as Order} />
         <div className="flex mx-auto align-center justify-center max-w-md bg-gray-100 border-4 border-black rounded-none p-5 mt-6 shadow-hard">
-          <UserDataForm order={order as Order} />
+          <UserDataForm order={order as unknown as Order} />
         </div>
       </section>
     </>

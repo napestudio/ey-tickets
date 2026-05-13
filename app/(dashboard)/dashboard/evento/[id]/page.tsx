@@ -6,14 +6,15 @@ import { Evento } from "@/types/event";
 export default async function EventPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const evento = await getEventById(params.id);
+  const { id } = await params;
+  const evento = await getEventById(id);
 
   if (!evento) return null;
   return (
     <>
-      <EventDetails evento={evento as Evento} />
+      <EventDetails evento={evento as unknown as Evento} />
     </>
   );
 }

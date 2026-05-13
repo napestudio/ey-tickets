@@ -1,38 +1,35 @@
 import { revalidatePath } from "next/cache";
-import {prisma} from "../prisma";
+import { prisma } from "../prisma";
 
 interface AssignPaymentMethodsInput {
   eventId: string;
   paymentMethodIds: string[];
 }
 
-export async function createPaymentMethod(data: any) {
-  return await prisma.paymentMethod.create({ data });
+export async function createPaymentMethod(data: Record<string, unknown>) {
+  return await prisma.paymentMethod.create({ data: data as any });
 }
-export async function updatePaymentMethod(data: any, paymentMethodId: string) {
+
+export async function updatePaymentMethod(
+  data: Record<string, unknown>,
+  paymentMethodId: string
+) {
   return await prisma.paymentMethod.update({
-    where: {
-      id: paymentMethodId,
-    },
-    data,
+    where: { id: paymentMethodId },
+    data: data as any,
   });
 }
 
-export async function getPaymentMethodsByClientId(clientId: string) {
+export async function getPaymentMethodsByProducerId(producerId: string) {
   return await prisma.paymentMethod.findMany({
-    where: {
-      clientId,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
+    where: { producerId },
+    orderBy: { createdAt: "asc" },
   });
 }
+
 export async function getPaymentMethodsByCreatorId(creatorId: string) {
   return await prisma.paymentMethod.findMany({
-    where: {
-      creatorId,
-    },
+    where: { creatorId },
   });
 }
 
@@ -44,15 +41,11 @@ export async function assignPaymentMethodsToEvent({
     throw new Error("Faltan datos para asociar métodos de pago");
   }
 
-  const event = await prisma.event.findUnique({
-    where: { id: eventId },
-  });
-
+  const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) {
     throw new Error("Evento no encontrado");
   }
 
-  // Buscar métodos de pago por ID
   const methods = await prisma.paymentMethod.findMany({
     where: { id: { in: paymentMethodIds } },
   });
@@ -61,23 +54,16 @@ export async function assignPaymentMethodsToEvent({
     throw new Error("Algunos métodos de pago no existen");
   }
 
-  // Obtener los ya asignados
   const existingLinks = await prisma.eventPayment.findMany({
     where: { eventId },
     select: { paymentMethodId: true },
   });
 
   const existingIds = new Set(existingLinks.map((e) => e.paymentMethodId));
-
-  // 🔎 Filtrar solo los nuevos
   const newMethods = methods.filter((m) => !existingIds.has(m.id));
 
-  // ⚠️ Verificar si ya hay un DIGITAL asignado
   const existingDigital = await prisma.eventPayment.findFirst({
-    where: {
-      eventId,
-      paymentMethod: { type: "DIGITAL" },
-    },
+    where: { eventId, paymentMethod: { type: "DIGITAL" } },
   });
 
   const newDigitalCount = newMethods.filter((m) => m.type === "DIGITAL").length;
@@ -92,7 +78,6 @@ export async function assignPaymentMethodsToEvent({
     );
   }
 
-  // Crear las nuevas relaciones
   await prisma.eventPayment.createMany({
     data: newMethods.map((m) => ({
       eventId,
@@ -101,7 +86,6 @@ export async function assignPaymentMethodsToEvent({
   });
 
   revalidatePath(`/dashboard/events/${eventId}`);
-
   return { success: true };
 }
 
@@ -119,38 +103,25 @@ export async function unassignPaymentMethodFromEvent({
   }
 
   const existing = await prisma.eventPayment.findFirst({
-    where: {
-      eventId,
-      paymentMethodId,
-    },
+    where: { eventId, paymentMethodId },
   });
 
   if (!existing) {
     throw new Error("La relación evento - método de pago no existe");
   }
 
-  await prisma.eventPayment.delete({
-    where: {
-      id: existing.id,
-    },
-  });
+  await prisma.eventPayment.delete({ where: { id: existing.id } });
 
   revalidatePath(`/dashboard/events/${eventId}`);
-
   return { success: true };
 }
 
 export async function getDigitalPaymentMethodByEvent(eventId: string) {
   return await prisma.eventPayment.findMany({
-    where: {
-      eventId,
-      paymentMethod: { type: "DIGITAL" },
-    },
+    where: { eventId, paymentMethod: { type: "DIGITAL" } },
     include: {
       paymentMethod: {
-        select: {
-          apiKey: true,
-        },
+        select: { apiKey: true },
       },
     },
   });
@@ -161,7 +132,6 @@ export async function deletePaymentMethodAction(paymentMethodId: string) {
     throw new Error("Falta el ID del método de pago");
   }
 
-  // Verificar si está asociado a algún evento
   const linkedToEvent = await prisma.eventPayment.findFirst({
     where: { paymentMethodId },
   });
@@ -173,11 +143,8 @@ export async function deletePaymentMethodAction(paymentMethodId: string) {
     };
   }
 
-  await prisma.paymentMethod.delete({
-    where: { id: paymentMethodId },
-  });
+  await prisma.paymentMethod.delete({ where: { id: paymentMethodId } });
 
   revalidatePath("/dashboard/payment-methods");
-
   return { success: true };
 }

@@ -17,7 +17,7 @@ export default function EventsDisplay({
   session: Session;
 }) {
   const [activeTab, setActiveTab] = useState("upcoming");
-  const isSeller = session.user.type === "SELLER";
+  const isSeller = session.user.role === "SELLER";
 
   const upcomingEvents = eventos.filter(
     (evento) => evento.status !== "CONCLUDED" && evento.status !== "CANCELED"

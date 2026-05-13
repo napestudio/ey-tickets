@@ -1,7 +1,8 @@
-import { Evento } from "./event";
 import { UserConfiguration } from "./user-configuration";
 
-export type UserType = "SELLER" | "PRODUCER" | "ADMIN" | "SUPERADMIN";
+export type OrganizationRole = "OWNER" | "ADMIN" | "MANAGER" | "SELLER";
+
+export type EventRole = "MANAGER" | "SELLER" | "VALIDATOR" | "VIEWER";
 
 export type User = {
   id?: string;
@@ -9,11 +10,10 @@ export type User = {
   email?: string | null;
   emailVerified?: Date | null;
   image?: string | null;
-  mpAccessToken?: string | null;
   password?: string | null;
-  type?: UserType;
+  isSuperAdmin?: boolean;
   createdAt?: Date | null;
-  clientId: string | null;
-  events?: Partial<Evento[]> | null;
   configuration?: UserConfiguration | null;
+  producerMember?: { role: OrganizationRole; producerId: string } | null;
+  role?: OrganizationRole | null;
 };

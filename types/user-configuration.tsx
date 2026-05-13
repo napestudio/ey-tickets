@@ -1,13 +1,17 @@
 export interface UserConfiguration {
   id: string;
   userId: string;
-  mpAccessToken: string | null;
   eventSoldOutNotification: boolean;
   ticketTypeSoldOutNotification: boolean;
   eventToBeSoldOutNotification: boolean;
   ticketTypePublishedNotification: boolean;
-  serviceCharge?: number | null;
-  maxInvitesAmount: number;
-  maxValidatorsAmount: number;
-  maxTicketsAmount: number;
+}
+
+export interface ProducerConfiguration {
+  id: string;
+  producerId: string;
+  serviceCharge: number | null;
+  maxValidatorsPerEvent: number | null;
+  maxInvitesPerEvent: number | null;
+  maxTicketsPerEvent: number | null;
 }

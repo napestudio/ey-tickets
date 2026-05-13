@@ -1,17 +1,17 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { InviteUserDialog } from "@/components/dashboard/invite-user-dialog";
-import StatsCards from "@/components/dashboard/stats-cards";
 import UserInvitationsTable from "@/components/dashboard/user-invitations-table";
 
 import UsersTable from "@/components/dashboard/users-table";
 import { Button } from "@/components/ui/button";
 import {
-  getAllUsersByClientId,
+  getAllUsersByProducerId,
   getPendingInvitationsByUser,
 } from "@/lib/actions";
 
 import { User } from "@/types/user";
+import { isOrgAdmin } from "@/lib/permissions";
 
 import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
@@ -20,13 +20,15 @@ import { redirect } from "next/navigation";
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  if (session.user.type === "SELLER") redirect("/dashboard");
-  const accounts = await getAllUsersByClientId(session.user.clientId!);
 
-  const userId = session.user.id;
-  const clientId = session.user.clientId;
+  const { id: userId, isSuperAdmin, producerId, role } = session.user;
+
+  // Solo OWNER, ADMIN y SUPERADMINs pueden gestionar usuarios
+  if (!isSuperAdmin && !isOrgAdmin(role)) redirect("/dashboard");
+  if (!isSuperAdmin && !producerId) return;
+
+  const accounts = await getAllUsersByProducerId(producerId!);
   const invitations = await getPendingInvitationsByUser(userId);
-  if (!clientId) return;
 
   return (
     <div className="flex flex-col gap-8">
@@ -37,11 +39,10 @@ export default async function UsersPage() {
         />
       </div>
       <div className="w-full space-y-5">
-        {/* <StatsCards /> */}
         <InviteUserDialog
           invitations={invitations}
           userId={userId}
-          clientId={clientId}
+          producerId={producerId!}
           session={session}
         >
           <Button size="sm">

@@ -1,10 +1,4 @@
-import {
-  getAllActiveEventByClientId,
-  getAllEventByClientId,
-  getAllEvents,
-  getEventsBySellerId,
-  getEventsByUserId,
-} from "@/lib/api/eventos";
+import { getAccessibleEvents } from "@/lib/api/eventos";
 import { Evento } from "@/types/event";
 import EventsHandler from "./handler";
 import { getServerSession } from "next-auth";
@@ -14,22 +8,9 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 export default async function EventosPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, type } = session.user;
+  const { id, isSuperAdmin, producerId, role } = session.user;
 
-  let eventos: any[];
-
-  switch (type) {
-    case "ADMIN":
-    case "SUPERADMIN":
-      eventos = await getAllEventByClientId();
-      break;
-    case "SELLER":
-      eventos = await getEventsBySellerId(id);
-      break;
-    default:
-      eventos = await getEventsByUserId(id);
-      break;
-  }
+  const eventos = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
 
   return (
     <>
@@ -38,7 +19,7 @@ export default async function EventosPage() {
           <DashboardHeader title="Eventos" subtitle="Listado de eventos" />
         </div>
         <div className="w-full space-y-5">
-          <EventsHandler eventos={eventos as Evento[]} session={session} />
+          <EventsHandler eventos={eventos as unknown as Evento[]} session={session} />
         </div>
       </div>
     </>

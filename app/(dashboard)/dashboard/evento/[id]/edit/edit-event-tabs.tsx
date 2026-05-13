@@ -27,7 +27,7 @@ export default function EditEventTabs({
       onValueChange={setActiveTab}
     >
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="basic">Información</TabsTrigger>
+        <TabsTrigger value="basic">Evento</TabsTrigger>
         <TabsTrigger value="tickets">Tickets</TabsTrigger>
         {/* <TabsTrigger value="settings">Configuración</TabsTrigger> */}
       </TabsList>

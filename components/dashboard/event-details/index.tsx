@@ -13,10 +13,10 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import {
-  getRemainingTicketsByUser,
+  getRemainingTicketsByProducer,
   getSoldTicketsByType,
-  getUsedInvitesByUser,
-  getUserMaxInvites,
+  getUsedInvitesByProducer,
+  getMaxInvitesPerEvent,
 } from "@/lib/actions";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
@@ -24,6 +24,7 @@ import DetailsTab from "./details-tab";
 import Navigation from "./navigation";
 import SideBar from "./side-bar";
 import SoldTicketsTab from "./sold-tickets-tab";
+import MinimalEventSalesStats from "../mininimal-event-sales-stats";
 export default async function EventDetails({
   evento,
 }: {
@@ -36,14 +37,16 @@ export default async function EventDetails({
     redirect("/dashboard");
   }
 
-  const isEventOwner =
-    session.user.id === evento.userId ||
-    session.user.type === "ADMIN" ||
-    session.user.type === "SUPERADMIN";
-  const isSeller = session.user.type === "SELLER";
+  const { isSuperAdmin, role, producerId } = session.user;
 
-  const maxInvitesAmount = await getUserMaxInvites(evento.userId);
-  const usedInvites = await getUsedInvitesByUser(evento.userId);
+  const isEventOwner =
+    isSuperAdmin ||
+    role === "OWNER" ||
+    role === "ADMIN";
+  const isSeller = role === "SELLER";
+
+  const maxInvitesAmount = await getMaxInvitesPerEvent(producerId ?? "");
+  const usedInvites = await getUsedInvitesByProducer(producerId ?? "");
   const soldTickets: Record<
     string,
     {
@@ -52,7 +55,7 @@ export default async function EventDetails({
       count?: number | undefined;
     }
   > = await getSoldTicketsByType(evento.tickets || []);
-  const remaingingTickets = await getRemainingTicketsByUser(evento.userId);
+  const remaingingTickets = await getRemainingTicketsByProducer(producerId ?? "");
   const remainingInvites = maxInvitesAmount - usedInvites;
   return (
     <>
@@ -93,7 +96,7 @@ export default async function EventDetails({
                   </div>
                   <div className="flex items-center">
                     <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>Creado por {evento.user?.name}</span>
+                    <span>Creado por {evento.producer?.name}</span>
                   </div>
                 </div>
               </CardContent>
@@ -150,6 +153,7 @@ export default async function EventDetails({
               remainingInvites={remainingInvites}
               remainingTickets={remaingingTickets}
               maxInvitesAmount={maxInvitesAmount}
+              salesStats={<MinimalEventSalesStats eventId={evento.id} />}
               soldTickets={soldTickets}
             />
           </div>

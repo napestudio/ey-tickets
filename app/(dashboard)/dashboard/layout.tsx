@@ -9,7 +9,7 @@ import { MobileSidebar } from "@/components/dashboard/mobile-nav";
 import SessionProvider from "@/components/session-provider/session-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { getSidebarNav } from "./lib/config/dashboard-navigation";
-import { UserType } from "@/types/user";
+import { getProducerById } from "@/lib/api/producers";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -26,17 +26,30 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
-  const sidebarNav = getSidebarNav(session.user.type as UserType);
+  const sidebarNav = getSidebarNav(
+    session.user.role,
+    session.user.isSuperAdmin,
+  );
+
+  const producer = session.user.producerId
+    ? await getProducerById(session.user.producerId)
+    : null;
 
   return (
     <>
       <SessionProvider session={session}>
         <MobileSidebar items={sidebarNav} />
-        <div className="flex min-h-svh gap-8 py-2 p-4 md:py-8 mx-auto w-full bg-white">
-          <div className="max-md:hidden w-[200px] flex-col lg:w-[240px]">
-            <SideBar session={session} items={sidebarNav} />
+        <div className="flex min-h-svh gap-8 py-2 p-4 md:pl-0 md:py-8 mx-auto w-full bg-white">
+          <div className="bg-neutral-900 text-neutral-50 max-md:hidden w-[200px] lg:w-[240px] flex-shrink-0 fixed top-0 h-svh flex flex-col overflow-y-auto shadow-md">
+            <SideBar
+              session={session}
+              items={sidebarNav}
+              producerName={producer?.name ?? null}
+            />
           </div>
-          <div className="flex flex-col flex-1 pb-12">{children}</div>
+          <div className="flex flex-col md:ml-[200px] lg:ml-[240px] flex-1 pb-12 pl-10 min-w-0">
+            {children}
+          </div>
         </div>
         <Toaster />
       </SessionProvider>

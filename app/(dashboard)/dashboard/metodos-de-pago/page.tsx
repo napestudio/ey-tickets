@@ -1,10 +1,9 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { AddPaymentMethodDialog } from "@/components/dashboard/add-payment-method-dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-
-import StatsCards from "@/components/dashboard/stats-cards";
 import { Button } from "@/components/ui/button";
 import { getUsersByType } from "@/lib/actions";
+import { isOrgAdmin } from "@/lib/permissions";
 import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
 import PaymentMethodsLoader from "./methods-loader";
@@ -12,9 +11,9 @@ import { redirect } from "next/navigation";
 
 export default async function PaymentMethodsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user.clientId) return;
-  if (session.user.type === "SELLER") redirect("/dashboard");
-  const sellers = await getUsersByType(session?.user.clientId, "SELLER");
+  if (!session?.user.producerId) return;
+  if (!isOrgAdmin(session.user.role) && !session.user.isSuperAdmin) redirect("/dashboard");
+  const sellers = await getUsersByType(session.user.producerId, "SELLER");
 
   return (
     <div className="flex flex-col gap-8">
@@ -25,7 +24,6 @@ export default async function PaymentMethodsPage() {
         />
       </div>
       <div className="w-full space-y-5">
-        {/* <StatsCards /> */}
         <AddPaymentMethodDialog sellers={sellers} session={session}>
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
@@ -34,7 +32,7 @@ export default async function PaymentMethodsPage() {
         </AddPaymentMethodDialog>
         <div className="max-w-[95vw]">
           <PaymentMethodsLoader
-            clientId={session.user.clientId}
+            producerId={session.user.producerId}
             session={session}
           />
         </div>

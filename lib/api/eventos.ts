@@ -1,177 +1,108 @@
 import { cache } from "react";
-import { Evento } from "../actions";
-import {prisma} from "../prisma";
-import { CLIENT_ID } from "../constants";
-import { id } from "date-fns/locale";
-import { equal } from "assert";
 import { Prisma } from "@prisma/client";
+import { prisma } from "../prisma";
+import { buildEventAccessFilter, SessionUser } from "../permissions";
 
-export const getEventsByUserId = cache(async (userId: string) => {
+/**
+ * Retorna los eventos accesibles para un usuario según su rol.
+ * OWNER/ADMIN: todos los eventos de la productora.
+ * MANAGER/SELLER: solo eventos donde son EventMember explícito.
+ * SUPERADMIN: todos los eventos del sistema.
+ */
+export async function getAccessibleEvents(user: SessionUser) {
+  const filter = buildEventAccessFilter(user);
   return prisma.event.findMany({
     where: {
-      userId: userId,
-      status: {
-        not: "DELETED",
-      },
+      ...filter,
+      status: { not: "DELETED" },
     },
     include: {
-      user: true,
-      discountCode: true,
-      tickets: {
-        select: {
-          id: true,
-        },
-      },
+      producer: true,
+      tickets: { select: { id: true } },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-});
-
-export const getAllEvents = cache(async () => {
-  return prisma.event.findMany({
-    where: {
-      status: {
-        not: "DELETED",
-      },
-      endDate: {
-        not: {
-          lte: new Date(),
-        },
-      },
-    },
-    include: {
-      user: true,
-    },
-  });
-});
-
-export async function getAllEventByClientId() {
-  return prisma.event.findMany({
-    where: {
-      user: {
-        clientId: {
-          equals: CLIENT_ID,
-        },
-      },
-    },
-    include: {
-      user: true,
-    },
-  });
-}
-export async function getAllActiveEventByClientId() {
-  return prisma.event.findMany({
-    where: {
-      status: {
-        equals: "ACTIVE",
-      },
-      user: {
-        clientId: {
-          equals: CLIENT_ID,
-        },
-      },
-      endDate: {
-        not: {
-          lte: new Date(),
-        },
-      },
-    },
-    include: {
-      user: true,
-    },
+    orderBy: { createdAt: "desc" },
   });
 }
 
-// Get eventos home por Client ID
-export const getAllActiveEvents = async () => {
+export async function getEventsByProducerId(producerId: string) {
   return prisma.event.findMany({
     where: {
-      status: {
-        equals: "ACTIVE",
-      },
-      user: {
-        clientId: {
-          equals: CLIENT_ID,
-        },
-      },
-      endDate: {
-        not: {
-          lte: new Date(),
-        },
-      },
+      producerId,
+      status: { not: "DELETED" },
     },
     include: {
-      user: true,
+      producer: true,
+      tickets: { select: { id: true } },
     },
+    orderBy: { createdAt: "desc" },
   });
-};
+}
 
-export async function createEvent(data: Evento) {
+export const getActiveEventsByProducerId = cache(async (producerId: string) => {
+  return prisma.event.findMany({
+    where: {
+      producerId,
+      status: { equals: "ACTIVE" },
+      endDate: { not: { lte: new Date() } },
+    },
+    include: { producer: true },
+  });
+});
+
+export const getActiveEventsByProducerSlug = cache(async (slug: string) => {
+  return prisma.event.findMany({
+    where: {
+      producer: { slug },
+      status: { equals: "ACTIVE" },
+      endDate: { not: { lte: new Date() } },
+    },
+    include: { producer: true },
+  });
+});
+
+export async function createEvent(data: Prisma.EventCreateInput) {
   return prisma.event.create({ data });
 }
 
-export async function updateEvent(eventId: string, eventData: Partial<Evento>) {
+export async function updateEvent(
+  eventId: string,
+  eventData: Prisma.EventUpdateInput
+) {
   return prisma.event.update({
-    where: {
-      id: eventId,
-    },
+    where: { id: eventId },
     data: eventData,
   });
 }
 
 export const getSingleEvent = cache(async (eventId: string) => {
   return prisma.event.findUnique({
-    where: {
-      id: eventId,
-    },
+    where: { id: eventId },
     include: {
-      user: {
+      producer: {
         select: {
           configuration: {
-            select: {
-              serviceCharge: true,
-            },
+            select: { serviceCharge: true },
           },
         },
       },
       ticketTypes: {
-        where: {
-          status: {
-            not: "DELETED",
-          },
-        },
+        where: { status: { not: "DELETED" } },
       },
       eventPayments: {
-        where: {
-          paymentMethod: {
-            type: "DIGITAL",
-          },
-        },
+        where: { paymentMethod: { type: "DIGITAL" } },
         include: {
           paymentMethod: {
-            select: {
-              type: true,
-              apiKey: true,
-            },
+            select: { type: true, apiKey: true },
           },
         },
       },
       discountCode: {
-        where: {
-          status: {
-            not: "DELETED",
-          },
-        },
+        where: { status: { not: "DELETED" } },
       },
       tickets: {
         select: {
           ticketType: {
-            select: {
-              title: true,
-              id: true,
-            },
+            select: { title: true, id: true },
           },
         },
       },
@@ -184,30 +115,18 @@ export type GetSingleEventResponse = Prisma.PromiseReturnType<
 >;
 
 export const getEventById = cache(async (eventId: string) => {
-  return prisma.event.findUnique({
-    where: {
-      id: eventId,
-    },
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
     include: {
-      user: true,
+      producer: true,
       ticketTypes: {
-        where: {
-          status: {
-            not: "DELETED",
-          },
-        },
+        where: { status: { not: "DELETED" } },
       },
       eventPayments: {
-        include: {
-          paymentMethod: true,
-        },
+        include: { paymentMethod: true },
       },
       discountCode: {
-        where: {
-          status: {
-            not: "DELETED",
-          },
-        },
+        where: { status: { not: "DELETED" } },
       },
       tickets: {
         select: {
@@ -221,24 +140,15 @@ export const getEventById = cache(async (eventId: string) => {
           email: true,
           createdAt: true,
           ticketType: {
-            select: {
-              title: true,
-              dates: true,
-            },
+            select: { title: true, dates: true },
           },
           order: {
             select: {
               event: {
-                select: {
-                  title: true,
-                  location: true,
-                  address: true,
-                },
+                select: { title: true, location: true, address: true },
               },
               ticketType: {
-                select: {
-                  title: true,
-                },
+                select: { title: true },
               },
             },
           },
@@ -247,6 +157,17 @@ export const getEventById = cache(async (eventId: string) => {
       validatorToken: true,
     },
   });
+
+  if (!event) return null;
+
+  return {
+    ...event,
+    ticketTypes: event.ticketTypes.map((tt) => ({
+      ...tt,
+      price: tt.price.toNumber(),
+      discount: tt.discount?.toNumber() ?? null,
+    })),
+  };
 });
 
 export async function getStats({
@@ -266,42 +187,45 @@ export async function getStats({
   };
 
   const aggregate = await prisma.order.aggregate({
-    _sum: {
-      quantity: true,
-      totalPrice: true,
-    },
-    _max: {
-      createdAt: true,
-    },
-
+    _sum: { quantity: true, totalPrice: true },
+    _max: { createdAt: true },
     where,
   });
 
   return {
     totalSold: aggregate._sum.quantity ?? 0,
-    totalRevenue: aggregate._sum.totalPrice ?? 0,
+    totalRevenue: aggregate._sum.totalPrice?.toNumber() ?? 0,
     lastSale: aggregate._max.createdAt ?? null,
   };
 }
 
-export async function getEventsBySellerId(userId: string) {
-  const events = await prisma.event.findMany({
+/**
+ * Eventos accesibles para un SELLER/MANAGER via EventMember.
+ */
+/**
+ * Todos los eventos activos (para páginas públicas).
+ */
+export const getAllActiveEvents = cache(async () => {
+  return prisma.event.findMany({
     where: {
-      eventPayments: {
-        some: {
-          paymentMethod: {
-            type: "CASH",
-            userId: userId,
-          },
-        },
-      },
+      status: "ACTIVE",
+      endDate: { not: { lte: new Date() } },
+    },
+    include: { producer: true },
+    orderBy: { createdAt: "desc" },
+  });
+});
+
+export async function getEventsByMemberId(userId: string) {
+  return prisma.event.findMany({
+    where: {
+      status: { not: "DELETED" },
+      members: { some: { userId } },
     },
     include: {
       ticketTypes: true,
       orders: true,
-      user: true,
+      producer: true,
     },
   });
-
-  return events;
 }

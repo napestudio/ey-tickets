@@ -52,7 +52,7 @@ const formSchema = z.object({
   }),
 });
 
-export default function CreateEventForm({ userId }: { userId: string }) {
+export default function CreateEventForm({ producerId }: { producerId: string }) {
   const [dateTimeSelections, setDateTimeSelections] = useState([
     { id: 0, date: new Date().toISOString().slice(0, 16) },
   ]);
@@ -153,7 +153,8 @@ export default function CreateEventForm({ userId }: { userId: string }) {
       image: values.image,
       dates: parsedDates,
       endDate: new Date(values.endDate).toISOString(),
-      userId: userId,
+      producerId: producerId,
+      slug: `${values.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
       status: values.status,
     })
       .then(() => {

@@ -1,5 +1,5 @@
 import { getDiscountCodeById } from "@/lib/actions";
-import { getEventsByUserId } from "@/lib/api/eventos";
+import { getAccessibleEvents } from "@/lib/api/eventos";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
 
@@ -7,12 +7,13 @@ import EditCodeForm from "@/app/(dashboard)/dashboard/components/edit-discount-c
 import { DiscountCode } from "@/types/discount-code";
 import { Evento } from "@/types/event";
 
-export default async function EditCode({ params }: { params: { id: string } }) {
+export default async function EditCode({ params }: { params: Promise<{ id: string }> }) {
+  const { id: codeId } = await params;
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const id = session.user.id;
-  const discountCode = await getDiscountCodeById(params.id);
-  const events = await getEventsByUserId(id);
+  const { id, isSuperAdmin, producerId, role } = session.user;
+  const discountCode = await getDiscountCodeById(codeId);
+  const events = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
 
   return (
     <>
@@ -22,7 +23,7 @@ export default async function EditCode({ params }: { params: { id: string } }) {
       <div className="bg-gray-100 p-5 mt-5 rounded w-full text-left">
         <EditCodeForm
           discountCode={discountCode as DiscountCode}
-          events={events as Evento[]}
+          events={events as unknown as Evento[]}
         />
       </div>
     </>

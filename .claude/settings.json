@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/*.ts)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/layout.tsx)",
+      "Bash(xargs grep -l \"UserType\\\\|clientId\\\\|session\")",
+      "Bash(npx prisma migrate reset --force --skip-seed)",
+      "Bash(npx prisma migrate reset --force)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"sí, proceder con el reset\" npx prisma migrate reset --force)",
+      "Bash(npx prisma migrate dev --name init-producer-architecture)",
+      "Bash(npx prisma generate)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(cat \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]/edit/page.tsx\")"
+    ]
+  }
+}

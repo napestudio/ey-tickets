@@ -29,7 +29,7 @@ export default async function RootLayout({
     <html lang="es">
       <body className={montserrat.className}>
         <NavBar />
-        <main className="flex flex-col items-center bg-blue">{children}</main>
+        <main className="flex flex-col">{children}</main>
         <PreFooter />
         <Footer />
         <Toaster />

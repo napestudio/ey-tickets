@@ -1,9 +1,11 @@
+"use client";
+
+import type React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Evento } from "@/types/event";
 import { Percent, Ticket, User } from "lucide-react";
 
-import MinimalEventSalesStats from "../mininimal-event-sales-stats";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ interface SideBarProps {
   remainingInvites: number;
   remainingTickets: number;
   maxInvitesAmount: number;
+  salesStats: React.ReactNode;
   soldTickets: Record<
     string,
     {
@@ -35,6 +38,7 @@ export default function SideBar({
   remainingInvites,
   remainingTickets,
   maxInvitesAmount,
+  salesStats,
   soldTickets,
 }: SideBarProps) {
   const renderStatusBadge = (status: string) => {
@@ -87,7 +91,7 @@ export default function SideBar({
 
           <div>
             <h4 className="text-sm font-medium mb-1">Creado por</h4>
-            <p className="text-sm">{evento.user?.name}</p>
+            <p className="text-sm">{evento.producer?.name}</p>
           </div>
 
           <div>
@@ -103,7 +107,7 @@ export default function SideBar({
           <CardTitle>Ventas</CardTitle>{" "}
         </CardHeader>
         <CardContent className="space-y-4">
-          <MinimalEventSalesStats eventId={evento.id} />
+          {salesStats}
           {/* <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Vendidas</span>

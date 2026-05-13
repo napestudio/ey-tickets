@@ -163,7 +163,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
         address: values.address,
         image: values.image || null,
         dates: parsedDates,
-        userId: evento.userId,
+
         endDate: new Date(values.endDate).toISOString(),
         status: values.status,
       },

@@ -1,9 +1,10 @@
 import {
   getEventById,
-  getRemainingTicketsByUser,
+  getRemainingTicketsByProducer,
   getTicketTypesByEventId,
 } from "@/lib/actions";
 import { Evento } from "@/types/event";
+import { TicketType } from "@/types/tickets";
 import TicketTypeAccordion from "@/app/(dashboard)/dashboard/components/ticket-types-accordion/ticket-types-accordion";
 import { Metadata } from "next";
 
@@ -11,15 +12,16 @@ export const metadata: Metadata = {
   title: "Dashboard | Tipos de tickets",
 };
 
-export default async function TicketType({
+export default async function TicketTypePage({
   params,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }) {
-  const evento = await getEventById(params.eventId);
-  const eventTicketTypes = await getTicketTypesByEventId(params.eventId);
-  const remainingTickets = await getRemainingTicketsByUser(
-    evento?.userId || "",
+  const { eventId } = await params;
+  const evento = await getEventById(eventId);
+  const eventTicketTypes = await getTicketTypesByEventId(eventId);
+  const remainingTickets = await getRemainingTicketsByProducer(
+    evento?.producerId || ""
   );
   return (
     <>
@@ -27,8 +29,8 @@ export default async function TicketType({
         Tipos de tickets
       </h1>
       <TicketTypeAccordion
-        ticketTypes={eventTicketTypes}
-        evento={evento as Evento}
+        ticketTypes={eventTicketTypes as unknown as TicketType[]}
+        evento={evento as unknown as Evento}
         remainingTickets={remainingTickets}
       />
     </>
