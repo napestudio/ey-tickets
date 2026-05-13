@@ -34,14 +34,15 @@ function isGmail(email: string): boolean {
   return gmailRegex.test(email);
 }
 
-export default async function Register({ params }: { params: { id: string } }) {
+export default async function Register({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
 
   if (session && session.user) {
     redirect("/dashboard");
   }
 
-  const invitation = await getInvitationsById(params.id);
+  const invitation = await getInvitationsById(id);
 
   if (!invitation) redirect("/");
   if (invitation) {

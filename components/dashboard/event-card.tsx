@@ -26,10 +26,10 @@ export default function EventCard({
 }) {
   const groupedDates = datesFormater(evento.dates as string);
   const isEventOwner =
-    session.user.id === evento.userId ||
-    session.user.type === "ADMIN" ||
-    session.user.type === "SUPERADMIN";
-  const isSeller = session.user.type === "SELLER";
+    session.user.isSuperAdmin ||
+    session.user.role === "ADMIN" ||
+    session.user.role === "OWNER";
+  const isSeller = session.user.role === "SELLER";
 
   const isInactive =
     evento.status === "CANCELED" || evento.status === "CONCLUDED";
@@ -53,7 +53,7 @@ export default function EventCard({
               </div>
             )}
             <div className="absolute right-2 top-2 bg-black rounded-full text-white px-3 py-1">
-              {evento.user!.name}
+              {evento.producer?.name}
             </div>
           </div>
         </CardHeader>

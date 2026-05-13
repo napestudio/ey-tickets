@@ -10,28 +10,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import EventsDisplay from "@/components/dashboard/events-display";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import { getEventsBySellerId } from "@/lib/actions";
-import { getAllEventByClientId, getEventsByUserId } from "@/lib/api/eventos";
+import { getAccessibleEvents } from "@/lib/api/eventos";
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, type } = session.user;
+  const { id, isSuperAdmin, producerId, role } = session.user;
 
-  let eventos: any[];
-
-  switch (type) {
-    case "ADMIN":
-    case "SUPERADMIN":
-      eventos = await getAllEventByClientId();
-      break;
-    case "SELLER":
-      eventos = await getEventsBySellerId(id);
-      break;
-    default:
-      eventos = await getEventsByUserId(id);
-      break;
-  }
+  const eventos = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
   return (
     <>
       <div className="flex flex-col gap-8">

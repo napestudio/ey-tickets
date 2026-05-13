@@ -1,6 +1,6 @@
 import EventCard from "@/components/event-card/event-card";
 import EventMarquee from "@/components/marquee/marquee";
-import { getAllActiveEvents, getAllEvents } from "@/lib/api/eventos";
+import { getAllActiveEvents } from "@/lib/api/eventos";
 import { HomeCard } from "@/types/card";
 import { Metadata } from "next/types";
 

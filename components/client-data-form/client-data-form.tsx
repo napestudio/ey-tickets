@@ -56,7 +56,7 @@ export default function UserDataForm({ order }: { order: Order }) {
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
   const [isFree, setIsFree] = useState<boolean>(false);
   const orderId = order?.id;
-  const userId = order?.event!.userId;
+  const producerId = order?.event!?.producerId;
 
   const totalWithDiscount = hasDiscount
     ? order.ticketType!.price -
@@ -106,7 +106,7 @@ export default function UserDataForm({ order }: { order: Order }) {
     // IF ISFREE SALTEAR MERCADOPAGO
     try {
       if (order.ticketType!.isFree || isFree) {
-        await createFreeTicket(orderData, orderId!, userId);
+        await createFreeTicket(orderData, orderId!, producerId);
         return;
       }
     } catch (error) {
@@ -114,7 +114,7 @@ export default function UserDataForm({ order }: { order: Order }) {
     }
     // await getMercadPagoUrl(product, orderData, orderId!, userId);
 
-    await createMercadoPagoOrder(product, orderData, orderId!, userId);
+    await createMercadoPagoOrder(product, orderData, orderId!, producerId);
   }
 
   function expire() {

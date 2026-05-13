@@ -31,7 +31,7 @@ import {
 import { stat } from "fs";
 import { SITE_NAME } from "./constants";
 import { getPaidOrdersDataByEvent } from "@/lib/api/orders";
-import { User, UserType } from "@/types/user";
+import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
 import cloudinary, { deleteFile, uploadFile } from "@/lib/cloudinary-upload";
@@ -41,10 +41,12 @@ import { jsPDF } from "jspdf";
 // Type temporal
 export type Evento = {
   title: string;
+  slug: string;
   description: string;
   address: string;
   location: string;
-  userId: string;
+  producerId: string;
+  createdById?: string;
   image: string | null;
   dates: string;
   status: EventStatus;
@@ -53,13 +55,12 @@ export type Evento = {
 
 export async function createEvent(data: Evento) {
   let eventId = null;
-  try {
-    const result = await Eventos.createEvent(data);
-
-    eventId = result.id;
-  } catch (error) {
-    throw new Error("Error creando el evento");
-  }
+  const { producerId, ...rest } = data;
+  const result = await Eventos.createEvent({
+    ...rest,
+    producer: { connect: { id: producerId } },
+  } as any);
+  eventId = result.id;
   if (eventId) {
     redirect(`/dashboard/evento/${eventId}`);
   }
@@ -68,7 +69,7 @@ export async function createEvent(data: Evento) {
   revalidatePath("/");
 }
 
-export async function updateEvent(data: Evento, eventId: string) {
+export async function updateEvent(data: Partial<Evento>, eventId: string) {
   try {
     const result = await Eventos.updateEvent(eventId, data);
     revalidatePath(`/dashboard/evento/${result.id}/edit`);
@@ -104,29 +105,22 @@ export async function deleteEvent(eventId: string) {
 
 // Para el sitio
 export async function getSingleEventById(eventId: string) {
-  try {
-    const result = await Eventos.getSingleEvent(eventId);
-    return result;
-  } catch (error) {
-    throw new Error("Error");
-  }
+  const result = await Eventos.getSingleEvent(eventId);
+  return result;
 }
 // Para el dashboard
 export async function getEventById(eventId: string) {
-  try {
-    const result = await Eventos.getEventById(eventId);
-    return result;
-  } catch (error) {
-    throw new Error("Error");
-  }
+  const result = await Eventos.getEventById(eventId);
+  return result;
 }
+export async function getEventsByMemberId(userId: string) {
+  const result = await Eventos.getEventsByMemberId(userId);
+  return result;
+}
+
+/** @deprecated Use getEventsByMemberId instead */
 export async function getEventsBySellerId(sellerId: string) {
-  try {
-    const result = await Eventos.getEventsBySellerId(sellerId);
-    return result;
-  } catch (error) {
-    throw new Error("Error");
-  }
+  return getEventsByMemberId(sellerId);
 }
 
 export async function getEventIdByToken(token: string) {
@@ -203,26 +197,27 @@ export async function getTyicketTypeById(ticketTypeId: string) {
   }
 }
 
-export async function getRemainingTicketsByUser(userId: string) {
+export async function getRemainingTicketsByProducer(producerId: string) {
   try {
-    const result = await TicketTypes.getRemainingTicketsByUser(userId);
+    const result = await TicketTypes.getRemainingTicketsByProducer(producerId);
     return result;
   } catch (error) {
     throw new Error("Error trayendo limite de tickets");
   }
 }
-export async function getUserMaxInvites(userId: string) {
+
+export async function getMaxInvitesPerEvent(producerId: string) {
   try {
-    const result = await TicketOrders.getUserMaxInvites(userId);
+    const result = await TicketOrders.getMaxInvitesPerEvent(producerId);
     return result;
   } catch (error) {
     throw new Error("Error trayendo limite de invitaciones");
   }
 }
 
-export async function getUsedInvitesByUser(userId: string) {
+export async function getUsedInvitesByProducer(producerId: string) {
   try {
-    const result = await TicketOrders.getUsedInvitesByUser(userId);
+    const result = await TicketOrders.getUsedInvitesByProducer(producerId);
     return result;
   } catch (error) {
     throw new Error("Error trayendo limite de invitaciones");
@@ -326,25 +321,30 @@ export async function updateOrder(data: any, orderId: string) {
   }
 }
 
-export async function getAllUsersByClientId(clientId: string) {
+export async function getAllUsersByProducerId(producerId: string) {
   try {
-    const result = await Users.getUsersByClientId(clientId);
+    const result = await Users.getUsersByProducerId(producerId);
     return result;
   } catch (error) {}
 }
 
-export async function getUsersByType(clientId: string, type: UserType) {
+/** @deprecated Use getAllUsersByProducerId instead */
+export async function getAllUsersByClientId(producerId: string) {
+  return getAllUsersByProducerId(producerId);
+}
+
+export async function getUsersByType(producerId: string, role: OrganizationRole) {
   try {
-    const result = await Users.getUsersByType(clientId, type);
+    const result = await Users.getUsersByProducerAndRole(producerId, role);
     return result;
   } catch (error) {
-    throw new Error("Error trayendo usuarios por type");
+    throw new Error("Error trayendo usuarios por rol");
   }
 }
 
 export async function getAllUsersButAdmins() {
   try {
-    const result = await Users.getAllUsersButAdmins();
+    const result = await Users.getAllUsers();
     return result;
   } catch (error) {}
 }
@@ -368,6 +368,15 @@ export async function updateUserById(data: Partial<User>, userId: string) {
   }
 }
 
+export async function updateUserRole(userId: string, role: OrganizationRole) {
+  try {
+    await Users.updateUserRole(userId, role);
+    revalidatePath(`/dashboard/usuarios/`);
+  } catch (error) {
+    throw new Error("Error actualizando rol del usuario");
+  }
+}
+
 export async function deleteUser(userId: string, userEmail: string) {
   try {
     const result = await Users.deleteUser(userId, userEmail);
@@ -382,8 +391,11 @@ export async function deleteUser(userId: string, userEmail: string) {
 type PaymentMethodInput = {
   name?: string;
   type: "CASH" | "DIGITAL";
-  clientId: string;
+  producerId: string;
   userId?: string;
+  apiKey?: string | null;
+  enabled?: boolean;
+  creatorId?: string;
 };
 
 export async function createPaymentMethod(data: PaymentMethodInput) {
@@ -470,13 +482,18 @@ export async function unassignPaymentMethodFromEvent({
   }
 }
 
-export async function getPaymentMethodsByClientId(clientId: string) {
+export async function getPaymentMethodsByProducerId(producerId: string) {
   try {
-    const methods = await PaymentMethod.getPaymentMethodsByClientId(clientId);
+    const methods = await PaymentMethod.getPaymentMethodsByProducerId(producerId);
     return methods;
   } catch (error) {
-    throw new Error("Error buscando metodos de pago por clientId");
+    throw new Error("Error buscando metodos de pago por productora");
   }
+}
+
+/** @deprecated Use getPaymentMethodsByProducerId instead */
+export async function getPaymentMethodsByClientId(producerId: string) {
+  return getPaymentMethodsByProducerId(producerId);
 }
 
 export async function getPaymentMethodsByCreatorId(creatorId: string) {
@@ -489,12 +506,7 @@ export async function getPaymentMethodsByCreatorId(creatorId: string) {
 }
 
 export async function getMercadoPagoTokenByUser(userId: string) {
-  try {
-    const result = await Configuration.getAllUserConfiguration(userId);
-    return result[0].mpAccessToken;
-  } catch (error) {
-    throw new Error("Error get mercadoPagoTokenByUser");
-  }
+  return null;
 }
 
 export async function getDigitalPaymentMethodKeyByEvent(eventId: string) {
@@ -819,11 +831,10 @@ export async function updateUserConfiguration(
   }
 }
 
-export async function getServiceCharge(userId: string) {
+export async function getServiceCharge(producerId: string) {
   try {
-    const result = await Configuration.getAllUserConfiguration(userId);
-
-    return result.length > 0 ? result[0].serviceCharge : 0;
+    const result = await Configuration.getProducerConfiguration(producerId);
+    return result?.serviceCharge ?? 0;
   } catch (error) {
     throw new Error("Error trayendo service charge");
   }

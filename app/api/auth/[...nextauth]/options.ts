@@ -3,12 +3,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { NextAuthOptions, User } from "next-auth";
 
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import {prisma} from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 import bcrypt from "bcryptjs";
-
-// const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma as any),
@@ -23,24 +20,17 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email", placeholder: "E-mail" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any, req) {
-        // Add logic here to look up the user from the credentials supplied
+      async authorize(credentials: any) {
         const user: any = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
+          where: { email: credentials.email },
         });
 
-        if (!user) {
-          return null;
-        }
-        // Any object returned will be saved in `user` property of the JWT
-        const { password, validatedPassword, ...props } = user;
+        if (!user) return null;
+
+        const { password, ...props } = user;
         const valid = await bcrypt.compare(credentials.password, password);
 
-        if (!valid) {
-          return null;
-        }
+        if (!valid) return null;
 
         return props;
       },
@@ -50,8 +40,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/ingresar",
     signOut: "/",
-    error: "/ingresar", //TODO
-    //verifyRequest: "/auth/verify-request", // (used for check email message)
+    error: "/ingresar",
   },
   session: {
     strategy: "jwt",
@@ -62,44 +51,45 @@ export const authOptions: NextAuthOptions = {
         const { name, email, image } = user;
 
         const existingUser = await prisma.user.findUnique({
-          where: { email },
+          where: { email: email! },
         });
 
-        // Si el usuario ya existe, permitimos el acceso
+        // Usuario ya existe: permitir acceso
         if (existingUser) {
           return true;
         }
 
-        // Si no existe, buscamos una invitación válida
+        // Usuario nuevo: buscar invitación aceptada
         const invitation = await prisma.invitation.findFirst({
-          where: {
-            email,
-            accepted: true, // aseguramos que esté aceptada previamente
-          },
+          where: { email: email!, accepted: true },
         });
 
-        if (!invitation || !invitation.clientId) {
+        if (!invitation || !invitation.producerId) {
           return false;
         }
 
-        // Creamos el usuario manualmente
+        // Crear el usuario
         const newUser = await prisma.user.create({
           data: {
             name,
             email,
             image,
             emailVerified: null,
-            type: invitation.role,
-            client: {
-              connect: {
-                id: invitation.clientId,
-              },
-            },
+            isSuperAdmin: false,
           },
         });
 
-        // Si el proveedor es Google, también creamos el Account asociado
-        if (account.provider === "google") {
+        // Crear la membresía en la productora
+        await prisma.producerMember.create({
+          data: {
+            userId: newUser.id,
+            producerId: invitation.producerId,
+            role: invitation.role,
+          },
+        });
+
+        // Crear Account para OAuth (Google)
+        if (account?.provider === "google") {
           await prisma.account.create({
             data: {
               userId: newUser.id,
@@ -116,10 +106,10 @@ export const authOptions: NextAuthOptions = {
             },
           });
         }
+
+        // Crear configuración personal del usuario
         await prisma.userConfiguration.create({
-          data: {
-            userId: newUser.id,
-          },
+          data: { userId: newUser.id },
         });
 
         return true;
@@ -128,46 +118,73 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
+
     async jwt({ token, user }) {
       if (user) {
-        token.id = user?.id;
-        token.role = user?.type;
-        token.clientId = user?.clientId;
+        token.id = user.id;
+        token.isSuperAdmin = (user as any).isSuperAdmin ?? false;
       }
+
+      // Cargar datos de membresía en cada renovación de token
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            isSuperAdmin: true,
+            producerMember: {
+              select: { producerId: true, role: true },
+            },
+          },
+        });
+
+        if (dbUser) {
+          token.isSuperAdmin = dbUser.isSuperAdmin;
+          token.producerId = dbUser.producerMember?.producerId ?? null;
+          token.role = (dbUser.producerMember?.role ?? null) as any;
+        }
+      }
+
       return token;
     },
+
     async session({ session, token }) {
       if (session?.user) {
-        session.user.type = token.role as string;
         session.user.id = token.id as string;
-        session.user.clientId = (token.clientId as string) || "0";
+        session.user.isSuperAdmin = token.isSuperAdmin as boolean;
+        session.user.producerId = token.producerId as string | null;
+        session.user.role = token.role as any;
       }
       return session;
     },
   },
+
   events: {
     async linkAccount({ user }) {
       await prisma.user.update({
         where: { id: user.id },
         data: { emailVerified: new Date() },
       });
-      await prisma.userConfiguration.create({
-        data: {
-          userId: user.id,
-        },
+      // UserConfiguration solo si no existe ya
+      const existing = await prisma.userConfiguration.findUnique({
+        where: { userId: user.id },
       });
+      if (!existing) {
+        await prisma.userConfiguration.create({
+          data: { userId: user.id },
+        });
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 /**
- * NOTA IMPORTANTE:
- * Estamos creando el usuario manualmente en el callback `signIn`
- * porque necesitamos asociarlo a un Client proveniente de la tabla `Invitation`.
- * Esto implica que también debemos crear manualmente:
- * - el `Account` (para evitar OAuthAccountNotLinked)
- * - la `UserConfiguration`
+ * NOTA:
+ * El usuario se crea manualmente en el callback `signIn` para:
+ * - Asociarlo a una Productora vía ProducerMember (desde Invitation.producerId)
+ * - Asignarle un OrganizationRole (desde Invitation.role)
+ * - Crear su Account (OAuth) y UserConfiguration
  *
- * Ver más en /docs/auth.md
+ * SUPERADMINs (isSuperAdmin: true) no tienen ProducerMember.
+ * El JWT incluye: id, isSuperAdmin, producerId, role.
  */

@@ -1,17 +1,17 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { UserType } from "@/types/user";
+import { OrganizationRole } from "@/types/user";
 
 interface RoleBadgeProps {
-  role: UserType | "PRODUCER";
+  role: OrganizationRole | string;
 }
 
 export default function RoleBadge({ role }: RoleBadgeProps) {
   switch (role) {
-    case "SUPERADMIN":
+    case "OWNER":
       return (
-        <Badge variant="outline" className="bg-yellow text-gray-800">
-          SUPERADMIN
+        <Badge variant="outline" className="bg-yellow-500/20 text-yellow-800">
+          OWNER
         </Badge>
       );
     case "ADMIN":
@@ -20,10 +20,10 @@ export default function RoleBadge({ role }: RoleBadgeProps) {
           ADMIN
         </Badge>
       );
-    case "PRODUCER":
+    case "MANAGER":
       return (
-        <Badge variant="outline" className="bg-green text-white">
-          PRODUCTOR
+        <Badge variant="outline" className="bg-blue-500/20 text-blue-700">
+          MANAGER
         </Badge>
       );
     case "SELLER":

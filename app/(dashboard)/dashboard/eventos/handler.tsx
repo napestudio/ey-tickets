@@ -1,7 +1,5 @@
 "use client";
 import { Evento } from "@/types/event";
-import EventFilters from "../components/event-filters";
-import EventCard from "../../../components/dashboard/event-card";
 import { Card } from "@/components/ui/card";
 import { useCallback, useState } from "react";
 import { Session } from "next-auth";
@@ -13,23 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { datesFormater, formatDatesByMonth } from "@/lib/utils";
-import { getStats } from "@/lib/actions";
-import EventListItem from "@/components/dashboard/event-list-item";
 import { Input } from "@/components/ui/input";
+import EventListItem from "@/components/dashboard/event-list-item";
+
 export default function EventsHandler({
   eventos,
   session,
@@ -44,7 +29,7 @@ export default function EventsHandler({
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      event.producer?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderStatusBadge = (status: string) => {

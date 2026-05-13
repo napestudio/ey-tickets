@@ -9,12 +9,13 @@ export const metadata: Metadata = {
 export default async function ValidatorPage({
   params,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }) {
+  const { eventId } = await params;
   return (
     <div className="w-full bg-white">
       <div className="w-[550px] max-w-[95vw] mx-auto">
-        <ValidatorsPageHandler eventId={params.eventId} />;
+        <ValidatorsPageHandler eventId={eventId} />;
       </div>
     </div>
   );

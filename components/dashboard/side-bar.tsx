@@ -19,9 +19,11 @@ import { Session } from "next-auth";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { SITE_URL } from "@/lib/constants";
+import Logo from "../ui/Logo";
 
 interface DashboardNavProps {
   session: Session;
+  producerName: string | null;
   items: {
     title: string;
     href: string;
@@ -29,7 +31,11 @@ interface DashboardNavProps {
   }[];
 }
 
-export default function SideBar({ items, session }: DashboardNavProps) {
+export default function SideBar({
+  items,
+  session,
+  producerName,
+}: DashboardNavProps) {
   const path = usePathname();
 
   const getIcon = (icon: string) => {
@@ -52,16 +58,11 @@ export default function SideBar({ items, session }: DashboardNavProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4 justify-between">
-      <nav className="grid items-start gap-2">
-        <Link href={SITE_URL}>
-          <Button
-            variant={"ghost"}
-            className={cn("w-full justify-start font-normal")}
-          >
-            Ir a la web
-          </Button>
-        </Link>
+    <div className="flex flex-col gap-4 py-6">
+      <Link href={SITE_URL} className="w-full px-4 mb-8">
+        <Logo />
+      </Link>
+      <nav className="grid items-start gap-2 px-4">
         {items.map((item, index) => {
           const isActive = path === item.href;
           return (
@@ -80,42 +81,25 @@ export default function SideBar({ items, session }: DashboardNavProps) {
           );
         })}
       </nav>
-      <div>
-        {/* {filteredMenuData.map((section) =>
-          section.items ? (
-            <div key={section.title} className="flex flex-col">
-              <div className="font-bold">{section.title}</div>
-              {section.items.map((item) => (
-                <Link key={item.title} href={item.href}>
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Link
-              href={section.href ?? "#"}
-              legacyBehavior
-              passHref
-              key={section.title}
-            >
-              {section.href === "/dashboard" ? (
-                <Home className="mb-10" />
-              ) : (
-                section.title
-              )}
-            </Link>
-          )
-        )} */}
-      </div>
-      <div>
-        <div className="flex">
-          <Avatar className="h-9 w-9 relative">
-            <AvatarImage alt="@shadcn" src={session.user?.image as string} />
-            <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
+
+      <div className="flex items-center gap-2 px-4">
+        <Avatar className="h-9 w-9 flex-shrink-0">
+          <AvatarImage alt="@shadcn" src={session.user?.image as string} />
+          <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-medium truncate">
+            {session.user?.name}
+          </span>
+          {producerName && (
+            <span className="text-xs text-muted-foreground truncate">
+              {producerName}
+            </span>
+          )}
           <Button
             onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
             variant={"link"}
+            className="h-auto p-0 text-neutral-50 text-xs justify-start"
           >
             Cerrar sesión
           </Button>

@@ -11,7 +11,7 @@ import React from "react";
 async function getEventData(id: string) {
   const evento = await getSingleEventById(id);
   if (!evento) return;
-  const serviceCharge = evento.user.configuration?.serviceCharge || 0;
+  const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
 
   const soldTickets = await getSoldTicketsByType(evento.tickets);
   return {
@@ -24,9 +24,10 @@ async function getEventData(id: string) {
 export default async function NewCashTicketPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const eventData = await getEventData(params.id);
+  const { id } = await params;
+  const eventData = await getEventData(id);
   if (!eventData) {
     return <p>Evento no encontrado.</p>;
   }
@@ -40,7 +41,7 @@ export default async function NewCashTicketPage({
         />
         <div className="flex items-center justify-between gap-2 mt-4">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/evento/${params.id}`}>
+            <Link href={`/dashboard/evento/${id}`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver al Evento
             </Link>

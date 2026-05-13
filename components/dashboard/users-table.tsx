@@ -44,7 +44,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { User, UserType } from "@/types/user";
+import { User, OrganizationRole } from "@/types/user";
 import { Badge } from "../ui/badge";
 import { useEffect, useState } from "react";
 import { UserSettingsDialog } from "./user-settings-dialog";
@@ -94,7 +94,7 @@ export default function UsersTable({
         toast({
           variant: "destructive",
           title: "Error eliminando el usuario",
-          description: result.error,
+          description: result.error as string,
         });
         return;
       }
@@ -112,11 +112,11 @@ export default function UsersTable({
   };
 
   if (accounts.length === 0) return null;
-  const isSuperAdmin = session.user.type === "SUPERADMIN";
+  const isSuperAdmin = !!session.user.isSuperAdmin;
 
   const filteredAccounts = isSuperAdmin
     ? accounts
-    : accounts.filter((user) => user.type !== "SUPERADMIN");
+    : accounts.filter((user) => !user.isSuperAdmin);
   return (
     <Card>
       <CardHeader>
@@ -183,9 +183,9 @@ export default function UsersTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <RoleBadge role={account.type as UserType | "PRODUCER"} />
+                    <RoleBadge role={account.producerMember?.role as OrganizationRole} />
                   </TableCell>
-                  <TableCell>{account.events?.length || 0}</TableCell>
+                  <TableCell>0</TableCell>
                   {/* {customer.type !== "SUPERADMIN" && ( */}
                   <TableCell className="text-right">
                     <DropdownMenu modal={false}>
@@ -197,7 +197,7 @@ export default function UsersTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                        {account.type !== "SUPERADMIN" && (
+                        {!account.isSuperAdmin && (
                           <DropdownMenuItem
                             onClick={() => {
                               handleEditRole(account);
@@ -219,7 +219,7 @@ export default function UsersTable({
 
                         <DropdownMenuItem
                           className="text-destructive"
-                          disabled={account.type === "SUPERADMIN"}
+                          disabled={!!account.isSuperAdmin}
                           onClick={() => {
                             handleRemoveAlert(account);
                           }}

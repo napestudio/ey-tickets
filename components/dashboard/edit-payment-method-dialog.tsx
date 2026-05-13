@@ -109,7 +109,7 @@ export function EditPaymentMethodDialog({
       const payload = {
         name: data.accountName,
         type: data.type,
-        clientId: paymentMethod.clientId,
+        producerId: paymentMethod.producerId,
         userId: data.type === "CASH" ? data.seller : undefined,
         apiKey: data.type === "DIGITAL" ? data.apiKey : null,
         enabled: data.enabled,
