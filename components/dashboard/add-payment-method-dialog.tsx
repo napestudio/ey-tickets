@@ -115,7 +115,7 @@ export function AddPaymentMethodDialog({
           data.type === "mercadopago"
             ? ("DIGITAL" as PaymentType)
             : ("CASH" as PaymentType),
-        clientId: session.user.clientId!,
+        producerId: session.user.producerId!,
         userId: data.type === "cash" ? data.seller : undefined,
         apiKey: data.type === "mercadopago" ? data.apiKey : null,
         enabled: data.enabled,

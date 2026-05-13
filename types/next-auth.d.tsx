@@ -1,33 +1,35 @@
 import NextAuth from "next-auth";
 import { DefaultSession, DefaultUser } from "next-auth";
 import { JWT, DefaultJWT } from "next-auth/jwt";
+import { OrganizationRole } from "./user";
 
 declare module "next-auth" {
   interface Session {
     user: {
-      /** The user's postal address. */
       id: string;
-      type: string;
       name: string;
       email: string;
-      lastName: string;
       image?: string;
-      clientId?: string;
+      isSuperAdmin: boolean;
+      producerId: string | null;
+      role: OrganizationRole | null;
     } & DefaultSession;
   }
 
   interface User extends DefaultUser {
     id: string;
-    lastName: string;
     email: string;
-    type: string;
-    clientId?: string;
+    isSuperAdmin: boolean;
+    producerId?: string | null;
+    role?: OrganizationRole | null;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id: string;
-    type: string;
+    isSuperAdmin: boolean;
+    producerId: string | null;
+    role: OrganizationRole | null;
   }
 }

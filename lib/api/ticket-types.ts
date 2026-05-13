@@ -39,38 +39,32 @@ export async function updateTicketType(
   });
 }
 
-export async function getUserMaxTickets(userId: string): Promise<number> {
-  const config = await prisma.userConfiguration.findUnique({
-    where: { userId },
-    select: { maxTicketsAmount: true },
+export async function getMaxTicketsPerEvent(producerId: string): Promise<number> {
+  const config = await prisma.producerConfiguration.findUnique({
+    where: { producerId },
+    select: { maxTicketsPerEvent: true },
   });
 
-  return config?.maxTicketsAmount ?? 0;
+  return config?.maxTicketsPerEvent ?? 0;
 }
 
-export async function getRemainingTicketsByUser(userId: string) {
+export async function getRemainingTicketsByProducer(producerId: string) {
   const now = new Date();
 
   const events = await prisma.event.findMany({
-    where: {
-      userId,
-    },
+    where: { producerId },
     select: {
       endDate: true,
       ticketTypes: {
         where: {
-          NOT: { status: "DELETED" }, // filtramos los borrados
+          NOT: { status: "DELETED" },
         },
         select: {
           quantity: true,
           status: true,
           orders: {
-            where: {
-              isInvitation: false,
-            },
-            select: {
-              quantity: true,
-            },
+            where: { isInvitation: false },
+            select: { quantity: true },
           },
         },
       },
@@ -91,25 +85,25 @@ export async function getRemainingTicketsByUser(userId: string) {
       if (isEventActive) {
         usedTickets += ticket.quantity;
       } else {
-        usedTickets += sold; // solo contamos los que se vendieron
+        usedTickets += sold;
       }
     }
   }
-  const max = await getUserMaxTickets(userId);
+  const max = await getMaxTicketsPerEvent(producerId);
 
   return max - usedTickets;
 }
 
 export async function createTicketTypeWithLimit(
   ticket: TicketType,
-  userId: string
+  producerId: string
 ) {
-  const max = await getUserMaxTickets(userId);
-  const currentUsed = await getRemainingTicketsByUser(userId);
+  const max = await getMaxTicketsPerEvent(producerId);
+  const remaining = await getRemainingTicketsByProducer(producerId);
 
-  if (currentUsed + ticket.quantity > max) {
+  if (remaining - ticket.quantity < 0) {
     throw new Error(
-      `Superaste el límite de tickets disponibles. Ya usaste ${currentUsed} de ${max}.`
+      `Superaste el límite de tickets disponibles.`
     );
   }
 

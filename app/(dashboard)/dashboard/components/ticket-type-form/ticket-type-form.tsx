@@ -193,8 +193,8 @@ export default function TycketTypeForm({
                                             ])
                                           : field.onChange(
                                               field.value?.filter(
-                                                (value) => value !== item.date
-                                              )
+                                                (value) => value !== item.date,
+                                              ),
                                             );
                                       }}
                                     />
@@ -250,7 +250,7 @@ export default function TycketTypeForm({
                               variant={"outline"}
                               className={cn(
                                 "w-[240px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value ? (
@@ -402,7 +402,7 @@ export default function TycketTypeForm({
               Guardando...
             </>
           ) : (
-            "Guardar ticket"
+            "Guardar tipo de ticket"
           )}
         </Button>
       </form>

@@ -3,7 +3,7 @@ export interface BasicCard {
   title: string;
   description: string;
   image: string | null;
-  userId: string | null;
+  producerId?: string;
 }
 
 export interface HomeCard extends BasicCard {

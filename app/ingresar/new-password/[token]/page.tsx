@@ -6,8 +6,9 @@ import NewPasswordForm from "./new-password-form";
 export default async function NewPassword({
   params,
 }: {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }) {
+  const { token } = await params;
   const session = await getServerSession(authOptions);
 
   if (session && session.user) {
@@ -24,7 +25,7 @@ export default async function NewPassword({
               RECUPERAR CONTRASEÑA
             </h1>
           </div>
-          <NewPasswordForm token={params.token} />
+          <NewPasswordForm token={token} />
         </div>
       </div>
     </div>

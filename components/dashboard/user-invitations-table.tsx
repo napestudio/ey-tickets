@@ -1,7 +1,8 @@
 "use client";
 import { UserInvitation } from "@/types/user-invitations";
+import { OrganizationRole } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { UserType } from "@/types/user";
+
 import { Badge } from "../ui/badge";
 import { format, toZonedTime } from "date-fns-tz";
 import { es } from "date-fns/locale";
@@ -111,7 +112,7 @@ export default function UserInvitationsTable({
                     </TableCell>
                     <TableCell>
                       <RoleBadge
-                        role={invitation.role as UserType | "PRODUCER"}
+                        role={invitation.role as OrganizationRole}
                       />
                     </TableCell>
                     {invitation.createdAt && (

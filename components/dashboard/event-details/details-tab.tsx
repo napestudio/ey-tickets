@@ -49,20 +49,12 @@ export default function DetailsTab({
             {evento.location} | {evento.address}
           </CardDescription>
         </CardHeader>
-        {/* <CardContent>
-                            <div className="h-[200px] w-full bg-muted rounded-md flex items-center justify-center">
-                              <MapPin className="h-8 w-8 text-muted-foreground" />
-                              <span className="ml-2 text-muted-foreground">
-                                Map view would appear here
-                              </span>
-                            </div>
-                          </CardContent> */}
       </Card>
       {!isSeller && isEventOwner && (
         <div className="flex flex-col max-w-[90vw] gap-5">
           {evento.eventPayments &&
             evento.eventPayments?.length > 0 &&
-            evento.user?.clientId && (
+            evento.producerId && (
               <>
                 <PaymentMethodsList methods={evento.eventPayments} />
                 <Separator />
@@ -76,7 +68,7 @@ export default function DetailsTab({
                         <>
                           {evento.eventPayments && (
                             <PaymentMethodsLoader
-                              clientId={evento.user.clientId}
+                              producerId={evento.producerId}
                               eventId={evento.id}
                               session={session}
                             />
@@ -90,12 +82,12 @@ export default function DetailsTab({
             )}
 
           {evento.eventPayments &&
-            evento.user?.clientId &&
+            evento.producerId &&
             evento.eventPayments?.length === 0 && (
               <>
                 {evento.eventPayments && (
                   <PaymentMethodsLoader
-                    clientId={evento.user.clientId}
+                    producerId={evento.producerId}
                     eventId={evento.id}
                     session={session}
                   />

@@ -48,13 +48,13 @@ import {
 } from "../ui/form";
 import { toZonedTime } from "date-fns-tz";
 import { createUserInvitation } from "@/lib/actions";
-import { UserType } from "@/types/user";
+import { OrganizationRole } from "@/types/user";
 import { UserInvitation } from "@/types/user-invitations";
 import { Session } from "next-auth";
 
 const formSchema = z.object({
   email: z.string().email().min(5, { message: "Debe ser un email válido" }),
-  role: z.enum(["SELLER", "PRODUCER", "ADMIN", "SUPERADMIN"] as const, {
+  role: z.enum(["OWNER", "ADMIN", "MANAGER", "SELLER"] as const, {
     required_error: "Debe seleccionar un rol",
   }),
   expiration: z.date(),
@@ -64,7 +64,7 @@ interface InviteCustomerDialogProps {
   children: ReactNode;
   userId: string;
   invitations: UserInvitation[];
-  clientId: string;
+  producerId: string;
   session: Session;
 }
 
@@ -72,13 +72,13 @@ export function InviteUserDialog({
   children,
   invitations,
   userId,
-  clientId,
+  producerId,
   session,
 }: InviteCustomerDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 días a partir de hoy
   );
@@ -116,12 +116,12 @@ export function InviteUserDialog({
 
     createUserInvitation({
       email: values.email,
-      role: values.role as UserType,
+      role: values.role as OrganizationRole,
       token: uuidv4(),
       inviterId: userId,
       createdAt: today,
       expiresAt: values.expiration,
-      clientId: clientId,
+      producerId: producerId,
     })
       .then(() => {
         // toast({
@@ -156,16 +156,17 @@ export function InviteUserDialog({
   //   resetForm();
   // };
 
+  const role = session.user.role;
+  const isSuperAdmin = session.user.isSuperAdmin;
+
   const allowedRoles =
-    session.user.type === "SUPERADMIN"
-      ? ["ADMIN", "PRODUCER", "SELLER"]
-      : session.user.type === "ADMIN"
-      ? ["PRODUCER", "SELLER"]
-      : session.user.type === "PRODUCER"
-      ? ["SELLER"]
+    isSuperAdmin || role === "OWNER"
+      ? ["ADMIN", "MANAGER", "SELLER"]
+      : role === "ADMIN"
+      ? ["MANAGER", "SELLER"]
       : [];
 
-  if (session.user.type === "SELLER") return null;
+  if (!isSuperAdmin && (role === "SELLER" || role === "MANAGER")) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -217,16 +218,16 @@ export function InviteUserDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          {allowedRoles.includes("ADMIN") && (
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                          )}
+                          {allowedRoles.includes("MANAGER") && (
+                            <SelectItem value="MANAGER">Manager</SelectItem>
+                          )}
                           {allowedRoles.includes("SELLER") && (
                             <SelectItem value="SELLER">
                               Punto de venta / Vendedor
                             </SelectItem>
-                          )}
-                          {allowedRoles.includes("PRODUCER") && (
-                            <SelectItem value="PRODUCER">Productor</SelectItem>
-                          )}
-                          {allowedRoles.includes("ADMIN") && (
-                            <SelectItem value="ADMIN">Admin</SelectItem>
                           )}
                         </SelectContent>
                       </Select>

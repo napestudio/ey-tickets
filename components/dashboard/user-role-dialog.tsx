@@ -30,11 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import {
-  updateUser,
-  updateUserById,
-  updateUserConfiguration,
-} from "@/lib/actions";
+import { updateUserRole } from "@/lib/actions";
 import { toast } from "../ui/use-toast";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import {
@@ -52,7 +48,7 @@ interface EditCustomerSettingsDialogProps {
 }
 
 const formSchema = z.object({
-  role: z.enum(["SELLER", "PRODUCER", "ADMIN", "SUPERADMIN"] as const, {
+  role: z.enum(["OWNER", "ADMIN", "MANAGER", "SELLER"] as const, {
     required_error: "Debe seleccionar un rol",
   }),
 });
@@ -73,18 +69,13 @@ export function UserRoleDialog({
   useEffect(() => {
     if (user) {
       form.reset({
-        role: user.type,
+        role: user.producerMember?.role || "SELLER",
       });
     }
   }, [user, form]);
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    updateUserById(
-      {
-        type: data.role,
-      },
-      user.id!
-    )
+    updateUserRole(user.id!, data.role)
       .then(() => {
         setIsLoading(false);
         toast({
@@ -131,7 +122,9 @@ export function UserRoleDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="PRODUCER">Productor</SelectItem>
+                          <SelectItem value="OWNER">Propietario</SelectItem>
+                          <SelectItem value="ADMIN">Administrador</SelectItem>
+                          <SelectItem value="MANAGER">Manager</SelectItem>
                           <SelectItem value="SELLER">
                             Punto de venta / Vendedor
                           </SelectItem>

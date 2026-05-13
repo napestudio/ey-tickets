@@ -83,7 +83,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
         {evento.location}
       </TableCell>
       <TableCell>
-        <Badge variant="outline">{evento.user?.name}</Badge>
+        <Badge variant="outline">{evento.producer?.name}</Badge>
       </TableCell>
 
       <TableCell>{renderStatusBadge(evento.status || "")}</TableCell>

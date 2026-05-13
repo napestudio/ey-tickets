@@ -1,38 +1,32 @@
 import Box from "@/components/dashboard/box";
 import PaymentMethodsTable from "@/components/dashboard/payment-methods-table";
 import {
-  getPaymentMethodsByClientId,
+  getPaymentMethodsByProducerId,
   getPaymentMethodsByCreatorId,
   getUsersByType,
 } from "@/lib/actions";
+import { isOrgAdmin } from "@/lib/permissions";
 import { Session } from "next-auth";
 
 export default async function PaymentMethodsLoader({
   session,
   eventId,
-  clientId,
+  producerId,
 }: {
   eventId?: string;
-  clientId: string;
+  producerId: string;
   session: Session;
 }) {
-  const sellers = await getUsersByType(clientId, "SELLER");
+  const sellers = await getUsersByType(producerId, "SELLER");
 
-  const { id, type } = session.user;
+  const { id, isSuperAdmin, role } = session.user;
 
-  let methods: any[];
+  let methods;
 
-  switch (type) {
-    case "ADMIN":
-    case "SUPERADMIN":
-      methods = await getPaymentMethodsByClientId(clientId);
-      break;
-    case "PRODUCER":
-      methods = await getPaymentMethodsByCreatorId(id);
-      break;
-    default:
-      methods = await getPaymentMethodsByCreatorId(id);
-      break;
+  if (isSuperAdmin || isOrgAdmin(role)) {
+    methods = await getPaymentMethodsByProducerId(producerId);
+  } else {
+    methods = await getPaymentMethodsByCreatorId(id);
   }
 
   if (!methods || methods.length === 0) {
@@ -40,7 +34,7 @@ export default async function PaymentMethodsLoader({
   }
   return (
     <PaymentMethodsTable
-      methods={methods}
+      methods={methods ?? []}
       eventId={eventId}
       sellers={sellers}
     />

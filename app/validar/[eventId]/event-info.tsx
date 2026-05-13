@@ -98,8 +98,8 @@ export default function EventInfo({
       const res = await getOrdersByEvent(eventId);
       const tickets = res.flatMap((order) => order.tickets).filter(Boolean);
       setEventTitle(res[0].event.title);
-      const total = getTotalTickets(res as Order[]);
-      getTotalTicketsAndGroupByType(res as Order[]);
+      const total = getTotalTickets(res as unknown as Order[]);
+      getTotalTicketsAndGroupByType(res as unknown as Order[]);
       setTotalTickets(total);
       setTicketsData(tickets as TicketOrderType[]);
     } catch (error) {

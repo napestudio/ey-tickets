@@ -53,7 +53,7 @@ async function getEventData(id: string) {
   const evento = await getSingleEventById(id);
 
   if (!evento) return;
-  const serviceCharge = evento.user.configuration?.serviceCharge || 0;
+  const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
   const soldTickets = await getSoldTicketsByType(evento.tickets);
   const paymentMethod = evento.eventPayments;
 

@@ -126,9 +126,9 @@ export async function getTicketOrdersByEventId(eventId: string) {
   });
 }
 
-export async function getUsedInvitesByUser(userId: string): Promise<number> {
+export async function getUsedInvitesByProducer(producerId: string): Promise<number> {
   const events = await prisma.event.findMany({
-    where: { userId },
+    where: { producerId },
     select: {
       orders: {
         where: {
@@ -147,13 +147,13 @@ export async function getUsedInvitesByUser(userId: string): Promise<number> {
   return totalInvites;
 }
 
-export async function getUserMaxInvites(userId: string): Promise<number> {
-  const config = await prisma.userConfiguration.findUnique({
-    where: { userId },
-    select: { maxInvitesAmount: true },
+export async function getMaxInvitesPerEvent(producerId: string): Promise<number> {
+  const config = await prisma.producerConfiguration.findUnique({
+    where: { producerId },
+    select: { maxInvitesPerEvent: true },
   });
 
-  return config?.maxInvitesAmount ?? 0;
+  return config?.maxInvitesPerEvent ?? 0;
 }
 
 export async function getTicketOrderById(id: string) {

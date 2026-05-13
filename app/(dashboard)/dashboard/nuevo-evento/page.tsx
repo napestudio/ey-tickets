@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
-import CreateEventForm from "../../../components/dashboard/create-event-form";
+import CreateEventForm from "@/components/dashboard/create-event-form";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 export default async function NewEvent() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const id = session.user.id;
+  const producerId = session.user.producerId || "";
   return (
     <>
       <div className="space-y-6 pb-8">
@@ -24,7 +24,7 @@ export default async function NewEvent() {
           </Button>
         </div>
         <div>
-          <CreateEventForm userId={id} />
+          <CreateEventForm producerId={producerId} />
         </div>
       </div>
     </>

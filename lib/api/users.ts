@@ -1,88 +1,86 @@
 import { revalidatePath } from "next/cache";
-import {prisma} from "../prisma";
+import { prisma } from "../prisma";
 import { generateVerificationToken } from "../tokens";
-import { User, UserType } from "@/types/user";
+import { OrganizationRole } from "@prisma/client";
 
 export async function getAllUsers() {
   return await prisma.user.findMany();
 }
 
-export async function getAllUsersButAdmins() {
-  return await prisma.user.findMany({ where: { type: "SELLER" } });
-}
-
-export async function getUsersByClientId(clientId: string) {
+export async function getUsersByProducerId(producerId: string) {
   return await prisma.user.findMany({
     where: {
-      clientId,
+      producerMember: { producerId },
     },
     include: {
       configuration: true,
-      events: true,
+      producerMember: true,
     },
   });
 }
 
-export async function getUsersByType(clientId: string, type: UserType) {
+export async function getUsersByProducerAndRole(
+  producerId: string,
+  role: string
+) {
   return await prisma.user.findMany({
     where: {
-      clientId,
-      type,
+      producerMember: { producerId, role: role as any },
     },
+    include: { producerMember: true },
   });
 }
 
 export async function getUserByEmail(email: string) {
   return await prisma.user.findFirstOrThrow({
-    where: {
-      email,
-    },
+    where: { email },
   });
 }
 
 export async function getUserById(userId: string) {
   return await prisma.user.findFirstOrThrow({
-    where: {
-      id: userId,
-    },
+    where: { id: userId },
+    include: { producerMember: true },
   });
 }
 
-export async function updateUser(data: any, email: string) {
-  const { id } = await getUserByEmail(email as string);
+export async function updateUser(data: Record<string, unknown>, email: string) {
+  const { id } = await getUserByEmail(email);
   return await prisma.user.update({
-    where: {
-      id,
-    },
+    where: { id },
     data,
   });
 }
 
-export async function updateUserById(data: any, userId: string) {
+export async function updateUserById(
+  data: Record<string, unknown>,
+  userId: string
+) {
   return await prisma.user.update({
-    where: {
-      id: userId,
-    },
+    where: { id: userId },
     data,
+  });
+}
+
+export async function updateUserRole(userId: string, role: OrganizationRole) {
+  return await prisma.producerMember.update({
+    where: { userId },
+    data: { role },
   });
 }
 
 export async function getUserByEmailForRegister(email: string) {
   return await prisma.user.findUnique({
-    where: {
-      email,
-    },
+    where: { email },
   });
 }
 
-export async function createUser(data: any) {
-  const createdUser = await prisma.user.create({ data });
+export async function createUser(data: Record<string, unknown>) {
+  const createdUser = await prisma.user.create({ data: data as any });
   await prisma.userConfiguration.create({
-    data: {
-      userId: createdUser.id,
-    },
+    data: { userId: createdUser.id },
   });
-  const verificationToken = await generateVerificationToken(data.email);
+  await generateVerificationToken(data.email as string);
   return createdUser;
 }
 
@@ -91,33 +89,16 @@ export async function deleteUser(userId: string, userEmail: string) {
     throw new Error("Falta el ID del usuario");
   }
 
-  // Verificar si tiene eventos asignados
-  const hasEvents = await prisma.event.findFirst({
-    where: {
-      userId,
-    },
-  });
-
   const hasInvitations = await prisma.invitation.findFirst({
-    where: {
-      email: userEmail,
-    },
+    where: { email: userEmail },
   });
 
-  if (hasEvents) {
-    return {
-      error: "Este usuario tiene eventos asignados y no se puede eliminar",
-    };
-  }
   if (hasInvitations) {
     await prisma.invitation.delete({
-      where: {
-        id: hasInvitations.id,
-      },
+      where: { id: hasInvitations.id },
     });
   }
 
-  // Eliminar usuario
   await prisma.user.delete({
     where: { id: userId },
   });

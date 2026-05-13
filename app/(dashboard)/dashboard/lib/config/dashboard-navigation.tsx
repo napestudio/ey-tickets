@@ -1,36 +1,30 @@
-import { UserType } from "@/types/user";
+import { OrganizationRole } from "@/types/user";
 
-export function getSidebarNav(userType: UserType) {
-  switch (userType) {
+const FULL_NAV = [
+  { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
+  { title: "Usuarios", href: "/dashboard/usuarios", icon: "users" },
+  { title: "Métodos de pago", href: "/dashboard/metodos-de-pago", icon: "sales" },
+];
+
+const SELLER_NAV = [
+  { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
+];
+
+export function getSidebarNav(
+  role: OrganizationRole | null,
+  isSuperAdmin: boolean
+) {
+  if (isSuperAdmin) return FULL_NAV;
+
+  switch (role) {
     case "SELLER":
-      return [
-        { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
-      ];
-    case "PRODUCER":
+    case "MANAGER":
+      return SELLER_NAV;
+    case "OWNER":
     case "ADMIN":
-    case "SUPERADMIN":
-      return [
-        { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
-        { title: "Usuarios", href: "/dashboard/usuarios", icon: "users" },
-        {
-          title: "Métodos de pago",
-          href: "/dashboard/metodos-de-pago",
-          icon: "sales",
-        },
-      ];
-
     default:
-      return [
-        { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
-        { title: "Usuarios", href: "/dashboard/usuarios", icon: "users" },
-        {
-          title: "Métodos de pago",
-          href: "/dashboard/metodos-de-pago",
-          icon: "sales",
-        },
-      ];
+      return FULL_NAV;
   }
 }
