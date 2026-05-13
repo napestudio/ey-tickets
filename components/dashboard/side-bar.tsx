@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { menuData } from "../../app/dashboard/data/menuData";
 
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -71,7 +70,7 @@ export default function SideBar({ items, session }: DashboardNavProps) {
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
-                  isActive ? "bg-muted font-medium" : "font-normal"
+                  isActive ? "bg-muted font-medium" : "font-normal",
                 )}
               >
                 {getIcon(item.icon)}

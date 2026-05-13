@@ -1,5 +1,5 @@
-import NewTokenDialog from "@/app/dashboard/components/new-token-dialog/new-token-dialog";
-import TokensCard from "@/app/dashboard/components/tokens-card/tokens-card";
+import NewTokenDialog from "@/app/(dashboard)/dashboard/components/new-token-dialog/new-token-dialog";
+import TokensCard from "@/app/(dashboard)/dashboard/components/tokens-card/tokens-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTokensByEvent } from "@/lib/actions";

@@ -4,7 +4,7 @@ import {
   getTicketTypesByEventId,
 } from "@/lib/actions";
 import { Evento } from "@/types/event";
-import TicketTypeAccordion from "@/app/dashboard/components/ticket-types-accordion/ticket-types-accordion";
+import TicketTypeAccordion from "@/app/(dashboard)/dashboard/components/ticket-types-accordion/ticket-types-accordion";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default async function TicketType({
   const evento = await getEventById(params.eventId);
   const eventTicketTypes = await getTicketTypesByEventId(params.eventId);
   const remainingTickets = await getRemainingTicketsByUser(
-    evento?.userId || ""
+    evento?.userId || "",
   );
   return (
     <>

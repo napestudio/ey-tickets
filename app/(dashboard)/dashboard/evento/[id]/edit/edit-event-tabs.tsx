@@ -1,6 +1,6 @@
 "use client";
 
-import TicketTypeAccordion from "@/app/dashboard/components/ticket-types-accordion/ticket-types-accordion";
+import TicketTypeAccordion from "@/app/(dashboard)/dashboard/components/ticket-types-accordion/ticket-types-accordion";
 import EditEventForm from "@/components/dashboard/edit-event-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Evento } from "@/types/event";

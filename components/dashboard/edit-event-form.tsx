@@ -22,7 +22,7 @@ import { Evento } from "@/types/event";
 import { cn } from "@/lib/utils";
 
 import { useToast } from "@/components/ui/use-toast";
-import { FileUploader } from "@/app/dashboard/components/file-uploader/file-uploader";
+import { FileUploader } from "@/app/(dashboard)/dashboard/components/file-uploader/file-uploader";
 import { CalendarIcon, Loader2 } from "lucide-react";
 
 import Box from "./box";
@@ -88,7 +88,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
 
   const handleRemoveDateTime = (id: number) => {
     setDateTimeSelections(
-      dateTimeSelections.filter((selection: any) => selection.id !== id)
+      dateTimeSelections.filter((selection: any) => selection.id !== id),
     );
   };
 
@@ -167,7 +167,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
         endDate: new Date(values.endDate).toISOString(),
         status: values.status,
       },
-      evento.id
+      evento.id,
     )
       .then((res) => {
         toast({
@@ -193,7 +193,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
           <div
             className={cn(
               "grid lg:grid-cols-3 gap-5",
-              isLoading && "opacity-50 pointer-events-none"
+              isLoading && "opacity-50 pointer-events-none",
             )}
           >
             <div className="lg:col-span-2 space-y-5">
@@ -304,7 +304,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                                   variant="outline"
                                   className={cn(
                                     "w-full font-normal",
-                                    !field.value && "text-muted-foreground"
+                                    !field.value && "text-muted-foreground",
                                   )}
                                 >
                                   {field.value
@@ -327,7 +327,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                                   const updated = new Date(date!);
                                   updated.setHours(
                                     current.getHours(),
-                                    current.getMinutes()
+                                    current.getMinutes(),
                                   );
                                   updated.setSeconds(0, 0);
                                   field.onChange(updated);

@@ -1,4 +1,3 @@
-import NewTokenDialog from "@/app/dashboard/components/new-token-dialog/new-token-dialog";
 import {
   Card,
   CardContent,
@@ -6,10 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Evento, EventoWithTicketsType } from "@/types/event";
-import { ValidatorToken } from "@/types/validators";
-import SoldTicketsTable from "../sold-tickets-table";
+import { EventoWithTicketsType } from "@/types/event";
 import { TicketOrderType } from "@/types/tickets";
+import SoldTicketsTable from "../sold-tickets-table";
 
 export default function SoldTicketsTab({
   evento,
