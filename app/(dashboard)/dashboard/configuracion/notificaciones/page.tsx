@@ -12,10 +12,8 @@ export default async function Notificaciones() {
   const userConfiguration = (await getAllUserConfiguration(id)) || [];
   return (
     <div>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Notificaciones
-      </h1>
-      <p className="text-muted-foreground">
+      <h2 className="text-lg font-medium">Notificaciones</h2>
+      <p className="text-sm text-muted-foreground">
         Elegí que notificaciones recibir en tu e-mail.
       </p>
       <NotificationsForm

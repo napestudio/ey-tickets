@@ -104,6 +104,7 @@ model Producer {
   slug      String   @unique
   email     String   @unique
   phone     String?
+  state     String?
   city      String?
   logo      String?
   website   String?

@@ -64,14 +64,19 @@ export default function SideBar({
       </Link>
       <nav className="grid items-start gap-2 px-4">
         {items.map((item, index) => {
-          const isActive = path === item.href;
+          const isActive =
+            item.href === "/dashboard"
+              ? path === item.href
+              : path.startsWith(item.href);
           return (
             <Link key={index} href={item.href}>
               <Button
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start",
-                  isActive ? "bg-muted font-medium" : "font-normal",
+                  "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
+                  isActive
+                    ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+                    : "font-normal",
                 )}
               >
                 {getIcon(item.icon)}
@@ -83,7 +88,7 @@ export default function SideBar({
       </nav>
 
       <div className="flex items-center gap-2 px-4">
-        <Avatar className="h-9 w-9 flex-shrink-0">
+        <Avatar className="h-9 w-9 shrink-0">
           <AvatarImage alt="@shadcn" src={session.user?.image as string} />
           <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>

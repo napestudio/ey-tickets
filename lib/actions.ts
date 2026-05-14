@@ -10,6 +10,7 @@ import * as Code from "@/lib/api/descuento-code";
 import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
+import { updateProducer } from "@/lib/api/producers";
 
 import { EventStatus } from "@/types/event";
 import { Product } from "@/types/product";
@@ -1255,3 +1256,19 @@ export const downloadPdfFile = async (ticketId: any) => {
   // Descargar PDF
   doc.save(`ticket-${ticketId}.pdf`);
 };
+
+export async function updateProducerDetailsAction(
+  producerId: string,
+  data: {
+    name: string;
+    email: string;
+    phone?: string;
+    state?: string;
+    city?: string;
+    website?: string;
+    logo?: string;
+  }
+) {
+  await updateProducer(producerId, data);
+  revalidatePath("/dashboard/configuracion/productora");
+}

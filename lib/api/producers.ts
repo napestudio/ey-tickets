@@ -26,6 +26,7 @@ export interface CreateProducerData {
   slug: string;
   email: string;
   phone?: string;
+  state?: string;
   city?: string;
   logo?: string;
   website?: string;

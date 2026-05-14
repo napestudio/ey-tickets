@@ -164,7 +164,7 @@ export function AddPaymentMethodDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -205,7 +205,7 @@ export function AddPaymentMethodDialog({
                               </FormControl>
                               <FormLabel
                                 htmlFor={option.id}
-                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground  [&:has([data-state=checked])]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5  [&:has([data-state=checked])]:bg-red-500"
+                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground  has-data-[state=checked]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5  has-data-[state=checked]:bg-red-500"
                               >
                                 <div className="flex items-center gap-4">
                                   <div className="rounded-full bg-muted p-2 text-primary">
@@ -371,7 +371,7 @@ export function AddPaymentMethodDialog({
               )}
             </div>
 
-            <DialogFooter className="flex-shrink-0 pt-2">
+            <DialogFooter className="shrink-0 pt-2">
               <Button
                 type="button"
                 variant="outline"

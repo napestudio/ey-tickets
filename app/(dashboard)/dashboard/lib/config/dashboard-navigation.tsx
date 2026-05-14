@@ -1,20 +1,34 @@
 import { OrganizationRole } from "@/types/user";
 
 const FULL_NAV = [
-  { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { title: "Inicio", href: "/dashboard", icon: "dashboard" },
   { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
   { title: "Usuarios", href: "/dashboard/usuarios", icon: "users" },
-  { title: "Métodos de pago", href: "/dashboard/metodos-de-pago", icon: "sales" },
+  {
+    title: "Métodos de pago",
+    href: "/dashboard/metodos-de-pago",
+    icon: "sales",
+  },
+  {
+    title: "Configuración",
+    href: "/dashboard/configuracion",
+    icon: "settings",
+  },
 ];
 
 const SELLER_NAV = [
-  { title: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { title: "Inicio", href: "/dashboard", icon: "dashboard" },
   { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
+  {
+    title: "Configuración",
+    href: "/dashboard/configuracion",
+    icon: "settings",
+  },
 ];
 
 export function getSidebarNav(
   role: OrganizationRole | null,
-  isSuperAdmin: boolean
+  isSuperAdmin: boolean,
 ) {
   if (isSuperAdmin) return FULL_NAV;
 
