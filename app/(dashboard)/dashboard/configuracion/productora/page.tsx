@@ -23,14 +23,10 @@ export default async function ProductoraConfigPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-medium">Productora</h2>
-      <p className="text-sm text-muted-foreground mt-1">
-        Administrá los datos de tu productora.
-      </p>
       {canEdit ? (
         <ProductoraForm producer={producer} />
       ) : (
-        <p className="text-sm text-muted-foreground mt-6">
+        <p className="text-sm text-muted-foreground">
           No tenés permisos para editar esta sección.
         </p>
       )}

@@ -1,19 +1,16 @@
+import UserDataForm from "@/components/client-data-form/client-data-form";
+import EventHeader from "@/components/event-header/event-header";
+import OrderTimeOut from "@/components/order-time-out/order-time-out";
+import OrderTotal from "@/components/order-total/order-total";
 import {
   getOrderById,
   getServiceCharge,
   getTyicketTypeById,
 } from "@/lib/actions";
-import Image from "next/image";
-import { CalendarIcon, MapPin } from "lucide-react";
-import { datesFormater } from "@/lib/utils";
-import UserDataForm from "@/components/client-data-form/client-data-form";
-import { Order } from "@/types/order";
-import OrderTimeOut from "@/components/order-time-out/order-time-out";
-import EventHeader from "@/components/event-header/event-header";
-import { Evento } from "@/types/event";
-import OrderTotal from "@/components/order-total/order-total";
-import { TicketType } from "@/types/tickets";
 import { GetSingleEventResponse } from "@/lib/api/eventos";
+import { datesFormater } from "@/lib/utils";
+import { Order } from "@/types/order";
+import { TicketType } from "@/types/tickets";
 
 export default async function OrderPage({
   params,
@@ -31,6 +28,42 @@ export default async function OrderPage({
   }
   const groupedEventDates = datesFormater(evento?.dates as string);
   const groupedTicketDates = datesFormater(ticketType?.dates as string);
+
+  const serializedOrder = order
+    ? {
+        ...order,
+        totalPrice: order.totalPrice !== null ? Number(order.totalPrice) : null,
+        ticketType: order.ticketType
+          ? {
+              ...order.ticketType,
+              price: Number(order.ticketType.price),
+              discount:
+                order.ticketType.discount !== null
+                  ? Number(order.ticketType.discount)
+                  : null,
+            }
+          : null,
+        event: order.event
+          ? {
+              ...order.event,
+              discountCode:
+                order.event.discountCode?.map((dc) => ({
+                  ...dc,
+                  discount: dc.discount !== null ? Number(dc.discount) : null,
+                })) ?? [],
+            }
+          : null,
+      }
+    : null;
+
+  const serializedTicketType = ticketType
+    ? {
+        ...ticketType,
+        price: Number(ticketType.price),
+        discount:
+          ticketType.discount !== null ? Number(ticketType.discount) : null,
+      }
+    : null;
 
   if (order?.status === "EXPIRED" || order?.status === "PAID") {
     return (
@@ -51,15 +84,15 @@ export default async function OrderPage({
         height={10}
       />
 
-      <section className="w-full py-6 md:py-6 mt-[6rem] text-white px-4">
+      <section className="w-full py-6 md:py-6 mt-24 text-white px-4">
         <h2 className="mb-14 mt-10 scroll-m-20 text-4xl uppercase font-medium tracking-tight lg:text-6xl text-white text-stroke text-center">
           Datos de tu orden
         </h2>
         <OrderTotal
-          order={order as unknown as Order}
+          order={serializedOrder as unknown as Order}
           groupedEventDates={groupedEventDates}
           groupedTicketDates={groupedTicketDates}
-          ticketType={ticketType as unknown as TicketType}
+          ticketType={serializedTicketType as unknown as TicketType}
           serviceCharge={serviceCharge || undefined}
         />
       </section>
@@ -72,9 +105,9 @@ export default async function OrderPage({
           Una vez completados tus datos vas a poder realizar el pago. <br /> Vas
           a recibir tus entradas a tu casilla de email.
         </p>
-        <OrderTimeOut order={order as unknown as Order} />
+        <OrderTimeOut order={serializedOrder as unknown as Order} />
         <div className="flex mx-auto align-center justify-center max-w-md bg-gray-100 border-4 border-black rounded-none p-5 mt-6 shadow-hard">
-          <UserDataForm order={order as unknown as Order} />
+          <UserDataForm order={serializedOrder as unknown as Order} />
         </div>
       </section>
     </>

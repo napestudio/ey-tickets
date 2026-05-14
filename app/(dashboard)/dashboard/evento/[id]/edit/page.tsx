@@ -52,7 +52,14 @@ export default async function EditEventPage({
           </Button>
         </div>
         <EditEventTabs
-          evento={evento as unknown as Evento}
+          evento={{
+            ...evento,
+            ticketTypes: evento.ticketTypes?.map((t) => ({
+              ...t,
+              price: Number(t.price),
+              discount: t.discount !== null ? Number(t.discount) : null,
+            })),
+          } as unknown as Evento}
           tab={activeTab}
           remainingTickets={remainingTickets}
         />

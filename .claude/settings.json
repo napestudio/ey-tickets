@@ -26,7 +26,9 @@
       "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/components/)",
       "Bash(pnpm prisma migrate dev --name add_state_to_producer)",
       "Bash(pnpm prisma db push)",
-      "Bash(pnpm prisma generate)"
+      "Bash(pnpm prisma generate)",
+      "Bash(xargs grep -l \"ticketType\\\\|discountCode\\\\|totalPrice\")",
+      "Bash(xargs grep -l \"price\\\\|discount\\\\|totalPrice\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"

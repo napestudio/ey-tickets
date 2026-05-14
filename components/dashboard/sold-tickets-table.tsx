@@ -77,7 +77,7 @@ export default function SoldTicketsTable({
         event.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.order?.ticketType
           ?.title!.toLowerCase()
-          .includes(searchQuery.toLowerCase())
+          .includes(searchQuery.toLowerCase()),
     )
     .filter((event) => (showOnlyInvitations ? event.isInvitation : true));
 
@@ -96,7 +96,7 @@ export default function SoldTicketsTable({
       20,
       10,
       50,
-      10
+      10,
     );
     // Texto principal
     doc.setFontSize(12);
@@ -108,7 +108,7 @@ export default function SoldTicketsTable({
     doc.text(
       `Comprador: ${ticket.name || "-"} ${ticket.lastName || "-"}`,
       20,
-      48
+      48,
     );
     doc.text(`Tipo de ticket: ${ticket.ticketType?.title || "-"}`, 20, 53);
     doc.text(`Fecha:  ${fullDate}hs`, 20, 58);
@@ -139,7 +139,7 @@ export default function SoldTicketsTable({
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-[250px]"
+                className="w-62.5"
               />
               <Button
                 variant={showOnlyInvitations ? "default" : "outline"}
@@ -307,7 +307,7 @@ export default function SoldTicketsTable({
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-[70px]">
+                <SelectTrigger className="w-17.5">
                   <SelectValue placeholder={itemsPerPage.toString()} />
                 </SelectTrigger>
                 <SelectContent>
