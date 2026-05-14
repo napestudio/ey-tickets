@@ -1,10 +1,8 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { AddPaymentMethodDialog } from "@/components/dashboard/add-payment-method-dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import { Button } from "@/components/ui/button";
 import { getUsersByType } from "@/lib/actions";
 import { isOrgAdmin } from "@/lib/permissions";
-import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
 import PaymentMethodsLoader from "./methods-loader";
 import { redirect } from "next/navigation";
@@ -24,12 +22,7 @@ export default async function PaymentMethodsPage() {
         />
       </div>
       <div className="w-full space-y-5">
-        <AddPaymentMethodDialog sellers={sellers} session={session}>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Método de pago
-          </Button>
-        </AddPaymentMethodDialog>
+        <AddPaymentMethodDialog sellers={sellers} session={session} />
         <div className="max-w-[95vw]">
           <PaymentMethodsLoader
             producerId={session.user.producerId}

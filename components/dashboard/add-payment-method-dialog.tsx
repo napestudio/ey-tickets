@@ -11,6 +11,7 @@ import {
   BanknoteIcon as Bank,
   Landmark,
   DollarSign,
+  Plus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -73,13 +74,11 @@ const paymentMethodSchema = z.object({
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
 
 interface AddPaymentMethodDialogProps {
-  children: React.ReactNode;
   sellers?: User[];
   session: Session;
 }
 
 export function AddPaymentMethodDialog({
-  children,
   sellers,
   session,
 }: AddPaymentMethodDialogProps) {
@@ -151,7 +150,12 @@ export function AddPaymentMethodDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus className="mr-2 h-4 w-4" />
+          Método de pago
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>
           <form
