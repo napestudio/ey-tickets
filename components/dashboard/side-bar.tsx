@@ -59,8 +59,10 @@ export default function SideBar({
 
   return (
     <div className="flex flex-col gap-4 py-6">
-      <Link href={SITE_URL} className="w-full px-4 mb-8">
-        <Logo />
+      <Link href={SITE_URL} className="w-full pl-8 mb-8">
+        <div className="w-44">
+          <Logo />
+        </div>
       </Link>
       <nav className="grid items-start gap-2 px-4">
         {items.map((item, index) => {

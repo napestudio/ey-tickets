@@ -85,10 +85,6 @@ export function AddPaymentMethodDialog({
 }: AddPaymentMethodDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [secretKey, setSecretKey] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [enableIntegration, setEnableIntegration] = useState(true);
 
   const form = useForm<PaymentMethodForm>({
     resolver: zodResolver(paymentMethodSchema),
@@ -135,14 +131,6 @@ export function AddPaymentMethodDialog({
     setIsSubmitting(false);
     setOpen(false);
     form.reset();
-  };
-
-  const resetForm = () => {
-    // setSelectedMethod(null);
-    setApiKey("");
-    setSecretKey("");
-    setAccountName("");
-    setEnableIntegration(true);
   };
 
   const paymentOptions = [
