@@ -73,7 +73,6 @@
     "react-google-places-autocomplete": "^4.0.1",
     "react-hook-form": "^7.50.1",
     "reeller": "^0.0.5",
-    "sass": "^1.69.7",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.7.4",
@@ -81,6 +80,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.6.0",
@@ -95,7 +95,7 @@
     "eslint-config-next": "^16.2.5",
     "postcss": "8.5.10",
     "prisma": "^7.8.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

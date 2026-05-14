@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-
 export default function Perfil() {
   return (
-    <>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Perfil
-      </h1>
-    </>
+    <div>
+      <h2 className="text-lg font-medium">Perfil</h2>
+      <p className="text-sm text-muted-foreground">
+        Administrá tu información personal.
+      </p>
+    </div>
   );
 }

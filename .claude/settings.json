@@ -10,7 +10,22 @@
       "Bash(npx prisma migrate dev --name init-producer-architecture)",
       "Bash(npx prisma generate)",
       "Bash(npx tsc --noEmit)",
-      "Bash(cat \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]/edit/page.tsx\")"
+      "Bash(cat \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]/edit/page.tsx\")",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\configuracion\" -type f -name \"*.tsx\" -o -type f -name \"*.ts\")",
+      "Bash(xargs grep -l \"Producer\\\\|Productora\")",
+      "Bash(ls -la \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\configuracion\"\")",
+      "Bash(xargs grep -l \"Producer\")",
+      "Read(//c/Users/renzo/AppData/Local/Temp/claude/c--dev-ey-tickets-nextjs-ey-tickets/tasks/**)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/productora/)",
+      "Bash(xargs grep -l \"Producer\\\\|Configuration\")",
+      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -maxdepth 1 -type d)",
+      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -type f -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.jsx\" -o -name \"*.js\")",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\lib\" -type f)",
+      "Bash(pnpm add -D tailwindcss@^4.0.0 @tailwindcss/postcss@^4.0.0)",
+      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/lib\" -type f)"
+    ],
+    "additionalDirectories": [
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets"
     ]
   }
 }

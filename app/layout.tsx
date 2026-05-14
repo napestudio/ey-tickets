@@ -1,4 +1,4 @@
-import "./global.scss";
+import "./global.css";
 import type { Metadata } from "next";
 import NavBar from "@/components/nav-bar/nav-bar";
 

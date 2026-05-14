@@ -64,7 +64,10 @@ export default function SideBar({
       </Link>
       <nav className="grid items-start gap-2 px-4">
         {items.map((item, index) => {
-          const isActive = path === item.href;
+          const isActive =
+            item.href === "/dashboard"
+              ? path === item.href
+              : path.startsWith(item.href);
           return (
             <Link key={index} href={item.href}>
               <Button

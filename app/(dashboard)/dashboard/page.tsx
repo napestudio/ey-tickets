@@ -17,13 +17,18 @@ export default async function Dashboard() {
   if (!session) return;
   const { id, isSuperAdmin, producerId, role } = session.user;
 
-  const eventos = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
+  const eventos = await getAccessibleEvents({
+    id,
+    isSuperAdmin,
+    producerId,
+    role,
+  });
   return (
     <>
       <div className="flex flex-col gap-8">
         <div className="flex gap-5">
           <DashboardHeader
-            title="Dashboard"
+            title="Panel de administración"
             subtitle="Administra tus eventos y venta de tickets"
           />
         </div>

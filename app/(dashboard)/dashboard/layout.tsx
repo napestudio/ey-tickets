@@ -12,7 +12,7 @@ import { getSidebarNav } from "./lib/config/dashboard-navigation";
 import { getProducerById } from "@/lib/api/producers";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: "Eytickets | Administración",
   description: "Plataforma de venta de entradas online",
 };
 
@@ -40,14 +40,14 @@ export default async function DashboardLayout({
       <SessionProvider session={session}>
         <MobileSidebar items={sidebarNav} />
         <div className="flex min-h-svh gap-8 py-2 p-4 md:pl-0 md:py-8 mx-auto w-full bg-white">
-          <div className="bg-neutral-900 text-neutral-50 max-md:hidden w-[200px] lg:w-[240px] flex-shrink-0 fixed top-0 h-svh flex flex-col overflow-y-auto shadow-md">
+          <div className="bg-neutral-900 text-neutral-50 max-md:hidden w-50 lg:w-60 shrink-0 fixed top-0 h-svh flex flex-col overflow-y-auto shadow-md">
             <SideBar
               session={session}
               items={sidebarNav}
               producerName={producer?.name ?? null}
             />
           </div>
-          <div className="flex flex-col md:ml-[200px] lg:ml-[240px] flex-1 pb-12 pl-10 min-w-0">
+          <div className="flex flex-col md:ml-50 lg:ml-60 flex-1 pb-12 pl-10 min-w-0">
             {children}
           </div>
         </div>
