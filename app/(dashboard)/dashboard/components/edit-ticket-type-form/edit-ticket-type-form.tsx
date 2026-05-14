@@ -82,7 +82,7 @@ export default function EditTycketTypeForm({
   const [isFree, setIsFree] = useState<boolean>(ticket.isFree || false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(
-    ticket.discount !== 0 ? true : false
+    ticket.discount !== 0 ? true : false,
   );
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -214,8 +214,8 @@ export default function EditTycketTypeForm({
                                   ? field.onChange([...field.value, item.date])
                                   : field.onChange(
                                       field.value?.filter(
-                                        (value) => value !== item.date
-                                      )
+                                        (value) => value !== item.date,
+                                      ),
                                     );
                               }}
                             />
@@ -245,8 +245,8 @@ export default function EditTycketTypeForm({
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        "w-60 pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (

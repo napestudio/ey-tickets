@@ -58,7 +58,7 @@ export default function SideBar({
   };
 
   return (
-    <div className="flex flex-col gap-4 py-6">
+    <div className="flex flex-col justify-between h-full gap-4 py-6">
       <Link href={SITE_URL} className="w-full pl-8 mb-8">
         <div className="w-44">
           <Logo />

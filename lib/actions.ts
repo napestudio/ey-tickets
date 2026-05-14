@@ -10,6 +10,7 @@ import * as Code from "@/lib/api/descuento-code";
 import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
+import * as TicketStock from "@/lib/api/ticket-stock";
 import { updateProducer } from "@/lib/api/producers";
 
 import { EventStatus } from "@/types/event";
@@ -207,6 +208,17 @@ export async function getRemainingTicketsByProducer(producerId: string) {
   }
 }
 
+export async function getRemainingTicketsForEvent(
+  eventId: string,
+  producerId: string
+) {
+  try {
+    return await TicketStock.getRemainingTicketsForEvent(eventId, producerId);
+  } catch (error) {
+    throw new Error("Error trayendo disponibilidad del evento");
+  }
+}
+
 export async function getMaxInvitesPerEvent(producerId: string) {
   try {
     const result = await TicketOrders.getMaxInvitesPerEvent(producerId);
@@ -227,9 +239,16 @@ export async function getUsedInvitesByProducer(producerId: string) {
 
 export async function createTicketType(data: TicketType) {
   try {
-    const result = await TicketTypes.createTicketType(data);
+    const event = await Eventos.getEventById(data.eventId);
+    if (event?.producerId) {
+      await TicketTypes.createTicketTypeWithLimit(data, event.producerId);
+    } else {
+      await TicketTypes.createTicketType(data);
+    }
   } catch (error) {
-    throw new Error("Error creando el TicketType");
+    throw new Error(
+      error instanceof Error ? error.message : "Error creando el TicketType"
+    );
   }
 
   revalidatePath(`/dashboard/evento/${data.eventId}/edit`);
@@ -1271,4 +1290,50 @@ export async function updateProducerDetailsAction(
 ) {
   await updateProducer(producerId, data);
   revalidatePath("/dashboard/configuracion/productora");
+}
+
+// ─── TICKET STOCK ACTIONS ─────────────────────────────────────────────────────
+
+export async function purchaseTicketPackageAction(
+  producerId: string,
+  quantity: number,
+  unitPrice: number,
+  notes?: string
+) {
+  await TicketStock.purchaseTicketPackage({
+    producerId,
+    quantity,
+    unitPrice,
+    notes,
+  });
+  revalidatePath("/dashboard/ticket-stock");
+}
+
+export async function assignEventAllocationAction(
+  producerId: string,
+  eventId: string,
+  quantity: number
+) {
+  await TicketStock.upsertEventTicketAllocation({ producerId, eventId, quantity });
+  revalidatePath("/dashboard/ticket-stock");
+  revalidatePath(`/dashboard/evento/${eventId}`);
+}
+
+export async function assignMemberAllocationAction(
+  producerId: string,
+  userId: string,
+  quantity: number
+) {
+  await TicketStock.upsertMemberTicketAllocation({ producerId, userId, quantity });
+  revalidatePath("/dashboard/ticket-stock");
+}
+
+export async function removeEventAllocationAction(eventId: string) {
+  await TicketStock.removeEventTicketAllocation(eventId);
+  revalidatePath("/dashboard/ticket-stock");
+}
+
+export async function removeMemberAllocationAction(userId: string) {
+  await TicketStock.removeMemberTicketAllocation(userId);
+  revalidatePath("/dashboard/ticket-stock");
 }

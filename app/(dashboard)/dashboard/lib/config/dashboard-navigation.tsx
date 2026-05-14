@@ -5,6 +5,11 @@ const FULL_NAV = [
   { title: "Eventos", href: "/dashboard/eventos", icon: "calendar" },
   { title: "Usuarios", href: "/dashboard/usuarios", icon: "users" },
   {
+    title: "Stock de Tickets",
+    href: "/dashboard/ticket-stock",
+    icon: "ticket",
+  },
+  {
     title: "Métodos de pago",
     href: "/dashboard/metodos-de-pago",
     icon: "sales",

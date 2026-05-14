@@ -13,11 +13,14 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import {
-  getRemainingTicketsByProducer,
   getSoldTicketsByType,
   getUsedInvitesByProducer,
   getMaxInvitesPerEvent,
 } from "@/lib/actions";
+import {
+  getProducerStockSummary,
+  getEventTicketAllocation,
+} from "@/lib/api/ticket-stock";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
 import DetailsTab from "./details-tab";
@@ -39,23 +42,24 @@ export default async function EventDetails({
 
   const { isSuperAdmin, role, producerId } = session.user;
 
-  const isEventOwner =
-    isSuperAdmin ||
-    role === "OWNER" ||
-    role === "ADMIN";
+  const isEventOwner = isSuperAdmin || role === "OWNER" || role === "ADMIN";
   const isSeller = role === "SELLER";
 
-  const maxInvitesAmount = await getMaxInvitesPerEvent(producerId ?? "");
-  const usedInvites = await getUsedInvitesByProducer(producerId ?? "");
-  const soldTickets: Record<
-    string,
-    {
-      id?: string | undefined;
-      title?: string | undefined;
-      count?: number | undefined;
-    }
-  > = await getSoldTicketsByType(evento.tickets || []);
-  const remaingingTickets = await getRemainingTicketsByProducer(producerId ?? "");
+  const [
+    maxInvitesAmount,
+    usedInvites,
+    soldTickets,
+    stockSummary,
+    eventAllocation,
+  ] = await Promise.all([
+    getMaxInvitesPerEvent(producerId ?? ""),
+    getUsedInvitesByProducer(producerId ?? ""),
+    getSoldTicketsByType(evento.tickets || []),
+    getProducerStockSummary(producerId ?? ""),
+    getEventTicketAllocation(evento.id),
+  ]);
+
+  const remaingingTickets = stockSummary.unallocated;
   const remainingInvites = maxInvitesAmount - usedInvites;
   return (
     <>
@@ -72,13 +76,15 @@ export default async function EventDetails({
         <div className="grid gap-6 md:grid-cols-7">
           <div className="md:col-span-5 space-y-6">
             <Card>
-              <div className="relative h-[180px] md:h-[300px] w-full">
-                <Image
-                  src={evento?.image || "/placeholder.svg"}
-                  alt={evento.title}
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
+              <div className="relative h-45 md:h-75 bg-neutral-300 w-full">
+                {evento.image && (
+                  <Image
+                    src={evento.image}
+                    alt={evento.title}
+                    fill
+                    className="object-cover rounded-t-lg"
+                  />
+                )}
                 <div className="absolute right-2 top-2 bg-black rounded-full text-white px-3 py-1">
                   {evento.status}
                 </div>
@@ -155,6 +161,7 @@ export default async function EventDetails({
               maxInvitesAmount={maxInvitesAmount}
               salesStats={<MinimalEventSalesStats eventId={evento.id} />}
               soldTickets={soldTickets}
+              eventStockCap={eventAllocation?.quantity ?? null}
             />
           </div>
         </div>

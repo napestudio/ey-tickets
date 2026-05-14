@@ -71,15 +71,16 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts              Account[]
-  sessions              Session[]
-  producerMember        ProducerMember?
-  eventMembers          EventMember[]
-  invitations           Invitation[]
-  configuration         UserConfiguration?
-  paymentMethods        PaymentMethod[]
-  createdPaymentMethods PaymentMethod[]    @relation("CreatedPaymentMethods")
-  createdEvents         Event[]            @relation("CreatedEvents")
+  accounts               Account[]
+  sessions               Session[]
+  producerMember         ProducerMember?
+  eventMembers           EventMember[]
+  invitations            Invitation[]
+  configuration          UserConfiguration?
+  paymentMethods         PaymentMethod[]
+  createdPaymentMethods  PaymentMethod[]         @relation("CreatedPaymentMethods")
+  createdEvents          Event[]                 @relation("CreatedEvents")
+  memberTicketAllocation MemberTicketAllocation?
 }
 
 model UserConfiguration {
@@ -111,11 +112,14 @@ model Producer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members        ProducerMember[]
-  events         Event[]
-  paymentMethods PaymentMethod[]
-  configuration  ProducerConfiguration?
-  invitations    Invitation[]
+  members                 ProducerMember[]
+  events                  Event[]
+  paymentMethods          PaymentMethod[]
+  configuration           ProducerConfiguration?
+  invitations             Invitation[]
+  ticketPackages          TicketPackage[]
+  eventTicketAllocations  EventTicketAllocation[]
+  memberTicketAllocations MemberTicketAllocation[]
 
   @@map("producers")
 }
@@ -145,6 +149,59 @@ model ProducerConfiguration {
   producer              Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
 
   @@map("producer_configurations")
+}
+
+// ─────────────────────────────────────────────
+// TICKET STOCK SYSTEM
+// ─────────────────────────────────────────────
+
+model TicketPackage {
+  id          String              @id @default(cuid())
+  producerId  String
+  quantity    Int
+  unitPrice   Decimal             @db.Decimal(10, 2)
+  totalPrice  Decimal             @db.Decimal(10, 2)
+  status      TicketPackageStatus @default(ACTIVE)
+  purchasedAt DateTime            @default(now())
+  expiresAt   DateTime?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
+
+  @@index([producerId])
+  @@map("ticket_packages")
+}
+
+model EventTicketAllocation {
+  id         String   @id @default(cuid())
+  producerId String
+  eventId    String   @unique
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([producerId])
+  @@map("event_ticket_allocations")
+}
+
+model MemberTicketAllocation {
+  id         String   @id @default(cuid())
+  producerId String
+  userId     String   @unique
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([producerId])
+  @@map("member_ticket_allocations")
 }
 
 // ─────────────────────────────────────────────
@@ -190,16 +247,17 @@ model Event {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  producer       Producer         @relation(fields: [producerId], references: [id], onDelete: Cascade)
-  createdBy      User?            @relation("CreatedEvents", fields: [createdById], references: [id])
-  members        EventMember[]
-  discountCode   DiscountCode[]
-  orders         Order[]
-  promotion      Promotion[]
-  tickets        TicketOrder[]
-  ticketTypes    TicketType[]
-  validatorToken ValidatorToken[]
-  eventPayments  EventPayment[]
+  producer         Producer               @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  createdBy        User?                  @relation("CreatedEvents", fields: [createdById], references: [id])
+  members          EventMember[]
+  discountCode     DiscountCode[]
+  orders           Order[]
+  promotion        Promotion[]
+  tickets          TicketOrder[]
+  ticketTypes      TicketType[]
+  validatorToken   ValidatorToken[]
+  eventPayments    EventPayment[]
+  ticketAllocation EventTicketAllocation?
 
   @@index([producerId])
   @@map("events")
@@ -467,4 +525,10 @@ enum PromotionType {
 enum PromotionStatus {
   ACTIVA
   INACTIVA
+}
+
+enum TicketPackageStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
 }

@@ -1,7 +1,7 @@
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import EditEventForm from "@/components/dashboard/edit-event-form";
 import { Button } from "@/components/ui/button";
-import { getEventById, getRemainingTicketsByProducer } from "@/lib/actions";
+import { getEventById, getRemainingTicketsForEvent } from "@/lib/actions";
 import { isOrgAdmin } from "@/lib/permissions";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -32,7 +32,8 @@ export default async function EditEventPage({
   const activeTab = resolvedSearchParams.tab || "basic";
   if (!isEventOwner) redirect("/dashboard");
 
-  const remainingTickets = await getRemainingTicketsByProducer(
+  const remainingTickets = await getRemainingTicketsForEvent(
+    evento.id,
     evento?.producerId || ""
   );
 
