@@ -1,7 +1,8 @@
 import { prisma } from "../prisma";
 import { isAfter } from "date-fns";
 import { Prisma } from "@prisma/client";
-import { StockSummary } from "@/types/ticket-stock";
+import { cache } from "react";
+import { StockSummary, ProfitReport, EventProfitRow } from "@/types/ticket-stock";
 
 // ─── Lectura ──────────────────────────────────────────────────────────────────
 
@@ -236,3 +237,106 @@ export async function getRemainingTicketsForEvent(
 export async function removeMemberTicketAllocation(userId: string) {
   return prisma.memberTicketAllocation.delete({ where: { userId } });
 }
+
+// ─── Reporte de ganancias ──────────────────────────────────────────────────────
+
+export const getProfitReport = cache(
+  async (producerId: string): Promise<ProfitReport> => {
+    const [packageGroups, orderGroups, events] = await Promise.all([
+      // Query A: paquetes agrupados por status → WAC + pool ACTIVE en una sola query
+      prisma.ticketPackage.groupBy({
+        by: ["status"],
+        _sum: { quantity: true, totalPrice: true },
+        where: { producerId, status: { not: "CANCELED" } },
+      }),
+      // Query B: ventas PAID agrupadas por evento (excluye invitaciones)
+      prisma.order.groupBy({
+        by: ["eventId"],
+        _sum: { totalPrice: true, quantity: true },
+        where: {
+          status: "PAID",
+          isInvitation: false,
+          event: { producerId },
+        },
+      }),
+      // Query C: metadata de eventos del productor
+      prisma.event.findMany({
+        where: { producerId, status: { not: "DELETED" } },
+        select: { id: true, title: true, status: true },
+      }),
+    ]);
+
+    // Calcular WAC y totalPool desde los grupos de paquetes
+    let totalPool = 0;
+    let wacNumerator = 0;
+    let wacDenominator = 0;
+    let totalPackageCost = 0;
+
+    for (const group of packageGroups) {
+      const qty = group._sum.quantity ?? 0;
+      const cost = parseFloat((group._sum.totalPrice ?? 0).toString());
+      wacNumerator += cost;
+      wacDenominator += qty;
+      totalPackageCost += cost;
+      if (group.status === "ACTIVE") {
+        totalPool = qty;
+      }
+    }
+
+    const wac = wacDenominator > 0 ? wacNumerator / wacDenominator : 0;
+
+    // Join en memoria: construir mapa de ventas por eventId
+    const salesMap = new Map<string, { revenue: number; ticketsSold: number }>();
+    for (const order of orderGroups) {
+      salesMap.set(order.eventId, {
+        revenue: parseFloat((order._sum.totalPrice ?? 0).toString()),
+        ticketsSold: order._sum.quantity ?? 0,
+      });
+    }
+
+    // Construir filas por evento
+    const eventRows: EventProfitRow[] = events.map((event) => {
+      const sales = salesMap.get(event.id) ?? { revenue: 0, ticketsSold: 0 };
+      const estimatedCost = sales.ticketsSold * wac;
+      const profit = sales.revenue - estimatedCost;
+      const margin =
+        sales.revenue > 0 ? (profit / sales.revenue) * 100 : null;
+
+      return {
+        eventId: event.id,
+        eventTitle: event.title,
+        eventStatus: event.status,
+        ticketsSold: sales.ticketsSold,
+        revenue: sales.revenue,
+        estimatedCost,
+        profit,
+        margin,
+      };
+    });
+
+    // Totales del productor
+    const totalTicketsSold = eventRows.reduce(
+      (acc, r) => acc + r.ticketsSold,
+      0
+    );
+    const totalRevenue = eventRows.reduce((acc, r) => acc + r.revenue, 0);
+    const totalEstimatedCost = totalTicketsSold * wac;
+    const totalProfit = totalRevenue - totalEstimatedCost;
+    const totalMargin =
+      totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : null;
+    const inventoryValue = Math.max(0, totalPool - totalTicketsSold) * wac;
+
+    return {
+      wac,
+      totalPackageCost,
+      totalPool,
+      totalTicketsSold,
+      totalRevenue,
+      totalEstimatedCost,
+      inventoryValue,
+      totalProfit,
+      totalMargin,
+      events: eventRows,
+    };
+  }
+);
