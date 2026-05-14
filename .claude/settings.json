@@ -22,7 +22,8 @@
       "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -type f -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.jsx\" -o -name \"*.js\")",
       "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\lib\" -type f)",
       "Bash(pnpm add -D tailwindcss@^4.0.0 @tailwindcss/postcss@^4.0.0)",
-      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/lib\" -type f)"
+      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/lib\" -type f)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/components/)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"

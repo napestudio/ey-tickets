@@ -3,6 +3,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-ey-turquoise: #3addbe;
+  --color-ey-turquoise-dark: #33c1a6;
+  --color-ey-turquoise-darker: #0f3730;
+  --color-ey-dark: #111111;
+  --color-ey-gray: #ededed;
+  --color-ey-gray-dark: #ededed;
+  --font-base-neue: var(--font-base-neue);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -172,7 +182,7 @@
 
 @layer components {
   .container {
-    @apply mx-auto px-5 md:px-8 lg:px-12 xl:px-16 2xl:px-24 2xl:max-w-[1400px];
+    @apply mx-auto px-5 md:px-8 lg:px-12 xl:px-16 2xl:px-24 2xl:max-w-350;
   }
 }
 
@@ -192,45 +202,4 @@
   to {
     height: 0;
   }
-}
-
-.dot-notification {
-  height: 12px;
-  width: 12px;
-  background-color: red;
-  position: absolute;
-  right: 0px;
-  bottom: 0px;
-  border-radius: 5rem;
-  box-shadow: 0 0 5px 3px white;
-}
-
-.text-stroke {
-  filter: drop-shadow(0 0 1px black) drop-shadow(0 0 0.5px black)
-    drop-shadow(0 0 0.5px black) drop-shadow(3px 3px 0px black);
-}
-
-.gradient-marquee {
-  background: rgb(180, 58, 159);
-  background: rgb(238, 174, 202);
-  background: linear-gradient(
-    28deg,
-    rgba(238, 174, 202, 1) 0%,
-    rgba(148, 187, 233, 1) 100%
-  );
-  background-clip: text;
-  color: transparent;
-}
-
-.no-scroll {
-  overflow: hidden;
-}
-
-.shadow-hard {
-  box-shadow: 5px 5px 0px 0 black;
-}
-
-.yendo-shadow {
-  text-shadow: -3px 3px 0px var(--blue), -5px 5px 0px var(--red),
-    -7px 7px 0px rgba(255, 255, 255, 1);
 }

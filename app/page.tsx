@@ -1,3 +1,5 @@
+import FeaturesSection from "@/components/website/FeaturesSection";
+import Hero from "@/components/website/Hero";
 import { Metadata } from "next/types";
 
 export const metadata: Metadata = {
@@ -8,7 +10,10 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
     <>
-      <div className="h-screen bg-neutral-900"></div>
+      <div className="bg-neutral-900">
+        <Hero />
+        <FeaturesSection />
+      </div>
     </>
   );
 }
