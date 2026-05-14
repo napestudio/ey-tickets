@@ -17,12 +17,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
+import { LocationSelect } from "@/components/location-select/location-select";
 import { updateProducerDetailsAction } from "@/lib/actions";
 
 const FormSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   email: z.string().email("Email inválido"),
   phone: z.string().optional(),
+  state: z.string().optional(),
   city: z.string().optional(),
   website: z.string().optional(),
   logo: z.string().optional(),
@@ -35,6 +37,7 @@ type Producer = {
   name: string;
   email: string;
   phone: string | null;
+  state: string | null;
   city: string | null;
   website: string | null;
   logo: string | null;
@@ -49,6 +52,7 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
       name: producer.name,
       email: producer.email,
       phone: producer.phone ?? "",
+      state: producer.state ?? "",
       city: producer.city ?? "",
       website: producer.website ?? "",
       logo: producer.logo ?? "",
@@ -125,19 +129,6 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
             />
             <FormField
               control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ciudad</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Buenos Aires" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="website"
               render={({ field }) => (
                 <FormItem>
@@ -156,16 +147,20 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
                 <FormItem>
                   <FormLabel>Logo (URL)</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://..."
-                      {...field}
-                    />
+                    <Input placeholder="https://..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+          <LocationSelect
+            provinceValue={form.watch("state") ?? ""}
+            cityValue={form.watch("city") ?? ""}
+            onProvinceChange={(value) => form.setValue("state", value)}
+            onCityChange={(value) => form.setValue("city", value)}
+            disabled={isLoading}
+          />
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Guardando..." : "Guardar cambios"}
           </Button>

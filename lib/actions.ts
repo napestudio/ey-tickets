@@ -1263,6 +1263,7 @@ export async function updateProducerDetailsAction(
     name: string;
     email: string;
     phone?: string;
+    state?: string;
     city?: string;
     website?: string;
     logo?: string;

@@ -23,7 +23,10 @@
       "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\lib\" -type f)",
       "Bash(pnpm add -D tailwindcss@^4.0.0 @tailwindcss/postcss@^4.0.0)",
       "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/lib\" -type f)",
-      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/components/)"
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/components/)",
+      "Bash(pnpm prisma migrate dev --name add_state_to_producer)",
+      "Bash(pnpm prisma db push)",
+      "Bash(pnpm prisma generate)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"
