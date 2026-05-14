@@ -23,13 +23,19 @@ export default async function TicketTypePage({
   const remainingTickets = await getRemainingTicketsByProducer(
     evento?.producerId || ""
   );
+  const serializedTicketTypes = eventTicketTypes?.map((t) => ({
+    ...t,
+    price: Number(t.price),
+    discount: t.discount !== null ? Number(t.discount) : null,
+  }));
+
   return (
     <>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         Tipos de tickets
       </h1>
       <TicketTypeAccordion
-        ticketTypes={eventTicketTypes as unknown as TicketType[]}
+        ticketTypes={serializedTicketTypes as unknown as TicketType[]}
         evento={evento as unknown as Evento}
         remainingTickets={remainingTickets}
       />

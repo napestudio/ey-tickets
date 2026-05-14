@@ -84,7 +84,7 @@ export default async function Evento({ params }: { params: { id: string } }) {
         dates={groupedDates}
       />
 
-      <section className="w-[50rem] max-w-[95vw] mx-auto py-6 md:py-12 mt-[3rem]">
+      <section className="w-200 max-w-[95vw] mx-auto py-6 md:py-12 mt-12">
         {paymentMethod.length > 0 && (
           <>
             <h2 className="mb-14 mt-10 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-white text-stroke text-center">
