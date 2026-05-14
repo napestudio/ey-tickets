@@ -44,3 +44,27 @@ export type PackageCatalogItem = {
   unitPrice: number;
   totalPrice: number;
 };
+
+export type EventProfitRow = {
+  eventId: string;
+  eventTitle: string;
+  eventStatus: string;
+  ticketsSold: number;
+  revenue: number;
+  estimatedCost: number;
+  profit: number;
+  margin: number | null;
+};
+
+export type ProfitReport = {
+  wac: number;
+  totalPackageCost: number;
+  totalPool: number;
+  totalTicketsSold: number;
+  totalRevenue: number;
+  totalEstimatedCost: number;
+  inventoryValue: number;
+  totalProfit: number;
+  totalMargin: number | null;
+  events: EventProfitRow[];
+};

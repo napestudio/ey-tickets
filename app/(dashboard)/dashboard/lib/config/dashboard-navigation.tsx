@@ -15,6 +15,11 @@ const FULL_NAV = [
     icon: "sales",
   },
   {
+    title: "Reportes",
+    href: "/dashboard/reportes",
+    icon: "chart",
+  },
+  {
     title: "Configuración",
     href: "/dashboard/configuracion",
     icon: "settings",
