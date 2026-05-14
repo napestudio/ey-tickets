@@ -28,7 +28,17 @@
       "Bash(pnpm prisma db push)",
       "Bash(pnpm prisma generate)",
       "Bash(xargs grep -l \"ticketType\\\\|discountCode\\\\|totalPrice\")",
-      "Bash(xargs grep -l \"price\\\\|discount\\\\|totalPrice\")"
+      "Bash(xargs grep -l \"price\\\\|discount\\\\|totalPrice\")",
+      "Bash(xargs grep -l \"interface\\\\|type\")",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/)",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/)",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/)",
+      "Bash(pnpm prisma migrate dev --name add_ticket_stock_system)",
+      "Bash(pnpm tsc --noEmit)",
+      "Bash(timeout 20 pnpm build)",
+      "Bash(timeout 90 pnpm build)",
+      "Bash(pnpm build)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"

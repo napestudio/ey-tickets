@@ -1,0 +1,95 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { purchaseTicketPackageAction } from "@/lib/actions";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+
+interface PurchasePackageDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  producerId: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export default function PurchasePackageDialog({
+  open,
+  onOpenChange,
+  producerId,
+  quantity,
+  unitPrice,
+}: PurchasePackageDialogProps) {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const totalPrice = quantity * unitPrice;
+
+  function handleConfirm() {
+    startTransition(async () => {
+      try {
+        await purchaseTicketPackageAction(producerId, quantity, unitPrice);
+        toast({
+          title: "Paquete adquirido",
+          description: `Se agregaron ${quantity} tickets a tu stock.`,
+        });
+        onOpenChange(false);
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo procesar la compra. Intentá de nuevo.",
+        });
+      }
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmar compra</DialogTitle>
+          <DialogDescription>
+            Estás por adquirir un paquete de tickets para tu productora.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 py-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Cantidad de tickets</span>
+            <span className="font-medium">{quantity.toLocaleString("es-AR")}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Precio por ticket</span>
+            <span className="font-medium">
+              ${unitPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm font-semibold border-t pt-3">
+            <span>Total</span>
+            <span>${totalPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })}</span>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirm} disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Confirmar compra
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

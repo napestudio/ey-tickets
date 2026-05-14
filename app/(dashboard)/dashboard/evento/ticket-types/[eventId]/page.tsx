@@ -1,6 +1,6 @@
 import {
   getEventById,
-  getRemainingTicketsByProducer,
+  getRemainingTicketsForEvent,
   getTicketTypesByEventId,
 } from "@/lib/actions";
 import { Evento } from "@/types/event";
@@ -19,10 +19,10 @@ export default async function TicketTypePage({
 }) {
   const { eventId } = await params;
   const evento = await getEventById(eventId);
-  const eventTicketTypes = await getTicketTypesByEventId(eventId);
-  const remainingTickets = await getRemainingTicketsByProducer(
-    evento?.producerId || ""
-  );
+  const [eventTicketTypes, remainingTickets] = await Promise.all([
+    getTicketTypesByEventId(eventId),
+    getRemainingTicketsForEvent(eventId, evento?.producerId || ""),
+  ]);
   const serializedTicketTypes = eventTicketTypes?.map((t) => ({
     ...t,
     price: Number(t.price),
