@@ -40,6 +40,7 @@ import { UserConfiguration } from "@/types/user-configuration";
 
 import cloudinary, { deleteFile, uploadFile } from "@/lib/cloudinary-upload";
 import { TicketOrder } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { jsPDF } from "jspdf";
 
 // Type temporal
@@ -888,9 +889,11 @@ export async function getInvitationsById(invitationId: string) {
   }
 }
 
-export async function registerUser(data: any) {
+export async function registerUser(data: {
+  email: string;
+  password: string;
+}) {
   try {
-    let user = null;
     const userData = await Users.getUserByEmailForRegister(data.email);
     if (userData) {
       return true;
@@ -904,9 +907,20 @@ export async function registerUser(data: any) {
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    data.password = hashedPassword;
-    const result = await Users.createUser(data);
-    user = result.id;
+    const result = await Users.createUser({
+      email: data.email,
+      password: hashedPassword,
+    });
+
+    await prisma.producerMember.create({
+      data: {
+        userId: result.id,
+        producerId: userInvitation.producerId,
+        role: userInvitation.role,
+      },
+    });
+
+    await UserInvitation.acceptInvitation(userInvitation.id);
   } catch (error) {
     throw new Error("Error creando el usuario");
   }
