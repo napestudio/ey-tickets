@@ -4,8 +4,8 @@ import type React from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ReactNode, useState } from "react";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { CalendarIcon, Loader2, Plus } from "lucide-react";
 import { addDays, format } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
@@ -61,7 +61,6 @@ const formSchema = z.object({
 });
 
 interface InviteCustomerDialogProps {
-  children: ReactNode;
   userId: string;
   invitations: UserInvitation[];
   producerId: string;
@@ -69,7 +68,6 @@ interface InviteCustomerDialogProps {
 }
 
 export function InviteUserDialog({
-  children,
   invitations,
   userId,
   producerId,
@@ -80,7 +78,7 @@ export function InviteUserDialog({
   const [email, setEmail] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 días a partir de hoy
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días a partir de hoy
   );
 
   const timeZone = "America/Argentina/Buenos_Aires";
@@ -163,15 +161,20 @@ export function InviteUserDialog({
     isSuperAdmin || role === "OWNER"
       ? ["ADMIN", "MANAGER", "SELLER"]
       : role === "ADMIN"
-      ? ["MANAGER", "SELLER"]
-      : [];
+        ? ["MANAGER", "SELLER"]
+        : [];
 
   if (!isSuperAdmin && (role === "SELLER" || role === "MANAGER")) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus className="mr-2 h-4 w-4" />
+          Invitar Usuario
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-125">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((values) => onSubmit(values))}
@@ -248,9 +251,7 @@ export function InviteUserDialog({
                           <FormControl>
                             <Button
                               variant={"outline"}
-                              className={cn(
-                                "w-[240px] pl-3 text-left font-normal"
-                              )}
+                              className={cn("w-60 pl-3 text-left font-normal")}
                             >
                               {field.value ? (
                                 format(field.value, "dd/MM/yyyy")
