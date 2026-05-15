@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import RegisterForm from "./register-form";
 import { getInvitationsById } from "@/lib/actions";
 import { isExpired } from "@/lib/utils";
@@ -27,11 +26,6 @@ function ExpiredMsg() {
       </div>
     </section>
   );
-}
-
-function isGmail(email: string): boolean {
-  const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-  return gmailRegex.test(email);
 }
 
 export default async function Register({ params }: { params: Promise<{ id: string }> }) {
@@ -66,16 +60,7 @@ export default async function Register({ params }: { params: Promise<{ id: strin
                 <span className="font-bold">{invitation.email}</span>
               </p>
             </div>
-            {!isGmail(invitation.email) && (
-              <RegisterForm email={invitation.email} />
-            )}
-
-            {isGmail(invitation.email) && (
-              <div className="flex items-center flex-col justify-center gap-2 w-3/4 mx-auto">
-                {/* <h4 className="font-bold">O ingresar con</h4> */}
-                <SignInButton />
-              </div>
-            )}
+            <RegisterForm email={invitation.email} />
 
             <div className="text-center text-sm dark:text-gray-400 text-black">
               No tenés cuenta?
