@@ -340,3 +340,115 @@ export const getProfitReport = cache(
     };
   }
 );
+
+/**
+ * Versión de getProfitReport filtrada por membresía de evento.
+ * Usada para MANAGER: solo ve los eventos donde es EventMember explícito.
+ * Los totales del productor (WAC, pool) se omiten ya que no tiene acceso global.
+ */
+export async function getProfitReportForMember(
+  producerId: string,
+  userId: string
+): Promise<ProfitReport> {
+  // Obtener solo los eventos donde el usuario es miembro
+  const memberEvents = await prisma.eventMember.findMany({
+    where: { userId, event: { producerId } },
+    select: { eventId: true },
+  });
+
+  const eventIds = memberEvents.map((m) => m.eventId);
+
+  const [packageGroups, orderGroups, events] = await Promise.all([
+    // WAC global del productor (necesario para calcular costo estimado)
+    prisma.ticketPackage.groupBy({
+      by: ["status"],
+      _sum: { quantity: true, totalPrice: true },
+      where: { producerId, status: { not: "CANCELED" } },
+    }),
+    // Ventas filtradas a los eventos del miembro
+    prisma.order.groupBy({
+      by: ["eventId"],
+      _sum: { totalPrice: true, quantity: true },
+      where: {
+        status: "PAID",
+        isInvitation: false,
+        eventId: { in: eventIds },
+      },
+    }),
+    // Metadata solo de los eventos del miembro
+    prisma.event.findMany({
+      where: { id: { in: eventIds }, status: { not: "DELETED" } },
+      select: { id: true, title: true, status: true },
+    }),
+  ]);
+
+  // Calcular WAC desde los paquetes del productor
+  let totalPool = 0;
+  let wacNumerator = 0;
+  let wacDenominator = 0;
+  let totalPackageCost = 0;
+
+  for (const group of packageGroups) {
+    const qty = group._sum.quantity ?? 0;
+    const cost = parseFloat((group._sum.totalPrice ?? 0).toString());
+    wacNumerator += cost;
+    wacDenominator += qty;
+    totalPackageCost += cost;
+    if (group.status === "ACTIVE") {
+      totalPool = qty;
+    }
+  }
+
+  const wac = wacDenominator > 0 ? wacNumerator / wacDenominator : 0;
+
+  // Join en memoria: mapa de ventas por eventId
+  const salesMap = new Map<string, { revenue: number; ticketsSold: number }>();
+  for (const order of orderGroups) {
+    salesMap.set(order.eventId, {
+      revenue: parseFloat((order._sum.totalPrice ?? 0).toString()),
+      ticketsSold: order._sum.quantity ?? 0,
+    });
+  }
+
+  // Construir filas por evento
+  const eventRows: EventProfitRow[] = events.map((event) => {
+    const sales = salesMap.get(event.id) ?? { revenue: 0, ticketsSold: 0 };
+    const estimatedCost = sales.ticketsSold * wac;
+    const profit = sales.revenue - estimatedCost;
+    const margin =
+      sales.revenue > 0 ? (profit / sales.revenue) * 100 : null;
+
+    return {
+      eventId: event.id,
+      eventTitle: event.title,
+      eventStatus: event.status,
+      ticketsSold: sales.ticketsSold,
+      revenue: sales.revenue,
+      estimatedCost,
+      profit,
+      margin,
+    };
+  });
+
+  // Totales parciales (solo de los eventos del miembro)
+  const totalTicketsSold = eventRows.reduce((acc, r) => acc + r.ticketsSold, 0);
+  const totalRevenue = eventRows.reduce((acc, r) => acc + r.revenue, 0);
+  const totalEstimatedCost = totalTicketsSold * wac;
+  const totalProfit = totalRevenue - totalEstimatedCost;
+  const totalMargin =
+    totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : null;
+  const inventoryValue = Math.max(0, totalPool - totalTicketsSold) * wac;
+
+  return {
+    wac,
+    totalPackageCost,
+    totalPool,
+    totalTicketsSold,
+    totalRevenue,
+    totalEstimatedCost,
+    inventoryValue,
+    totalProfit,
+    totalMargin,
+    events: eventRows,
+  };
+}

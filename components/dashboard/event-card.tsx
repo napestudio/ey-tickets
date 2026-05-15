@@ -15,6 +15,7 @@ import Image from "next/image";
 import { Evento } from "@/types/event";
 
 import { cn, datesFormater } from "@/lib/utils";
+import { can } from "@/lib/permissions";
 import { Session } from "next-auth";
 
 export default function EventCard({
@@ -25,10 +26,7 @@ export default function EventCard({
   session: Session;
 }) {
   const groupedDates = datesFormater(evento.dates as string);
-  const isEventOwner =
-    session.user.isSuperAdmin ||
-    session.user.role === "ADMIN" ||
-    session.user.role === "OWNER";
+  const isEventOwner = can(session.user, "events:edit");
   const isSeller = session.user.role === "SELLER";
 
   const isInactive =

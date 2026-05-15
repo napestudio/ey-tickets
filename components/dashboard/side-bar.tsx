@@ -98,14 +98,14 @@ export default function SideBar({
           <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-medium truncate">
-            {session.user?.name}
-          </span>
           {producerName && (
-            <span className="text-xs text-muted-foreground truncate">
+            <span className="text-xs text-neutral-100 truncate">
               {producerName}
             </span>
           )}
+          <span className="text-sm font-medium truncate">
+            {session.user?.name}
+          </span>
           <Button
             onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
             variant={"link"}

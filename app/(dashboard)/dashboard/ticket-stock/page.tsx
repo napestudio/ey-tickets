@@ -1,6 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import { isOrgAdmin } from "@/lib/permissions";
 import {
   getProducerStockSummary,
   getTicketPackagesByProducer,
@@ -21,10 +20,9 @@ export default async function TicketStockPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
 
-  const { isSuperAdmin, producerId, role } = session.user;
+  const { role, producerId } = session.user;
 
-  if (!isSuperAdmin && !isOrgAdmin(role)) redirect("/dashboard");
-  if (!isSuperAdmin && !producerId) redirect("/dashboard");
+  if (role !== "SUPERADMIN" && !producerId) redirect("/dashboard");
 
   const pid = producerId!;
 

@@ -112,7 +112,7 @@ export default function UsersTable({
   };
 
   if (accounts.length === 0) return null;
-  const isSuperAdmin = !!session.user.isSuperAdmin;
+  const isSuperAdmin = session.user.role === "SUPERADMIN";
 
   const filteredAccounts = isSuperAdmin
     ? accounts

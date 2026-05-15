@@ -1,12 +1,14 @@
 import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { canAccessRoute } from "@/lib/route-permissions";
+import { AppRole } from "@/types/user";
 
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const { pathname } = req.nextUrl;
 
     // Admin routes require superadmin
-    if (pathname.startsWith("/admin") && !req.nextauth.token?.isSuperAdmin) {
+    if (pathname.startsWith("/admin") && req.nextauth.token?.role !== "SUPERADMIN") {
       return NextResponse.rewrite(new URL("/denied", req.url));
     }
 
@@ -15,6 +17,16 @@ export default withAuth(
       pathname.startsWith("/ingresar") || pathname.startsWith("/registro");
     if (isAuthPage && req.nextauth.token) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // Role-based access control for dashboard routes
+    if (pathname.startsWith("/dashboard")) {
+      const token = req.nextauth.token;
+      const user = { role: (token?.role as AppRole | null) ?? null };
+
+      if (!canAccessRoute(user, pathname)) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
     }
   },
   {

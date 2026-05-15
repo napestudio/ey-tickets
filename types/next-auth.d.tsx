@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { DefaultSession, DefaultUser } from "next-auth";
 import { JWT, DefaultJWT } from "next-auth/jwt";
-import { OrganizationRole } from "./user";
+import { AppRole } from "./user";
 
 declare module "next-auth" {
   interface Session {
@@ -10,26 +10,23 @@ declare module "next-auth" {
       name: string;
       email: string;
       image?: string;
-      isSuperAdmin: boolean;
       producerId: string | null;
-      role: OrganizationRole | null;
+      role: AppRole | null;
     } & DefaultSession;
   }
 
   interface User extends DefaultUser {
     id: string;
     email: string;
-    isSuperAdmin: boolean;
     producerId?: string | null;
-    role?: OrganizationRole | null;
+    role?: AppRole | null;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id: string;
-    isSuperAdmin: boolean;
     producerId: string | null;
-    role: OrganizationRole | null;
+    role: AppRole | null;
   }
 }

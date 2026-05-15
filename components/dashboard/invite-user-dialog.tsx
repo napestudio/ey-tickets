@@ -157,7 +157,7 @@ export function InviteUserDialog({
   // };
 
   const role = session.user.role;
-  const isSuperAdmin = session.user.isSuperAdmin;
+  const isSuperAdmin = role === "SUPERADMIN";
 
   const allowedRoles =
     isSuperAdmin || role === "OWNER"

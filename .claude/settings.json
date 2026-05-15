@@ -51,7 +51,13 @@
       "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/lib\" -type f)",
       "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/ticket-stock/)",
       "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/ticket-stock/components/)",
-      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/lib/config/)"
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/lib/config/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/lib/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/api/auth/[...nextauth]/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(auth\\\\\\)/)",
+      "Bash(ls -la \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/event-details/\")",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/reportes/)",
+      "Bash(node -e \"const p = require\\(''./package.json''\\); console.log\\(p.dependencies.next || p.devDependencies.next\\)\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"
