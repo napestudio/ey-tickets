@@ -4,14 +4,12 @@ import { InviteUserDialog } from "@/components/dashboard/invite-user-dialog";
 import UserInvitationsTable from "@/components/dashboard/user-invitations-table";
 
 import UsersTable from "@/components/dashboard/users-table";
-import { Button } from "@/components/ui/button";
 import {
   getAllUsersByProducerId,
   getPendingInvitationsByUser,
 } from "@/lib/actions";
 
 import { User } from "@/types/user";
-import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
 
 export default async function UsersPage() {
@@ -39,12 +37,7 @@ export default async function UsersPage() {
           userId={userId}
           producerId={producerId!}
           session={session}
-        >
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Invitar Usuario
-          </Button>
-        </InviteUserDialog>
+        />
         <div className="max-w-[95vw] space-y-10">
           {accounts && (
             <UsersTable accounts={accounts as User[]} session={session} />
