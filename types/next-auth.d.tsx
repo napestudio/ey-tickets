@@ -12,6 +12,7 @@ declare module "next-auth" {
       image?: string;
       producerId: string | null;
       role: AppRole | null;
+      isSuperAdmin: boolean;
     } & DefaultSession;
   }
 

@@ -53,6 +53,7 @@ export type TicketOrderType = {
   isInvitation?: boolean;
   code?: number;
   event?: Evento;
+  ticketType?: Partial<TicketType>;
 };
 
 export type TicketOrderTableProps = {
