@@ -75,6 +75,7 @@ export function InviteUserDialog({
 }: InviteCustomerDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(
@@ -96,21 +97,7 @@ export function InviteUserDialog({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-
-    // const emailExists = invitations.some(
-    //   (invitation) => invitation.email === values.email
-    // );
-
-    // if (emailExists) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Error en la invitación",
-    //     description: "El email ya ha sido invitado anteriormente.",
-    //   });
-    //   form.reset();
-    //   setIsLoading(false);
-    //   return;
-    // }
+    setSubmitError(null);
 
     createUserInvitation({
       email: values.email,
@@ -122,21 +109,14 @@ export function InviteUserDialog({
       producerId: producerId,
     })
       .then(() => {
-        // toast({
-        //   title: "Usuario invitado!",
-        // });
         setOpen(false);
         setIsLoading(false);
+        form.reset();
       })
-      .catch((error) => {
-        // toast({
-        //   variant: "destructive",
-        //   title: "Error en la invitación",
-        // });
-        setOpen(false);
+      .catch((error: Error) => {
+        setSubmitError(error.message || "Error enviando la invitación");
         setIsLoading(false);
       });
-    form.reset();
   }
 
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -281,6 +261,9 @@ export function InviteUserDialog({
                 />
               </div>
             </div>
+            {submitError && (
+              <p className="text-sm text-red-500">{submitError}</p>
+            )}
             <DialogFooter>
               <Button
                 type="button"

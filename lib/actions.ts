@@ -832,7 +832,7 @@ export async function createUserInvitation(data: InvitationType) {
     revalidatePath("/dashboard/usuarios");
     return result;
   } catch (error) {
-    throw new Error("Error creando la invitación");
+    throw new Error(error instanceof Error ? error.message : "Error creando la invitación");
   }
 }
 export async function updateUserInvitationById(

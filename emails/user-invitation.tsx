@@ -47,7 +47,7 @@ export function UserInvitationEmail({
           Para completar tu registro y acceder a la plataforma, es necesario que
           leas y aceptes nuestros{" "}
           <Link
-            href={`${process.env.BASE_URL}terminos-y-condiciones`}
+            href={`${process.env.BASE_URL}/terminos-y-condiciones`}
             className="text-dark underline"
           >
             Términos y Condiciones de Uso
