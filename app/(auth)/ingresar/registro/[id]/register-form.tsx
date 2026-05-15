@@ -45,7 +45,6 @@ export default function RegisterForm({ email }: { email: string }) {
     registerUser({
       email,
       password: values.password,
-      type: "SELLER",
     })
       .then(() => {
         signIn("credentials", {
