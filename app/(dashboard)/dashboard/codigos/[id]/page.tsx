@@ -11,9 +11,9 @@ export default async function EditCode({ params }: { params: Promise<{ id: strin
   const { id: codeId } = await params;
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, isSuperAdmin, producerId, role } = session.user;
+  const { id, producerId, role } = session.user;
   const discountCode = await getDiscountCodeById(codeId);
-  const events = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
+  const events = await getAccessibleEvents({ id, producerId, role });
 
   return (
     <>

@@ -15,14 +15,9 @@ import { getAccessibleEvents } from "@/lib/api/eventos";
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, isSuperAdmin, producerId, role } = session.user;
+  const { id, producerId, role } = session.user;
 
-  const eventos = await getAccessibleEvents({
-    id,
-    isSuperAdmin,
-    producerId,
-    role,
-  });
+  const eventos = await getAccessibleEvents({ id, producerId, role });
   return (
     <>
       <div className="flex flex-col gap-8">

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/options";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import LoginForm from "./login-form";
 import Link from "next/link";
 import Image from "next/image";

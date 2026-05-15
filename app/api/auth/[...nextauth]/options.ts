@@ -153,6 +153,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.producerId = token.producerId as string | null;
         session.user.role = token.role;
+        session.user.isSuperAdmin = token.role === "SUPERADMIN";
       }
       return session;
     },

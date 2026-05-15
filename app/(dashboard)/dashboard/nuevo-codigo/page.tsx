@@ -8,8 +8,8 @@ import { Evento } from "@/types/event";
 export default async function NewCode() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, isSuperAdmin, producerId, role } = session.user;
-  const events = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
+  const { id, producerId, role } = session.user;
+  const events = await getAccessibleEvents({ id, producerId, role });
 
   return (
     <>
