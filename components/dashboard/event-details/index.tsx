@@ -8,6 +8,7 @@ import { datesFormater } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 
 import DashboardHeader from "../dashboard-header";
+import { can } from "@/lib/permissions";
 
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -40,9 +41,9 @@ export default async function EventDetails({
     redirect("/dashboard");
   }
 
-  const { isSuperAdmin, role, producerId } = session.user;
+  const { role, producerId } = session.user;
 
-  const isEventOwner = isSuperAdmin || role === "OWNER" || role === "ADMIN";
+  const isEventOwner = can(session.user, "events:edit");
   const isSeller = role === "SELLER";
 
   const [

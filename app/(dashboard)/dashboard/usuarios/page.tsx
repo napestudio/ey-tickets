@@ -11,21 +11,16 @@ import {
 } from "@/lib/actions";
 
 import { User } from "@/types/user";
-import { isOrgAdmin } from "@/lib/permissions";
-
 import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
 
-  const { id: userId, isSuperAdmin, producerId, role } = session.user;
+  const { id: userId, role, producerId } = session.user;
 
-  // Solo OWNER, ADMIN y SUPERADMINs pueden gestionar usuarios
-  if (!isSuperAdmin && !isOrgAdmin(role)) redirect("/dashboard");
-  if (!isSuperAdmin && !producerId) return;
+  if (role !== "SUPERADMIN" && !producerId) return;
 
   const accounts = await getAllUsersByProducerId(producerId!);
   const invitations = await getPendingInvitationsByUser(userId);

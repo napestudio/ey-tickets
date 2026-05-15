@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,6 @@ function generateSlug(name: string): string {
 }
 
 export default function ProducerRegistrationPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +64,11 @@ export default function ProducerRegistrationPage() {
         return;
       }
 
-      router.push("/ingresar");
+      await signIn("credentials", {
+        email: form.userEmail,
+        password: form.userPassword,
+        callbackUrl: "/dashboard",
+      });
     } catch {
       setError("Error de conexión. Intentá de nuevo.");
     } finally {
@@ -132,7 +135,9 @@ export default function ProducerRegistrationPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="userEmail">Tu email</Label>
+                <Label htmlFor="userEmail">
+                  Tu email (Este vas a usar para ingresar)
+                </Label>
                 <Input
                   id="userEmail"
                   name="userEmail"
@@ -156,9 +161,7 @@ export default function ProducerRegistrationPage() {
               </div>
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Registrando..." : "Crear Productora"}

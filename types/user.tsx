@@ -2,6 +2,8 @@ import { UserConfiguration } from "./user-configuration";
 
 export type OrganizationRole = "OWNER" | "ADMIN" | "MANAGER" | "SELLER";
 
+export type AppRole = OrganizationRole | "SUPERADMIN";
+
 export type EventRole = "MANAGER" | "SELLER" | "VALIDATOR" | "VIEWER";
 
 export type User = {
