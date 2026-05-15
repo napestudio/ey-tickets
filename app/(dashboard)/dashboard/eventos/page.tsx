@@ -8,9 +8,9 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 export default async function EventosPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, isSuperAdmin, producerId, role } = session.user;
+  const { id, producerId, role } = session.user;
 
-  const eventos = await getAccessibleEvents({ id, isSuperAdmin, producerId, role });
+  const eventos = await getAccessibleEvents({ id, producerId, role });
 
   return (
     <>

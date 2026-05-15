@@ -50,7 +50,11 @@ export default async function NewCashTicketPage({
 
         <div className="w-full space-y-5">
           <BuyTicketForm
-            tickets={evento?.ticketTypes}
+            tickets={evento.ticketTypes?.map((t) => ({
+              ...t,
+              price: Number(t.price),
+              discount: t.discount !== null ? Number(t.discount) : null,
+            }))}
             eventId={evento.id}
             soldTickets={soldTickets}
             discountCode={

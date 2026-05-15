@@ -1,6 +1,11 @@
 import { TicketType } from "@/types/tickets";
 import {prisma} from "../prisma";
 import { isAfter } from "date-fns";
+import {
+  getProducerStockSummary,
+  getEventTicketAllocation,
+  getMemberTicketAllocation,
+} from "./ticket-stock";
 
 export async function getTicketTypesById(ticketTypeId: string) {
   return await prisma.ticketType.findUnique({
@@ -38,6 +43,8 @@ export async function updateTicketType(
     data: ticketData,
   });
 }
+
+// ─── Legacy: mantenidas por compatibilidad ────────────────────────────────────
 
 export async function getMaxTicketsPerEvent(producerId: string): Promise<number> {
   const config = await prisma.producerConfiguration.findUnique({
@@ -94,17 +101,66 @@ export async function getRemainingTicketsByProducer(producerId: string) {
   return max - usedTickets;
 }
 
+// ─── Creación con validación de 3 capas ──────────────────────────────────────
+
 export async function createTicketTypeWithLimit(
   ticket: TicketType,
-  producerId: string
+  producerId: string,
+  creatorUserId?: string
 ) {
-  const max = await getMaxTicketsPerEvent(producerId);
-  const remaining = await getRemainingTicketsByProducer(producerId);
+  // 1. Pool de la productora
+  const summary = await getProducerStockSummary(producerId);
 
-  if (remaining - ticket.quantity < 0) {
+  if (summary.unallocated < ticket.quantity) {
     throw new Error(
-      `Superaste el límite de tickets disponibles.`
+      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`
     );
+  }
+
+  // 2. Tope del evento (si tiene asignación)
+  const eventAllocation = await getEventTicketAllocation(ticket.eventId);
+  if (eventAllocation) {
+    const existing = await prisma.ticketType.aggregate({
+      _sum: { quantity: true },
+      where: {
+        eventId: ticket.eventId,
+        NOT: { status: "DELETED" },
+      },
+    });
+    const usedForEvent = existing._sum.quantity ?? 0;
+    const remainingForEvent = eventAllocation.quantity - usedForEvent;
+
+    if (ticket.quantity > remainingForEvent) {
+      throw new Error(
+        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`
+      );
+    }
+  }
+
+  // 3. Cupo del miembro (si tiene asignación personal)
+  if (creatorUserId) {
+    const memberAllocation = await getMemberTicketAllocation(creatorUserId);
+    if (memberAllocation) {
+      // Sumar tickets en eventos creados por este usuario en la misma productora
+      const usedByMember = await prisma.ticketType.aggregate({
+        _sum: { quantity: true },
+        where: {
+          NOT: { status: "DELETED" },
+          event: {
+            producerId,
+            createdById: creatorUserId,
+          },
+        },
+      });
+      const usedQuantity = usedByMember._sum.quantity ?? 0;
+      const remainingForMember = memberAllocation.quantity - usedQuantity;
+
+      if (ticket.quantity > remainingForMember) {
+        throw new Error(
+          `Superaste tu cupo personal de tickets. Disponibles: ${remainingForMember}, solicitado: ${ticket.quantity}`
+        );
+      }
+    }
   }
 
   return prisma.ticketType.create({ data: ticket });

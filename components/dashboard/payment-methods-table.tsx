@@ -228,7 +228,7 @@ export default function PaymentMethodsTable({
                       <div>
                         <div className="font-medium">{method.name}</div>
                         {method.apiKey && (
-                          <div className="text-sm text-muted-foreground truncate max-w-[150px]">
+                          <div className="text-sm text-muted-foreground truncate max-w-37.5">
                             {method.apiKey}
                           </div>
                         )}

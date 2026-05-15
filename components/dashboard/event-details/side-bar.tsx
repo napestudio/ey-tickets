@@ -21,6 +21,7 @@ interface SideBarProps {
   remainingTickets: number;
   maxInvitesAmount: number;
   salesStats: React.ReactNode;
+  eventStockCap: number | null;
   soldTickets: Record<
     string,
     {
@@ -39,6 +40,7 @@ export default function SideBar({
   remainingTickets,
   maxInvitesAmount,
   salesStats,
+  eventStockCap,
   soldTickets,
 }: SideBarProps) {
   const renderStatusBadge = (status: string) => {
@@ -121,6 +123,23 @@ export default function SideBar({
         </CardContent>
         <Separator />
 
+        {eventStockCap !== null && (
+          <>
+            <Separator />
+            <CardHeader>
+              <CardTitle>Stock del evento</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              <p className="text-sm text-muted-foreground">
+                Tope asignado:{" "}
+                <span className="font-medium text-foreground">
+                  {eventStockCap} tickets
+                </span>
+              </p>
+            </CardContent>
+          </>
+        )}
+        <Separator />
         <CardHeader>
           <CardTitle>Acciones Rápidas</CardTitle>
         </CardHeader>

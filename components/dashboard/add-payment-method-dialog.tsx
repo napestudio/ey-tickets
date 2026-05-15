@@ -11,6 +11,7 @@ import {
   BanknoteIcon as Bank,
   Landmark,
   DollarSign,
+  Plus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -73,22 +74,16 @@ const paymentMethodSchema = z.object({
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
 
 interface AddPaymentMethodDialogProps {
-  children: React.ReactNode;
   sellers?: User[];
   session: Session;
 }
 
 export function AddPaymentMethodDialog({
-  children,
   sellers,
   session,
 }: AddPaymentMethodDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [secretKey, setSecretKey] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [enableIntegration, setEnableIntegration] = useState(true);
 
   const form = useForm<PaymentMethodForm>({
     resolver: zodResolver(paymentMethodSchema),
@@ -137,14 +132,6 @@ export function AddPaymentMethodDialog({
     form.reset();
   };
 
-  const resetForm = () => {
-    // setSelectedMethod(null);
-    setApiKey("");
-    setSecretKey("");
-    setAccountName("");
-    setEnableIntegration(true);
-  };
-
   const paymentOptions = [
     {
       id: "mercadopago",
@@ -163,8 +150,13 @@ export function AddPaymentMethodDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus className="mr-2 h-4 w-4" />
+          Método de pago
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -205,7 +197,7 @@ export function AddPaymentMethodDialog({
                               </FormControl>
                               <FormLabel
                                 htmlFor={option.id}
-                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground  [&:has([data-state=checked])]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5  [&:has([data-state=checked])]:bg-red-500"
+                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground  has-data-[state=checked]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5  has-data-[state=checked]:bg-red-500"
                               >
                                 <div className="flex items-center gap-4">
                                   <div className="rounded-full bg-muted p-2 text-primary">
@@ -371,7 +363,7 @@ export function AddPaymentMethodDialog({
               )}
             </div>
 
-            <DialogFooter className="flex-shrink-0 pt-2">
+            <DialogFooter className="shrink-0 pt-2">
               <Button
                 type="button"
                 variant="outline"
