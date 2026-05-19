@@ -1,3 +1,4 @@
+"use client";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ const textVariants = cva("font-base-neue", {
       white: "text-white",
       muted: "text-white/60",
       accent: "text-brand-400",
+      black: "text-black",
     },
     weight: {
       normal: "font-normal",

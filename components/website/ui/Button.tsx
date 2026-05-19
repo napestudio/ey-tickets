@@ -9,8 +9,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: "bg-white text-black hover:bg-white/90",
-        secondary: "bg-transparent border border-white text-white hover:bg-white/10",
-        ghost: "bg-transparent text-white hover:bg-white/10",
+        secondary: "bg-transparent border border-white text-black hover:bg-white/10",
+        ghost: "bg-transparent text-black hover:bg-white/10",
+        outline: "bg-transparent border border-black text-black hover:bg-white/10",
+        link: "bg-transparent text-black underline-offset-4 hover:underline",
       },
       size: {
         sm: "text-sm px-4 py-2",
@@ -22,10 +24,8 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonVariants = VariantProps<typeof buttonVariants>;
-
 // Props base compartidas
-interface BaseProps extends ButtonVariants {
+interface BaseProps extends VariantProps<typeof buttonVariants> {
   className?: string;
   children: React.ReactNode;
 }
