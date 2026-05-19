@@ -67,7 +67,11 @@
       "Bash(node -e \"import\\(''/c/dev/ey-tickets-nextjs/ey-tickets/node_modules/react-email/dist/index.mjs''\\).then\\(m => console.log\\(Object.keys\\(m\\).join\\(''\\\\n''\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")",
       "Bash(pnpm remove nodemailer @types/nodemailer)",
       "Bash(npx tsc --noEmit --project tsconfig.json)",
-      "Bash(xargs grep -l \"declare.*NextAuth\\\\|module.*next-auth\")"
+      "Bash(xargs grep -l \"declare.*NextAuth\\\\|module.*next-auth\")",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/usuarios/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/components/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"
