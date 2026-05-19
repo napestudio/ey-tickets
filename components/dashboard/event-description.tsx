@@ -3,10 +3,13 @@
 import DOMPurify from "dompurify";
 
 export function EventDescription({ html }: { html: string }) {
+  const sanitized =
+    typeof window !== "undefined" ? DOMPurify.sanitize(html) : html;
+
   return (
     <div
       className="rich-text text-sm"
-      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+      dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );
 }

@@ -28,6 +28,7 @@ import DetailsTab from "./details-tab";
 import Navigation from "./navigation";
 import SideBar from "./side-bar";
 import SoldTicketsTab from "./sold-tickets-tab";
+import PaymentMethodsTab from "./payment-methods-tab";
 import MinimalEventSalesStats from "../mininimal-event-sales-stats";
 export default async function EventDetails({
   evento,
@@ -86,27 +87,7 @@ export default async function EventDetails({
                     className="object-cover rounded-t-lg"
                   />
                 )}
-                <div className="absolute right-2 top-2 bg-black rounded-full text-white px-3 py-1">
-                  {evento.status}
-                </div>
               </div>
-              <CardContent className="pt-6">
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center">
-                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>{groupedDates}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>{evento.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>Creado por {evento.producer?.name}</span>
-                  </div>
-                </div>
-              </CardContent>
             </Card>
 
             <Tabs defaultValue="overview" className="w-full">
@@ -131,6 +112,12 @@ export default async function EventDetails({
                   >
                     Entradas Vendidas
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="paymentMethods"
+                    disabled={isSeller || !isEventOwner}
+                  >
+                    Métodos de pago
+                  </TabsTrigger>
                 </TabsList>
               </div>
               <TabsContent value="overview" className="space-y-6">
@@ -138,7 +125,6 @@ export default async function EventDetails({
                   isEventOwner={isEventOwner}
                   isSeller={isSeller}
                   evento={evento}
-                  session={session}
                 />
               </TabsContent>
               <TabsContent value="tickets" className="space-y-6">
@@ -149,6 +135,9 @@ export default async function EventDetails({
               </TabsContent>
               <TabsContent value="soldList" className="space-y-6">
                 <SoldTicketsTab evento={evento} />
+              </TabsContent>
+              <TabsContent value="paymentMethods" className="space-y-6">
+                <PaymentMethodsTab evento={evento} session={session} />
               </TabsContent>
             </Tabs>
           </div>
