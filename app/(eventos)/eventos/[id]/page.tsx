@@ -75,6 +75,7 @@ export default async function Evento({ params }: { params: { id: string } }) {
   const { evento, serviceCharge, soldTickets, paymentMethod } = eventData;
 
   const groupedDates = datesFormater(evento?.dates as string);
+  console.log(evento.ticketTypes);
 
   return (
     <>
@@ -83,7 +84,7 @@ export default async function Evento({ params }: { params: { id: string } }) {
         dates={groupedDates}
       />
 
-      <section className="w-[50rem] max-w-[95vw] mx-auto py-6 md:py-12 mt-[3rem]">
+      <section className="w-200 max-w-[95vw] mx-auto py-6 md:py-12 mt-12">
         {paymentMethod.length > 0 && (
           <>
             <h2 className="mb-14 mt-10 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-white text-stroke text-center">
@@ -93,7 +94,11 @@ export default async function Evento({ params }: { params: { id: string } }) {
             <div className="md:flex w-[90vw] md:w-full max-w-[90vw] mx-auto align-center justify-center flex-1">
               {evento?.ticketTypes && (
                 <TicketTypePicker
-                  tickets={evento?.ticketTypes}
+                  tickets={evento.ticketTypes.map((t) => ({
+                    ...t,
+                    price: Number(t.price),
+                    discount: t.discount !== null ? Number(t.discount) : null,
+                  }))}
                   eventId={evento?.id}
                   soldTickets={soldTickets}
                   discountCode={

@@ -121,13 +121,21 @@ export default function TicketTypePicker({
       .then(() => {
         form.reset();
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
+        // next/navigation redirect() throws a special error — let it propagate
+        if (
+          error instanceof Error &&
+          (error as Error & { digest?: string }).digest?.startsWith(
+            "NEXT_REDIRECT"
+          )
+        ) {
+          throw error;
+        }
         setIsLoading(false);
         toast({
           variant: "destructive",
           title: "Ocurrió un error.",
         });
-        throw new Error("Error creando order");
       });
   }
   const isPastEndDate = (endDate: Date): boolean => {

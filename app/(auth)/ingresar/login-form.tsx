@@ -26,11 +26,11 @@ const formSchema = z.object({
 });
 
 const responseTxt: {
-  [key: string]: string
+  [key: string]: string;
 } = {
   AccessDenied: "Usuario inválido",
   CredentialsSignin: "Usuario o contraseña incorrecto",
-}
+};
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -66,7 +66,7 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    
+
     try {
       const resp = await signIn("credentials", {
         email: values.email,
@@ -90,7 +90,7 @@ export default function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => onSubmit(values))}
-        className="space-y-8 w-full"
+        className="space-y-8 w-full font-base-neue"
       >
         <FormField
           control={form.control}
@@ -98,7 +98,7 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>E-mail</FormLabel>
-              <FormControl className="border-4 border-black rounded-none">
+              <FormControl className="text-xl py-6 rounded-none text-neutral-900">
                 <Input placeholder="Tu E-mail" {...field} />
               </FormControl>
               <FormMessage />
@@ -111,7 +111,7 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Contraseña</FormLabel>
-              <FormControl className="border-4 border-black rounded-none">
+              <FormControl className="text-xl py-6 rounded-none text-neutral-900">
                 <Input type="password" placeholder="Tu contraseña" {...field} />
               </FormControl>
               <FormMessage />
@@ -119,7 +119,10 @@ export default function LoginForm() {
           )}
         />
         <div className="flex items-center gap-2">
-          <Button type="submit" disabled={isLoading} className="w-full bg-red hover:bg-red-light hover:bg-opacity-10 hover:shadow-none transition-all rounded-none py-8 text-2xl border-4 border-black shadow-hard"
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-neutral-900 transition-all rounded-none py-8 text-2xl"
           >
             {isLoading ? (
               <>

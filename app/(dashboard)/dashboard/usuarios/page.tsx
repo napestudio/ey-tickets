@@ -4,28 +4,21 @@ import { InviteUserDialog } from "@/components/dashboard/invite-user-dialog";
 import UserInvitationsTable from "@/components/dashboard/user-invitations-table";
 
 import UsersTable from "@/components/dashboard/users-table";
-import { Button } from "@/components/ui/button";
 import {
   getAllUsersByProducerId,
   getPendingInvitationsByUser,
 } from "@/lib/actions";
 
 import { User } from "@/types/user";
-import { isOrgAdmin } from "@/lib/permissions";
-
-import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
   if (!session) return;
 
-  const { id: userId, isSuperAdmin, producerId, role } = session.user;
+  const { id: userId, role, producerId } = session.user;
 
-  // Solo OWNER, ADMIN y SUPERADMINs pueden gestionar usuarios
-  if (!isSuperAdmin && !isOrgAdmin(role)) redirect("/dashboard");
-  if (!isSuperAdmin && !producerId) return;
+  if (role !== "SUPERADMIN" && !producerId) return;
 
   const accounts = await getAllUsersByProducerId(producerId!);
   const invitations = await getPendingInvitationsByUser(userId);
@@ -44,12 +37,7 @@ export default async function UsersPage() {
           userId={userId}
           producerId={producerId!}
           session={session}
-        >
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Invitar Usuario
-          </Button>
-        </InviteUserDialog>
+        />
         <div className="max-w-[95vw] space-y-10">
           {accounts && (
             <UsersTable accounts={accounts as User[]} session={session} />

@@ -23,16 +23,20 @@ export default function EventCard({ evento }: { evento: HomeCard }) {
       className="overflow-hidden border-4 rounded-sm border-black shadow-hard bg-white"
     >
       <Card className="border-none rounded-none flex flex-col h-full">
-        <div className="relative border-b-4 border-black max-w-[95vw] h-[300px]">
-          <Image
-            src={evento.image || ""}
-            alt={`Portada del evento ${evento.title}`}
-            height={500}
-            width={500}
-            className="object-cover h-full w-full"
-          />
+        <div className="relative border-b-4 border-black max-w-[95vw] h-75">
+          {evento.image ? (
+            <Image
+              src={evento.image}
+              alt={`Portada del evento ${evento.title}`}
+              height={500}
+              width={500}
+              className="object-cover h-full w-full"
+            />
+          ) : (
+            <div className="h-full w-full bg-gray-100" />
+          )}
         </div>
-        <CardContent className="p-4 flex flex-col gap-1 flex-grow">
+        <CardContent className="p-4 flex flex-col gap-1 grow">
           <div className="flex gap-2 flex-wrap items-center">
             <p className="text-sm font-medium text-gray-500">{groupedDates}</p>{" "}
             |

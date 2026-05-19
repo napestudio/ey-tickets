@@ -122,7 +122,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isSuperAdmin = (user as any).isSuperAdmin ?? false;
       }
 
       // Cargar datos de membresía en cada renovación de token
@@ -138,9 +137,11 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (dbUser) {
-          token.isSuperAdmin = dbUser.isSuperAdmin;
           token.producerId = dbUser.producerMember?.producerId ?? null;
-          token.role = (dbUser.producerMember?.role ?? null) as any;
+          // isSuperAdmin en la DB se mapea a role "SUPERADMIN" en el token
+          token.role = dbUser.isSuperAdmin
+            ? "SUPERADMIN"
+            : (dbUser.producerMember?.role ?? null);
         }
       }
 
@@ -150,9 +151,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session?.user) {
         session.user.id = token.id as string;
-        session.user.isSuperAdmin = token.isSuperAdmin as boolean;
         session.user.producerId = token.producerId as string | null;
-        session.user.role = token.role as any;
+        session.user.role = token.role;
+        session.user.isSuperAdmin = token.role === "SUPERADMIN";
       }
       return session;
     },

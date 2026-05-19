@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Separator } from "@/components/ui/separator";
 import SettingsNav from "../components/settings-nav/settings-nav";
+import { can } from "@/lib/permissions";
 
 const BASE_ITEMS = [
   { title: "Perfil", href: "/dashboard/configuracion/perfil" },
@@ -20,10 +21,11 @@ export default async function ConfiguracionLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  const isAdminOrOwner =
-    session?.user?.role === "OWNER" || session?.user?.role === "ADMIN";
+  const canSeeAdminSettings = session?.user
+    ? can(session.user, "settings:producer")
+    : false;
 
-  const navItems = isAdminOrOwner
+  const navItems = canSeeAdminSettings
     ? [...BASE_ITEMS, ...ADMIN_ITEMS]
     : BASE_ITEMS;
 

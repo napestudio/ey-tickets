@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Settings,
   Ticket,
+  TrendingUp,
   Users,
 } from "lucide-react";
 
@@ -50,6 +51,8 @@ export default function SideBar({
         return <CreditCard className="mr-2 h-4 w-4" />;
       case "users":
         return <Users className="mr-2 h-4 w-4" />;
+      case "chart":
+        return <TrendingUp className="mr-2 h-4 w-4" />;
       case "settings":
         return <Settings className="mr-2 h-4 w-4" />;
       default:
@@ -58,7 +61,7 @@ export default function SideBar({
   };
 
   return (
-    <div className="flex flex-col gap-4 py-6">
+    <div className="flex flex-col justify-between h-full gap-4 py-6">
       <Link href={SITE_URL} className="w-full pl-8 mb-8">
         <div className="w-44">
           <Logo />
@@ -95,14 +98,14 @@ export default function SideBar({
           <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-medium truncate">
-            {session.user?.name}
-          </span>
           {producerName && (
-            <span className="text-xs text-muted-foreground truncate">
+            <span className="text-xs text-neutral-100 truncate">
               {producerName}
             </span>
           )}
+          <span className="text-sm font-medium truncate">
+            {session.user?.name}
+          </span>
           <Button
             onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
             variant={"link"}

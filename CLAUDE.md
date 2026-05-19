@@ -4,8 +4,13 @@
 
 pnpm dev
 
-We use pnpm
-This is an events tickets managment system used by a lot of clients at the same time.
+- This is an events tickets managment system used by a lot of clients at the same time.
+
+- We use pnpm
+
+- Dashboard components go inside dashboard/components folder.
+
+- Stack: Nextjs, tailwind, prisma with postgressql, pnpm, typescript
 
 - **NEVER** Use :any to type
 - **NEVER** Use npm

@@ -1,8 +1,9 @@
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import EditEventForm from "@/components/dashboard/edit-event-form";
 import { Button } from "@/components/ui/button";
-import { getEventById, getRemainingTicketsByProducer } from "@/lib/actions";
+import { getEventById, getRemainingTicketsForEvent } from "@/lib/actions";
 import { isOrgAdmin } from "@/lib/permissions";
+import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import EditEventTabs from "./edit-event-tabs";
@@ -27,12 +28,18 @@ export default async function EditEventPage({
   const evento = await getEventById(id);
   if (!evento) return;
 
-  const { isSuperAdmin, role, producerId } = session.user;
-  const isEventOwner = isSuperAdmin || isOrgAdmin(role);
+  const { role, id: userId } = session.user;
   const activeTab = resolvedSearchParams.tab || "basic";
-  if (!isEventOwner) redirect("/dashboard");
 
-  const remainingTickets = await getRemainingTicketsByProducer(
+  // SUPERADMIN/OWNER/ADMIN tienen acceso a todos los eventos.
+  // MANAGER solo puede editar eventos donde es EventMember explícito.
+  if (!isOrgAdmin(role) && role !== "SUPERADMIN") {
+    const membership = await getUserEventRole(userId, evento.id);
+    if (!membership) redirect("/dashboard/eventos");
+  }
+
+  const remainingTickets = await getRemainingTicketsForEvent(
+    evento.id,
     evento?.producerId || ""
   );
 
@@ -52,7 +59,14 @@ export default async function EditEventPage({
           </Button>
         </div>
         <EditEventTabs
-          evento={evento as unknown as Evento}
+          evento={{
+            ...evento,
+            ticketTypes: evento.ticketTypes?.map((t) => ({
+              ...t,
+              price: Number(t.price),
+              discount: t.discount !== null ? Number(t.discount) : null,
+            })),
+          } as unknown as Evento}
           tab={activeTab}
           remainingTickets={remainingTickets}
         />

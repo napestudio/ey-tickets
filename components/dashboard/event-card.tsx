@@ -15,6 +15,7 @@ import Image from "next/image";
 import { Evento } from "@/types/event";
 
 import { cn, datesFormater } from "@/lib/utils";
+import { can } from "@/lib/permissions";
 import { Session } from "next-auth";
 
 export default function EventCard({
@@ -25,10 +26,7 @@ export default function EventCard({
   session: Session;
 }) {
   const groupedDates = datesFormater(evento.dates as string);
-  const isEventOwner =
-    session.user.isSuperAdmin ||
-    session.user.role === "ADMIN" ||
-    session.user.role === "OWNER";
+  const isEventOwner = can(session.user, "events:edit");
   const isSeller = session.user.role === "SELLER";
 
   const isInactive =
@@ -40,13 +38,10 @@ export default function EventCard({
         <CardHeader
           className={cn("flex gap-2 p-0", isInactive && "opacity-50")}
         >
-          <div className="relative h-48 w-full ">
-            <Image
-              src={evento.image || "/placeholder.svg"}
-              alt=""
-              fill
-              className="object-cover"
-            />
+          <div className="relative h-48 w-full bg-neutral-300">
+            {evento.image && (
+              <Image src={evento.image} alt="" fill className="object-cover" />
+            )}
             {evento.status === "CANCELED" && (
               <div className="absolute left-2 top-2 bg-red-500 rounded-full text-white px-3 py-1">
                 Cancelado
