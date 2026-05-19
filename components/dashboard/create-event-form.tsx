@@ -3,7 +3,8 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createEvent, uploadEventImage } from "@/lib/actions";
+import { createEvent } from "@/lib/actions";
+import { uploadImage } from "@/lib/image-actions";
 import { useState } from "react";
 import {
   Form,
@@ -14,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import DatesPicker from "@/components/dates-picker/dates-picker";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/dashboard/rich-text-editor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -36,28 +37,35 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
 import { es } from "date-fns/locale";
+import { LocationSelect } from "@/components/location-select/location-select";
 
 const formSchema = z.object({
   title: z.string().min(5, {
     message: "El titulo debe tener al menos 5 caracteres.",
   }),
   description: z.string(),
-  location: z.string(),
+  location: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
   address: z.string(),
   file: z.any(),
   image: z.string(),
+  imagePublicId: z.string().nullish(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
   endDate: z.date({
     required_error: "La fecha de finalización es obligatoria",
   }),
 });
 
-export default function CreateEventForm({ producerId }: { producerId: string }) {
+export default function CreateEventForm({
+  producerId,
+}: {
+  producerId: string;
+}) {
   const [dateTimeSelections, setDateTimeSelections] = useState([
     { id: 0, date: new Date().toISOString().slice(0, 16) },
   ]);
   const [files, setFiles] = useState<File[]>([]);
-  const [deleteImageValue, setDeleteImageValue] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fileUpdated, setFileUpdated] = useState(false);
 
@@ -69,9 +77,12 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
       title: "",
       description: "",
       location: "",
+      state: "",
+      city: "",
       address: "",
       file: "",
       image: "",
+      imagePublicId: null,
       status: "ACTIVE",
       endDate: (() => {
         const date = new Date();
@@ -109,19 +120,17 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
     const parsedDates = JSON.stringify(dateTimeSelections);
     setIsLoading(true);
 
-    // subir imagen a uploadthings
     if (fileUpdated && files.length > 0) {
       try {
         const formData = new FormData();
         formData.append("file", files[0]);
-        const res = await uploadEventImage(formData);
-        if (!res) {
-          throw new Error("Oops something went wrong");
+        const res = await uploadImage(formData, "events");
+        if (!res || "ok" in res) {
+          throw new Error("Error subiendo la imagen");
         }
-        if (res.url) {
-          values.image = res.url;
-          setFileUpdated(false);
-        }
+        values.image = res.url;
+        values.imagePublicId = res.publicId;
+        setFileUpdated(false);
       } catch (error) {
         toast({
           variant: "destructive",
@@ -129,8 +138,6 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
         });
         setIsLoading(false);
         return;
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -145,31 +152,41 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
     const endDate = new Date(lastDate.date);
     endDate.setHours(23, 59, 0, 0);
 
-    createEvent({
-      title: values.title,
-      description: values.description,
-      location: values.location,
-      address: values.address,
-      image: values.image,
-      dates: parsedDates,
-      endDate: new Date(values.endDate).toISOString(),
-      producerId: producerId,
-      slug: `${values.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
-      status: values.status,
-    })
-      .then(() => {
-        form.reset();
-        setIsLoading(false);
-        toast({
-          title: "Evento creado!",
-        });
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: "error creando evento",
-        });
+    try {
+      await createEvent({
+        title: values.title,
+        description: values.description,
+        location: values.location,
+        state: values.state,
+        city: values.city,
+        address: values.address,
+        image: values.image,
+        imagePublicId: values.imagePublicId ?? null,
+        dates: parsedDates,
+        endDate: new Date(values.endDate).toISOString(),
+        producerId: producerId,
+        slug: `${values.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")}-${Date.now()}`,
+        status: values.status,
       });
+      form.reset();
+      setIsLoading(false);
+      toast({ title: "Evento creado!" });
+    } catch (error) {
+      // Next.js redirect() throws internally — re-throw so the navigation proceeds
+      if (
+        error instanceof Error &&
+        "digest" in error &&
+        typeof (error as { digest: unknown }).digest === "string" &&
+        (error as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+      ) {
+        throw error;
+      }
+      toast({ variant: "destructive", title: "error creando evento" });
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -203,9 +220,9 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
                     <FormItem>
                       <FormLabel>Descripción</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Descripción del evento"
-                          {...field}
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -217,20 +234,14 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
             <Box>
               <div className="space-y-4">
                 <h2 className="font-bold">Ubicación</h2>
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Lugar</FormLabel>
-                      <FormControl>
-                        <Input placeholder="ubicación del evento" {...field} />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <LocationSelect
+                  provinceValue={form.watch("state") ?? ""}
+                  cityValue={form.watch("city") ?? ""}
+                  onProvinceChange={(value) => form.setValue("state", value)}
+                  onCityChange={(value) => form.setValue("city", value)}
+                  disabled={isLoading}
                 />
+
                 <FormField
                   control={form.control}
                   name="address"
@@ -241,6 +252,27 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
                         <Input placeholder="Dirección del evento" {...field} />
                       </FormControl>
 
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Nombre del lugar{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (opcional)
+                        </span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ej: Teatro Colón, Estadio Monumental"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -387,8 +419,12 @@ export default function CreateEventForm({ producerId }: { producerId: string }) 
                           onFieldChange={field.onChange}
                           imageUrl={field.value}
                           setFiles={setFiles}
-                          setDeleteImageValue={setDeleteImageValue}
                           setFileUpdated={setFileUpdated}
+                          onDelete={async () => {
+                            // No Cloudinary image yet in create flow
+                            form.setValue("image", "");
+                            form.setValue("imagePublicId", null);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />

@@ -236,9 +236,12 @@ model Event {
   slug        String       @unique
   description String
   address     String
-  location    String
-  image       String?
-  dates       String?
+  location    String?
+  state       String?
+  city        String?
+  image         String?
+  imagePublicId String?
+  dates         String?
   startDate   DateTime?
   endDate     DateTime?
   status      GlobalStatus
@@ -427,16 +430,19 @@ model Promotion {
 // ─────────────────────────────────────────────
 
 model PaymentMethod {
-  id         String      @id @default(cuid())
-  type       PaymentType
-  name       String?
-  producerId String
-  userId     String? // Solo se usa si es CASH
-  creatorId  String // Usuario que creó este método
-  apiKey     String? // Solo para métodos tipo DIGITAL (ej: MP)
-  enabled    Boolean     @default(true)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id            String      @id @default(cuid())
+  type          PaymentType
+  name          String?
+  producerId    String
+  userId        String? // Solo se usa si es CASH
+  creatorId     String // Usuario que creó este método
+  apiKey        String? // Solo para métodos tipo DIGITAL (ej: MP)
+  cbu           String? // CBU/CVU para transferencias
+  alias         String? // Alias CBU para transferencias
+  transferEmail String? // Email para transferencias
+  enabled       Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   producer Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
   user     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -479,6 +485,7 @@ enum EventRole {
 enum PaymentType {
   CASH
   DIGITAL
+  TRANSFER
 }
 
 enum GlobalStatus {

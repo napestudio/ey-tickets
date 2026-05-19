@@ -3,7 +3,8 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { deleteEventImage, updateEvent, uploadEventImage } from "@/lib/actions";
+import { updateEvent } from "@/lib/actions";
+import { uploadImage, deleteImage } from "@/lib/image-actions";
 import { useState } from "react";
 
 import {
@@ -15,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import DatesPicker from "@/components/dates-picker/dates-picker";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/dashboard/rich-text-editor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
@@ -38,15 +39,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar } from "../ui/calendar";
+import { LocationSelect } from "@/components/location-select/location-select";
 
 const formSchema = z.object({
   title: z.string().min(5, {
     message: "El titulo debe tener al menos 5 caracteres.",
   }),
   description: z.string(),
-  location: z.string(),
+  location: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
   address: z.string(),
   image: z.string(),
+  imagePublicId: z.string().nullish(),
   file: z.any(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
   endDate: z.date({
@@ -58,7 +63,9 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   const parsedDates = JSON.parse(evento.dates);
   const [dateTimeSelections, setDateTimeSelections] = useState(parsedDates);
   const [files, setFiles] = useState<File[]>([]);
-  const [deleteImageValue, setDeleteImageValue] = useState<boolean>(false);
+  const [imagePublicId, setImagePublicId] = useState<string | null>(
+    evento.imagePublicId ?? null,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fileUpdated, setFileUpdated] = useState<boolean>(false);
 
@@ -69,9 +76,12 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     defaultValues: {
       title: evento.title,
       description: evento.description,
-      location: evento.location,
+      location: evento.location ?? "",
+      state: evento.state ?? "",
+      city: evento.city ?? "",
       address: evento.address,
       image: evento.image || "",
+      imagePublicId: evento.imagePublicId ?? null,
       file: evento.image || "",
       status: evento.status,
       endDate: new Date(evento.endDate || ""),
@@ -102,14 +112,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     setDateTimeSelections(updatedSelections);
   };
 
-  // const handleDeleteImage = async (url: string) => {
-  //   try {
-  //     await deleteEventImage(evento.image);
-  //   } catch (error) {
-  //     throw new Error("Error eliminando imagen");
-  //   }
-  // };
-
   // Encontrar la última fecha seleccionada
   const lastDate = dateTimeSelections.reduce((latest: any, selection: any) => {
     return new Date(selection.date) > new Date(latest.date)
@@ -125,24 +127,22 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     setIsLoading(true);
     const parsedDates = JSON.stringify(dateTimeSelections);
 
-    if (deleteImageValue) {
-      const res = await deleteEventImage(evento.image);
-      if (res.result === "ok") values.image = "";
-      setDeleteImageValue(false);
-    }
-
     if (fileUpdated && files.length > 0) {
       try {
+        // Delete previous Cloudinary image before uploading the new one
+        if (imagePublicId) {
+          await deleteImage(imagePublicId);
+        }
         const formData = new FormData();
         formData.append("file", files[0]);
-        const res = await uploadEventImage(formData);
-        if (!res) {
-          throw new Error("Oops something went wrong");
+        const res = await uploadImage(formData, "events");
+        if (!res || "ok" in res) {
+          throw new Error("Error subiendo la imagen");
         }
-        if (res.url) {
-          values.image = res.url;
-          setFileUpdated(false);
-        }
+        values.image = res.url;
+        values.imagePublicId = res.publicId;
+        setImagePublicId(res.publicId);
+        setFileUpdated(false);
       } catch (error) {
         toast({
           variant: "destructive",
@@ -150,8 +150,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
         });
         setIsLoading(false);
         return;
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -160,10 +158,12 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
         title: values.title,
         description: values.description,
         location: values.location,
+        state: values.state,
+        city: values.city,
         address: values.address,
         image: values.image || null,
+        imagePublicId: values.imagePublicId ?? imagePublicId,
         dates: parsedDates,
-
         endDate: new Date(values.endDate).toISOString(),
         status: values.status,
       },
@@ -220,9 +220,9 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                       <FormItem>
                         <FormLabel>Descripción</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Descripción del evento"
-                            {...field}
+                          <RichTextEditor
+                            value={field.value}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />
@@ -234,23 +234,14 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
               <Box>
                 <div className="space-y-4">
                   <h2 className="font-bold">Ubicación</h2>
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lugar</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="ubicación del evento"
-                            {...field}
-                          />
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  <LocationSelect
+                    provinceValue={form.watch("state") ?? ""}
+                    cityValue={form.watch("city") ?? ""}
+                    onProvinceChange={(value) => form.setValue("state", value)}
+                    onCityChange={(value) => form.setValue("city", value)}
+                    disabled={isLoading}
                   />
+
                   <FormField
                     control={form.control}
                     name="address"
@@ -264,6 +255,27 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                           />
                         </FormControl>
 
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Nombre del lugar{" "}
+                          <span className="text-muted-foreground font-normal">
+                            (opcional)
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ej: Teatro Colón, Estadio Monumental"
+                            {...field}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -414,8 +426,15 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                             onFieldChange={field.onChange}
                             imageUrl={field.value}
                             setFiles={setFiles}
-                            setDeleteImageValue={setDeleteImageValue}
                             setFileUpdated={setFileUpdated}
+                            onDelete={async (url) => {
+                              if (imagePublicId) {
+                                await deleteImage(imagePublicId);
+                              }
+                              setImagePublicId(null);
+                              form.setValue("image", "");
+                              form.setValue("imagePublicId", null);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

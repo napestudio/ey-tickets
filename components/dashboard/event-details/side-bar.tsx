@@ -7,7 +7,6 @@ import { Evento } from "@/types/event";
 import { Percent, Ticket, User } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { DiscountCodeDialog } from "./discount-code-dialog";
@@ -43,67 +42,8 @@ export default function SideBar({
   eventStockCap,
   soldTickets,
 }: SideBarProps) {
-  const renderStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; color: string }> = {
-      ACTIVE: {
-        label: "ACTIVO",
-        color: "bg-cyan-500/20 text-green-700 hover:bg-green-500/20",
-      },
-      CONCLUDED: {
-        label: "FINALIZADO",
-        color: "bg-gray-500/20 text-gray-700 hover:bg-gray-500/20",
-      },
-      CANCELED: {
-        label: "CANCELADO",
-        color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
-      },
-      DELETED: {
-        label: "ELIMINADO",
-        color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
-      },
-
-      DEFAULT: {
-        label: status,
-        color: "",
-      },
-    };
-
-    const { label, color } = statusMap[status] || statusMap.DEFAULT;
-
-    return (
-      <Badge className={color} variant="secondary">
-        {label}
-      </Badge>
-    );
-  };
-
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Detalles del evento</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {evento.status && (
-            <div>
-              <h4 className="text-sm font-medium mb-1">Estado</h4>
-              {renderStatusBadge(evento.status)}
-            </div>
-          )}
-
-          <div>
-            <h4 className="text-sm font-medium mb-1">Creado por</h4>
-            <p className="text-sm">{evento.producer?.name}</p>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium mb-1">Dirección</h4>
-            <p className="text-sm">
-              {evento.address} | {evento.location}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Ventas</CardTitle>{" "}
@@ -121,11 +61,9 @@ export default function SideBar({
                   </p>
                 </div> */}
         </CardContent>
-        <Separator />
 
         {eventStockCap !== null && (
           <>
-            <Separator />
             <CardHeader>
               <CardTitle>Stock del evento</CardTitle>
             </CardHeader>
@@ -154,7 +92,7 @@ export default function SideBar({
                 href={`/dashboard/evento/${evento.id}/vender-entrada`}
                 className={cn(
                   evento.status === "CANCELED" &&
-                    "opacity-50 pointer-events-none"
+                    "opacity-50 pointer-events-none",
                 )}
               >
                 <Ticket className="mr-2 h-4 w-4" />

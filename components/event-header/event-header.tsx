@@ -16,10 +16,11 @@ export default function EventHeader({
   height = 20,
 }: EventHeaderProps) {
   const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return `${description.slice(0, maxLength)}...`;
+    const plain = description.replace(/<[^>]*>/g, "");
+    if (plain.length > maxLength) {
+      return `${plain.slice(0, maxLength)}...`;
     }
-    return description;
+    return plain;
   };
   if (!evento) return;
   return (

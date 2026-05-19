@@ -8,7 +8,7 @@ export interface BasicCard {
 
 export interface HomeCard extends BasicCard {
   dates: string | null;
-  location: string;
+  location: string | null;
 }
 
 export interface DashboardCard extends BasicCard {}

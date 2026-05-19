@@ -27,7 +27,7 @@ export default function EventsHandler({
   const filteredEvents = eventos.filter(
     (event) =>
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.producer?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
