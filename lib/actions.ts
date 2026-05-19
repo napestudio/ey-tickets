@@ -38,7 +38,7 @@ import { getPaidOrdersDataByEvent } from "@/lib/api/orders";
 import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
-import cloudinary, { deleteFile, uploadFile } from "@/lib/cloudinary-upload";
+import { uploadImage as cloudinaryUpload, deleteImage as cloudinaryDelete } from "@/lib/cloudinary-upload";
 import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsPDF } from "jspdf";
@@ -49,10 +49,13 @@ export type Evento = {
   slug: string;
   description: string;
   address: string;
-  location: string;
+  location?: string | null;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   createdById?: string;
   image: string | null;
+  imagePublicId?: string | null;
   dates: string;
   status: EventStatus;
   endDate: string;
@@ -413,42 +416,55 @@ export async function deleteUser(userId: string, userEmail: string) {
 
 type PaymentMethodInput = {
   name?: string;
-  type: "CASH" | "DIGITAL";
+  type: "CASH" | "DIGITAL" | "TRANSFER";
   producerId: string;
   userId?: string;
   apiKey?: string | null;
+  cbu?: string | null;
+  alias?: string | null;
+  transferEmail?: string | null;
   enabled?: boolean;
   creatorId?: string;
 };
 
 export async function createPaymentMethod(data: PaymentMethodInput) {
-  const { type, userId } = data;
-  if (type === "CASH" && !userId) {
-    throw new Error("CASH tiene que contener un userId");
-  }
   try {
     const method = await PaymentMethod.createPaymentMethod(data);
-    revalidatePath("/dashboard/payment-methods");
+    revalidatePath("/dashboard/metodos-de-pago");
     return method;
   } catch (error) {
     throw new Error(`Error creando Metodo de Pago: ${error}`);
   }
 }
-export async function updatePaymentMethod(data: any, paymentMethodId: string) {
-  const { type, userId } = data;
 
-  if (type === "CASH" && !userId) {
-    throw new Error("CASH tiene que contener un userId");
+export async function createPuntoDeVenta(data: PaymentMethodInput) {
+  const { userId } = data;
+  if (!userId) {
+    throw new Error("Punto de venta requiere un vendedor asignado");
   }
+  try {
+    const method = await PaymentMethod.createPaymentMethod({
+      ...data,
+      type: "CASH",
+    });
+    revalidatePath("/dashboard/punto-de-venta");
+    return method;
+  } catch (error) {
+    throw new Error(`Error creando Punto de Venta: ${error}`);
+  }
+}
+
+export async function updatePaymentMethod(data: PaymentMethodInput, paymentMethodId: string) {
   try {
     const method = await PaymentMethod.updatePaymentMethod(
       data,
       paymentMethodId
     );
-    revalidatePath("/dashboard/payment-methods");
+    revalidatePath("/dashboard/metodos-de-pago");
+    revalidatePath("/dashboard/punto-de-venta");
     return method;
   } catch (error) {
-    throw new Error(`Error creando Metodo de Pago: ${error}`);
+    throw new Error(`Error actualizando Metodo de Pago: ${error}`);
   }
 }
 
@@ -1001,36 +1017,27 @@ export async function getSoldTicketsByType(tickets: any[]) {
   }
 }
 
-export async function uploadEventImage(formData: any) {
-  const file = formData.get("file") as File;
+export async function uploadEventImage(formData: FormData) {
+  const file = formData.get("file") as File | null;
   if (!file) return { ok: false, status: 400 };
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name.split(".")[0];
-    const res = (await uploadFile(
-      buffer,
-      `${process.env.CLIENT_ID}`,
-      fileName
-    )) as {
-      secure_url: string;
-      public_id: string;
-      format: string;
-    };
+    const { v4: uuidv4 } = await import("uuid");
+    const res = await cloudinaryUpload(buffer, "events", uuidv4());
     return {
       url: res.secure_url,
       publicId: res.public_id,
       format: res.format,
     };
-  } catch (error) {
-    //throw new Error("Error trayendo las entradas vendidas");
+  } catch {
     return { ok: false, status: 400 };
   }
 }
 
 export async function deleteEventImage(publicId: string) {
   try {
-    return await deleteFile(publicId);
-  } catch (error) {
+    return await cloudinaryDelete(publicId);
+  } catch {
     throw new Error("Error eliminando la imagen");
   }
 }

@@ -1,4 +1,5 @@
 import PaymentMethodsLoader from "@/app/(dashboard)/dashboard/metodos-de-pago/methods-loader";
+import { EventDescription } from "@/components/dashboard/event-description";
 import {
   Card,
   CardContent,
@@ -38,10 +39,10 @@ export default function DetailsTab({
           <CardTitle>Descripción del evento</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{evento.description}</p>
+          <EventDescription html={evento.description} />
         </CardContent>
       </Card>
-
+      {/* 
       <Card>
         <CardHeader>
           <CardTitle>Dirección</CardTitle>
@@ -49,7 +50,7 @@ export default function DetailsTab({
             {evento.location} | {evento.address}
           </CardDescription>
         </CardHeader>
-      </Card>
+      </Card> */}
       {!isSeller && isEventOwner && (
         <div className="flex flex-col max-w-[90vw] gap-5">
           {evento.eventPayments &&

@@ -14,11 +14,14 @@ export interface Evento {
   title: string;
   slug?: string;
   description: string;
-  location: string;
+  location?: string | null;
   address: string;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   createdById?: string | null;
   image: string;
+  imagePublicId?: string | null;
   dates: string;
   status?: EventStatus;
   discountCode?: DiscountCode[] | undefined;
@@ -33,8 +36,10 @@ export interface EventoWithTicketsType {
   title: string;
   slug?: string;
   description: string;
-  location: string;
+  location?: string | null;
   address: string;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   image: string;
   dates: string;
