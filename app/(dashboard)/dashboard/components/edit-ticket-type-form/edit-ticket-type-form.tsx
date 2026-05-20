@@ -50,6 +50,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { es } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
   selectedDates: z
@@ -72,11 +73,15 @@ const FormSchema = z.object({
 export default function EditTycketTypeForm({
   evento,
   ticket,
+  eventId,
 }: {
   evento: Evento;
   ticket: TicketType;
+  eventId: string;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
+  const backHref = `/dashboard/evento/${eventId}/edit?tab=tickets`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const parsedTicketDates = JSON.parse(ticket.dates as string);
   // Extraemos el valor date del string parseado de feachas
@@ -113,12 +118,13 @@ export default function EditTycketTypeForm({
       toast({
         title: "Tipo de ticket eliminado!",
       });
-      setIsLoading(false);
+      router.push(backHref);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al eliminar el tipo de ticket!",
       });
+    } finally {
       setIsLoading(false);
     }
   }
@@ -148,12 +154,14 @@ export default function EditTycketTypeForm({
       toast({
         title: "Tipo de ticket editado!",
       });
-      setIsLoading(false);
+      router.push(backHref);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al editar el tipo de ticket!",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   return (

@@ -1,16 +1,4 @@
-import {
-  getEventById,
-  getRemainingTicketsForEvent,
-  getTicketTypesByEventId,
-} from "@/lib/actions";
-import { Evento } from "@/types/event";
-import { TicketType } from "@/types/tickets";
-import TicketTypeAccordion from "@/app/(dashboard)/dashboard/components/ticket-types-accordion/ticket-types-accordion";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Dashboard | Tipos de tickets",
-};
+import { redirect } from "next/navigation";
 
 export default async function TicketTypePage({
   params,
@@ -18,27 +6,5 @@ export default async function TicketTypePage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const evento = await getEventById(eventId);
-  const [eventTicketTypes, remainingTickets] = await Promise.all([
-    getTicketTypesByEventId(eventId),
-    getRemainingTicketsForEvent(eventId, evento?.producerId || ""),
-  ]);
-  const serializedTicketTypes = eventTicketTypes?.map((t) => ({
-    ...t,
-    price: Number(t.price),
-    discount: t.discount !== null ? Number(t.discount) : null,
-  }));
-
-  return (
-    <>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Tipos de tickets
-      </h1>
-      <TicketTypeAccordion
-        ticketTypes={serializedTicketTypes as unknown as TicketType[]}
-        evento={evento as unknown as Evento}
-        remainingTickets={remainingTickets}
-      />
-    </>
-  );
+  redirect(`/dashboard/evento/${eventId}/edit?tab=tickets`);
 }

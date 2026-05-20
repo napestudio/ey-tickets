@@ -86,7 +86,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
 
       <TableCell>{renderStatusBadge(evento.status || "")}</TableCell>
       <TableCell>
-        <div className="w-[100px] space-y-1">
+        <div className="w-25 space-y-1">
           <div className="text-xs font-bold">
             $ {total?.toLocaleString("es-ar")}
           </div>

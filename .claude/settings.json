@@ -92,7 +92,8 @@
       "Bash(pnpm prisma migrate dev --name add_description_to_ticket_type)",
       "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -type f -name \"*.tsx\")",
       "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento\" -type f)",
-      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard\" -name \"*handler*\" -o -name \"*display*\")"
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard\" -name \"*handler*\" -o -name \"*display*\")",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets"

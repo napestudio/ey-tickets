@@ -40,15 +40,19 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Box from "@/components/dashboard/box";
 import { es } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 
 export default function TycketTypeForm({
   evento,
   remainingTickets,
+  redirectTo,
 }: {
   evento: Evento;
   remainingTickets: number;
+  redirectTo?: string;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const parsedEventDates = JSON.parse(evento.dates);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(false);
@@ -114,15 +118,19 @@ export default function TycketTypeForm({
       createTicketType(data);
       form.reset();
       setHasDiscount(false);
-      setIsLoading(false);
       toast({
         title: "Tipo de ticket creado!",
       });
+      if (redirectTo) {
+        router.push(redirectTo);
+      }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al crear el tipo de ticket!",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
