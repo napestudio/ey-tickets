@@ -1,4 +1,5 @@
 import { TicketType } from "@/types/tickets";
+import { Prisma } from "@prisma/client";
 import {prisma} from "../prisma";
 import { isAfter } from "date-fns";
 import {
@@ -46,18 +47,20 @@ export async function getTicketTypesWithStatsByEventId(eventId: string) {
 }
 
 export async function createTicketType(data: TicketType) {
-  return await prisma.ticketType.create({ data });
+  const { createdBy, ...createData } = data;
+  return await prisma.ticketType.create({
+    data: createData as Prisma.TicketTypeUncheckedCreateInput,
+  });
 }
 
 export async function updateTicketType(
   ticketId: string,
   ticketData: Partial<TicketType>
 ) {
+  const { createdBy, id, createdAt, updatedAt, ...updateData } = ticketData;
   return await prisma.ticketType.update({
-    where: {
-      id: ticketId,
-    },
-    data: ticketData,
+    where: { id: ticketId },
+    data: updateData as Prisma.TicketTypeUncheckedUpdateInput,
   });
 }
 
@@ -180,5 +183,8 @@ export async function createTicketTypeWithLimit(
     }
   }
 
-  return prisma.ticketType.create({ data: ticket });
+  const { createdBy, ...createData } = ticket;
+  return prisma.ticketType.create({
+    data: createData as Prisma.TicketTypeUncheckedCreateInput,
+  });
 }
