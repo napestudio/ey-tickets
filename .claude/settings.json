@@ -88,10 +88,34 @@
       "Bash(npx prisma db push)",
       "Bash(pnpm prisma migrate dev --name add-state-city-to-event)",
       "Bash(pnpm add @tiptap/react @tiptap/pm @tiptap/starter-kit)",
-      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/tailwind.*)"
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/tailwind.*)",
+      "Bash(pnpm prisma migrate dev --name add_description_to_ticket_type)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -type f -name \"*.tsx\")",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento\" -type f)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard\" -name \"*handler*\" -o -name \"*display*\")",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/)",
+      "Bash(xargs grep -l \"type Evento\\\\|interface Evento\")",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\" -name \"page.tsx\" -o -name \"layout.tsx\")",
+      "Bash(ls -la \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components/\")",
+      "Bash(xargs grep -l \"type TicketType\\\\|interface TicketType\")",
+      "Bash(ls -la '/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/configuracion/')",
+      "Bash(grep -l \"producerConfiguration\\\\|maxInvites\\\\|maxValidators\" \"c:/dev/ey-tickets-nextjs/ey-tickets/app/api\"/**/*.ts)",
+      "Bash(find '/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard' -type f -name 'page.tsx')",
+      "Bash(xargs ls -la)",
+      "Bash(ls \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]/edit/\")",
+      "Bash(ls -la \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/\")",
+      "Bash(ls -la \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]/\")",
+      "Bash(grep -n \"use client\\\\|async function\" /c/dev/ey-tickets-nextjs/ey-tickets/components/dashboard/event-details/index.tsx /c/dev/ey-tickets-nextjs/ey-tickets/components/dashboard/event-details/*.tsx)",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\" -name \"*.tsx\" -type f -exec grep -l \"contentEditable\" {} ;)",
+      "Bash(xargs grep -l \"updateEvent\")",
+      "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento\" -name \"*.tsx\" -o -name \"*.ts\")",
+      "Bash(pnpm prisma migrate dev --name add-created-by-to-ticket-type)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id]/ticket-types/new/)",
+      "Bash(pnpm prisma migrate dev --name add-logo-public-id)"
     ],
     "additionalDirectories": [
-      "c:\\dev\\ey-tickets-nextjs\\ey-tickets"
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets",
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(dashboard)\\dashboard\\evento\\[id]\\edit"
     ]
   }
 }

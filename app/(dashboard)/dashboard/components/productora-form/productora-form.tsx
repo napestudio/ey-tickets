@@ -19,6 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
 import { LocationSelect } from "@/components/location-select/location-select";
 import { updateProducerDetailsAction } from "@/lib/actions";
+import { uploadImage, deleteImage } from "@/lib/image-actions";
+import { LogoUploader } from "@/app/(dashboard)/dashboard/components/logo-uploader/logo-uploader";
 
 const FormSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -26,8 +28,8 @@ const FormSchema = z.object({
   phone: z.string().optional(),
   state: z.string().optional(),
   city: z.string().optional(),
-  website: z.string().optional(),
   logo: z.string().optional(),
+  logoPublicId: z.string().nullish(),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -39,12 +41,17 @@ type Producer = {
   phone: string | null;
   state: string | null;
   city: string | null;
-  website: string | null;
   logo: string | null;
+  logoPublicId: string | null;
 };
 
 export default function ProductoraForm({ producer }: { producer: Producer }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileUpdated, setFileUpdated] = useState(false);
+  const [logoPublicId, setLogoPublicId] = useState<string | null>(
+    producer.logoPublicId ?? null,
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -54,15 +61,50 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
       phone: producer.phone ?? "",
       state: producer.state ?? "",
       city: producer.city ?? "",
-      website: producer.website ?? "",
       logo: producer.logo ?? "",
+      logoPublicId: producer.logoPublicId ?? null,
     },
   });
+
+  const handleDeleteLogo = async () => {
+    if (logoPublicId) {
+      await deleteImage(logoPublicId);
+      setLogoPublicId(null);
+    }
+    setFiles([]);
+    setFileUpdated(false);
+    form.setValue("logo", "");
+    form.setValue("logoPublicId", null);
+  };
 
   async function onSubmit(data: FormValues) {
     setIsLoading(true);
     try {
-      await updateProducerDetailsAction(producer.id, data);
+      if (fileUpdated && files.length > 0) {
+        if (logoPublicId) {
+          await deleteImage(logoPublicId);
+        }
+        const formData = new FormData();
+        formData.append("file", files[0]);
+        const res = await uploadImage(formData, "producers", 300);
+        if ("ok" in res) {
+          throw new Error("Error subiendo el logo");
+        }
+        setLogoPublicId(res.publicId);
+        setFileUpdated(false);
+        data.logo = res.url;
+        data.logoPublicId = res.publicId;
+      }
+
+      await updateProducerDetailsAction(producer.id, {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        state: data.state,
+        city: data.city,
+        logo: data.logo,
+        logoPublicId: data.logoPublicId ?? null,
+      });
       toast({ title: "Datos actualizados correctamente" });
     } catch {
       toast({
@@ -78,11 +120,30 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
     <div className="mt-6">
       <h2 className="text-lg font-medium">Información general</h2>
       <p className="text-sm text-muted-foreground">
-        Actualizá los datos de contacto y presencia de tu productora.
+        Datos de contacto e información pública.
       </p>
       <Separator className="my-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="logo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Logo</FormLabel>
+                <FormControl>
+                  <LogoUploader
+                    imageUrl={field.value ?? ""}
+                    onFieldChange={field.onChange}
+                    setFiles={setFiles}
+                    setFileUpdated={setFileUpdated}
+                    onDelete={handleDeleteLogo}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
@@ -122,32 +183,6 @@ export default function ProductoraForm({ producer }: { producer: Producer }) {
                   <FormLabel>Teléfono</FormLabel>
                   <FormControl>
                     <Input placeholder="+54 11 1234-5678" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sitio web</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://www.productora.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="logo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Logo (URL)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

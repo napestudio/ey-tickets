@@ -29,6 +29,7 @@ export interface CreateProducerData {
   state?: string;
   city?: string;
   logo?: string;
+  logoPublicId?: string | null;
   website?: string;
 }
 

@@ -20,7 +20,7 @@ export type CloudinaryDeleteResult = {
 
 const MAX_SIZE_BYTES = 900 * 1024; // 900 KB
 
-async function compressToMaxSize(buffer: Buffer): Promise<Buffer> {
+async function compressToMaxSize(buffer: Buffer, maxWidth = 1920): Promise<Buffer> {
   const metadata = await sharp(buffer).metadata();
   const isAnimated = (metadata.pages ?? 1) > 1;
 
@@ -29,14 +29,14 @@ async function compressToMaxSize(buffer: Buffer): Promise<Buffer> {
 
   let quality = 85;
   let compressed: Buffer = await sharp(buffer)
-    .resize({ width: 1920, withoutEnlargement: true })
+    .resize({ width: maxWidth, withoutEnlargement: true })
     .jpeg({ quality, progressive: true })
     .toBuffer();
 
   while (compressed.length > MAX_SIZE_BYTES && quality > 20) {
     quality -= 10;
     compressed = await sharp(buffer)
-      .resize({ width: 1920, withoutEnlargement: true })
+      .resize({ width: maxWidth, withoutEnlargement: true })
       .jpeg({ quality, progressive: true })
       .toBuffer();
   }
@@ -47,9 +47,10 @@ async function compressToMaxSize(buffer: Buffer): Promise<Buffer> {
 export async function uploadImage(
   file: Buffer,
   folder: string,
-  publicId: string
+  publicId: string,
+  maxWidth = 1920
 ): Promise<CloudinaryUploadResult> {
-  const compressed = await compressToMaxSize(file);
+  const compressed = await compressToMaxSize(file, maxWidth);
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(

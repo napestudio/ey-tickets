@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { datesFormater } from "@/lib/utils";
+import EditEventForm from "@/components/dashboard/edit-event-form";
 
 interface DetailsTabProps {
   evento: Evento;
@@ -54,6 +55,29 @@ export default function DetailsTab({
     );
   };
 
+  if (isEventOwner && !isSeller) {
+    return (
+      <div className="space-y-8">
+        <EditEventForm evento={evento} />
+        <div className="pt-12">
+          <Separator />
+          <Card className="bg-black text-white mt-6">
+            <CardHeader>
+              <CardTitle>Eliminar evento permanentemente</CardTitle>
+              <CardDescription className="text-white">
+                Esta acción no se puede revertir. Por favor, asegúrate de que
+                deseas eliminar este evento antes de continuar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DeleteEventButton id={evento.id} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Card>
@@ -85,32 +109,6 @@ export default function DetailsTab({
           </div>
         </CardContent>
       </Card>
-      {/* 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dirección</CardTitle>
-          <CardDescription>
-            {evento.location} | {evento.address}
-          </CardDescription>
-        </CardHeader>
-      </Card> */}
-      {!isSeller && isEventOwner && (
-        <div className="pt-28">
-          <Separator />
-          <Card className="bg-black text-white">
-            <CardHeader>
-              <CardTitle>Eliminar evento permanentemente</CardTitle>
-              <CardDescription className="text-white">
-                Esta acción no se puede revertir. Por favor, asegúrate de que
-                deseas eliminar este evento antes de continuar.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DeleteEventButton id={evento.id} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </>
   );
 }

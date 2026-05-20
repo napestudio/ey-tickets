@@ -36,7 +36,7 @@ export default async function Perfil() {
     <div>
       <h2 className="text-lg font-medium">Perfil</h2>
       <p className="text-sm text-muted-foreground">
-        Administrá tu información personal.
+        Tus datos de usuario. Estos datos no son públicos.
       </p>
       <Separator className="my-4" />
 
@@ -47,7 +47,10 @@ export default async function Perfil() {
             <AvatarFallback className="text-lg">{initials}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-base">{name ?? "—"}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-base">{name ?? "—"} </p>{" "}
+              <Badge variant="secondary">{roleLabel}</Badge>
+            </div>
             <p className="text-sm text-muted-foreground">{email ?? "—"}</p>
           </div>
         </div>
@@ -64,12 +67,6 @@ export default async function Perfil() {
             <div className="rounded-md border p-4">
               <dt className="text-xs text-muted-foreground">Email</dt>
               <dd className="mt-1 text-sm font-medium">{email ?? "—"}</dd>
-            </div>
-            <div className="rounded-md border p-4">
-              <dt className="text-xs text-muted-foreground">Rol</dt>
-              <dd className="mt-1">
-                <Badge variant="secondary">{roleLabel}</Badge>
-              </dd>
             </div>
           </dl>
         </div>

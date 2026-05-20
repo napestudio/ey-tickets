@@ -6,12 +6,12 @@ import { can } from "@/lib/permissions";
 
 const BASE_ITEMS = [
   { title: "Perfil", href: "/dashboard/configuracion/perfil" },
-  { title: "Notificaciones", href: "/dashboard/configuracion/notificaciones" },
+  // { title: "Notificaciones", href: "/dashboard/configuracion/notificaciones" },
 ];
 
 const ADMIN_ITEMS = [
   { title: "Productora", href: "/dashboard/configuracion/productora" },
-  { title: "Mercado Pago", href: "/dashboard/configuracion/mercado-pago" },
+  // { title: "Mercado Pago", href: "/dashboard/configuracion/mercado-pago" },
 ];
 
 export default async function ConfiguracionLayout({
@@ -40,8 +40,8 @@ export default async function ConfiguracionLayout({
         </p>
       </div>
       <Separator />
-      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-        <aside className="lg:w-48 shrink-0">
+      <div className="flex gap-8 flex-col lg:gap-12">
+        <aside className="shrink-0">
           <SettingsNav items={navItems} />
         </aside>
         <div className="flex-1 min-w-0">{children}</div>

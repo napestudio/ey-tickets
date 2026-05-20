@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -49,6 +50,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { es } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
   selectedDates: z
@@ -57,6 +59,7 @@ const FormSchema = z.object({
       message: "Debes seleccionar al menos una fecha",
     }),
   title: z.string(),
+  description: z.string().optional(),
   price: z.number(),
   quantity: z.number(),
   discount: z.number().optional(),
@@ -70,11 +73,15 @@ const FormSchema = z.object({
 export default function EditTycketTypeForm({
   evento,
   ticket,
+  eventId,
 }: {
   evento: Evento;
   ticket: TicketType;
+  eventId: string;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
+  const backHref = `/dashboard/evento/ticket-types/${eventId}`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const parsedTicketDates = JSON.parse(ticket.dates as string);
   // Extraemos el valor date del string parseado de feachas
@@ -90,6 +97,7 @@ export default function EditTycketTypeForm({
     defaultValues: {
       selectedDates: datesValue, // Usamos el valor de date para el checkbox
       title: ticket.title,
+      description: ticket.description || "",
       price: ticket.price as number,
       status: ticket.status,
       quantity: ticket.quantity,
@@ -110,12 +118,13 @@ export default function EditTycketTypeForm({
       toast({
         title: "Tipo de ticket eliminado!",
       });
-      setIsLoading(false);
+      router.push(backHref);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al eliminar el tipo de ticket!",
       });
+    } finally {
       setIsLoading(false);
     }
   }
@@ -130,6 +139,7 @@ export default function EditTycketTypeForm({
 
     const data: Partial<TicketType> = {
       title: values.title,
+      description: values.description || null,
       price: values.price as number,
       dates: stringDates,
       quantity: values.quantity,
@@ -144,12 +154,14 @@ export default function EditTycketTypeForm({
       toast({
         title: "Tipo de ticket editado!",
       });
-      setIsLoading(false);
+      router.push(backHref);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al editar el tipo de ticket!",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -163,6 +175,23 @@ export default function EditTycketTypeForm({
               <FormLabel>Titulo</FormLabel>
               <FormControl>
                 <Input placeholder="Titulo del Ticket" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descripción</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Descripción del ticket (opcional)"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, Dispatch, SetStateAction, DragEvent } from "react";
+import {
+  useCallback,
+  useRef,
+  Dispatch,
+  SetStateAction,
+  DragEvent,
+} from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -33,7 +39,7 @@ export function FileUploader({
       setFiles([file]);
       onFieldChange(convertFileToUrl(file));
     },
-    [setFiles, onFieldChange, setFileUpdated]
+    [setFiles, onFieldChange, setFileUpdated],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +78,7 @@ export function FileUploader({
                 src={imageUrl}
                 alt="image"
                 fill
+                priority
                 className="object-cover aspect-square"
               />
               <Button
