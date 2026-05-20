@@ -29,7 +29,7 @@ export default function TicketsTab({ evento }: { evento: Evento }) {
         <CardFooter>
           <Button variant="outline">
             <Link
-              href={`/dashboard/evento/${evento.id}/edit?tab=tickets`}
+              href={`/dashboard/evento/ticket-types/${evento.id}`}
               className="flex items-center"
             >
               <Ticket className="mr-2 h-4 w-4" />

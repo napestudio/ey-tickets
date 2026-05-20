@@ -46,9 +46,9 @@ export default async function EditTicketTypePage({
     getRemainingTicketsForEvent(evento.id, evento?.producerId || ""),
   ]);
 
-  if (!ticketType) redirect(`/dashboard/evento/${id}/edit?tab=tickets`);
+  if (!ticketType) redirect(`/dashboard/evento/ticket-types/${id}`);
 
-  const backHref = `/dashboard/evento/${id}/edit?tab=tickets`;
+  const backHref = `/dashboard/evento/ticket-types/${id}`;
 
   return (
     <div className="space-y-6 pb-8">

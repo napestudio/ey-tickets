@@ -28,6 +28,23 @@ export async function getTicketTypesByEventId(eventId: string) {
   });
 }
 
+export async function getTicketTypesWithStatsByEventId(eventId: string) {
+  return await prisma.ticketType.findMany({
+    where: {
+      eventId,
+      status: { not: "DELETED" },
+    },
+    orderBy: { position: "asc" },
+    include: {
+      createdBy: { select: { id: true, name: true } },
+      orders: {
+        where: { status: "PAID", isInvitation: false },
+        select: { quantity: true },
+      },
+    },
+  });
+}
+
 export async function createTicketType(data: TicketType) {
   return await prisma.ticketType.create({ data });
 }

@@ -41,7 +41,7 @@ export default async function NewTicketTypePage({
     evento?.producerId || ""
   );
 
-  const backHref = `/dashboard/evento/${id}/edit?tab=tickets`;
+  const backHref = `/dashboard/evento/ticket-types/${id}`;
 
   return (
     <div className="space-y-6 pb-8">

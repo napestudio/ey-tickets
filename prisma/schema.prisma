@@ -81,6 +81,7 @@ model User {
   createdPaymentMethods  PaymentMethod[]         @relation("CreatedPaymentMethods")
   createdEvents          Event[]                 @relation("CreatedEvents")
   memberTicketAllocation MemberTicketAllocation?
+  createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
 }
 
 model UserConfiguration {
@@ -107,10 +108,11 @@ model Producer {
   phone     String?
   state     String?
   city      String?
-  logo      String?
-  website   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  logo          String?
+  logoPublicId  String?
+  website       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   members                 ProducerMember[]
   events                  Event[]
@@ -297,6 +299,7 @@ model TicketType {
   limit        Int?
   buyGet       Int?
   eventId      String
+  createdById  String?
   status       TicketTypeStatus
   type         TicketTypes
   startDate    DateTime?        @default(now())
@@ -312,6 +315,7 @@ model TicketType {
   promotion    Promotion[]
   ticketOrder  TicketOrder[]
   event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy    User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
   @@map("ticket_types")
 }

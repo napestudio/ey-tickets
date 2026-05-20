@@ -1,10 +1,5 @@
 import { Evento, EventoWithTicketsType } from "@/types/event";
 
-import { Calendar, MapPin, Users } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
-
-import { datesFormater } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 
 import DashboardHeader from "../dashboard-header";
@@ -30,6 +25,8 @@ import SideBar from "./side-bar";
 import SoldTicketsTab from "./sold-tickets-tab";
 import PaymentMethodsTab from "./payment-methods-tab";
 import MinimalEventSalesStats from "../mininimal-event-sales-stats";
+import AccionesTab from "./acciones-tab";
+
 export default async function EventDetails({
   evento,
 }: {
@@ -37,7 +34,7 @@ export default async function EventDetails({
 }) {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const groupedDates = datesFormater(evento.dates as string);
+
   if (evento.status === "DELETED") {
     redirect("/dashboard");
   }
@@ -63,6 +60,7 @@ export default async function EventDetails({
 
   const remaingingTickets = stockSummary.unallocated;
   const remainingInvites = maxInvitesAmount - usedInvites;
+
   return (
     <>
       <div className="space-y-6">
@@ -77,19 +75,6 @@ export default async function EventDetails({
         />
         <div className="grid gap-6 md:grid-cols-7">
           <div className="md:col-span-5 space-y-6">
-            <Card>
-              <div className="relative h-45 md:h-75 bg-neutral-300 w-full">
-                {evento.image && (
-                  <Image
-                    src={evento.image}
-                    alt={evento.title}
-                    fill
-                    className="object-cover rounded-t-lg"
-                  />
-                )}
-              </div>
-            </Card>
-
             <Tabs defaultValue="overview" className="w-full">
               <div className="overflow-x-auto max-w-[90vw] w-full">
                 <TabsList>
@@ -118,13 +103,14 @@ export default async function EventDetails({
                   >
                     Métodos de pago
                   </TabsTrigger>
+                  <TabsTrigger value="acciones">Acciones</TabsTrigger>
                 </TabsList>
               </div>
               <TabsContent value="overview" className="space-y-6">
                 <DetailsTab
                   isEventOwner={isEventOwner}
                   isSeller={isSeller}
-                  evento={evento}
+                  evento={evento as unknown as Evento}
                 />
               </TabsContent>
               <TabsContent value="tickets" className="space-y-6">
@@ -139,18 +125,22 @@ export default async function EventDetails({
               <TabsContent value="paymentMethods" className="space-y-6">
                 <PaymentMethodsTab evento={evento} session={session} />
               </TabsContent>
+              <TabsContent value="acciones" className="space-y-6">
+                <AccionesTab
+                  evento={evento as unknown as Evento}
+                  isSeller={isSeller}
+                  isEventOwner={isEventOwner}
+                  remainingInvites={remainingInvites}
+                  remainingTickets={remaingingTickets}
+                  maxInvitesAmount={maxInvitesAmount}
+                  soldTickets={soldTickets}
+                />
+              </TabsContent>
             </Tabs>
           </div>
           <div className="md:col-span-2 space-y-6">
             <SideBar
-              evento={evento}
-              isEventOwner={isEventOwner}
-              isSeller={isSeller}
-              remainingInvites={remainingInvites}
-              remainingTickets={remaingingTickets}
-              maxInvitesAmount={maxInvitesAmount}
               salesStats={<MinimalEventSalesStats eventId={evento.id} />}
-              soldTickets={soldTickets}
               eventStockCap={eventAllocation?.quantity ?? null}
             />
           </div>

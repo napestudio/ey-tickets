@@ -11,7 +11,7 @@ import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
-import { updateProducer } from "@/lib/api/producers";
+import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
 import { EventStatus } from "@/types/event";
 import { Product } from "@/types/product";
@@ -42,6 +42,8 @@ import { uploadImage as cloudinaryUpload, deleteImage as cloudinaryDelete } from
 import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsPDF } from "jspdf";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 // Type temporal
 export type Evento = {
@@ -196,6 +198,14 @@ export async function getTicketTypesByEventId(eventId: string) {
   }
 }
 
+export async function getTicketTypesWithStatsByEventId(eventId: string) {
+  try {
+    return await TicketTypes.getTicketTypesWithStatsByEventId(eventId);
+  } catch (error) {
+    throw new Error("Error en getTicketTypesWithStatsByEventId");
+  }
+}
+
 export async function getTyicketTypeById(ticketTypeId: string) {
   try {
     const result = await TicketTypes.getTicketTypesById(ticketTypeId);
@@ -244,12 +254,21 @@ export async function getUsedInvitesByProducer(producerId: string) {
 }
 
 export async function createTicketType(data: TicketType) {
+  const session = await getServerSession(authOptions);
+  const createdById = session?.user?.id ?? null;
+
+  const dataWithCreator = { ...data, createdById };
+
   try {
     const event = await Eventos.getEventById(data.eventId);
     if (event?.producerId) {
-      await TicketTypes.createTicketTypeWithLimit(data, event.producerId);
+      await TicketTypes.createTicketTypeWithLimit(
+        dataWithCreator,
+        event.producerId,
+        createdById ?? undefined
+      );
     } else {
-      await TicketTypes.createTicketType(data);
+      await TicketTypes.createTicketType(dataWithCreator);
     }
   } catch (error) {
     throw new Error(
@@ -257,7 +276,7 @@ export async function createTicketType(data: TicketType) {
     );
   }
 
-  revalidatePath(`/dashboard/evento/${data.eventId}/edit`);
+  revalidatePath(`/dashboard/evento/ticket-types/${data.eventId}`);
 }
 
 export async function updateTicketType(
@@ -1146,9 +1165,22 @@ export async function updateProducerDetailsAction(
     city?: string;
     website?: string;
     logo?: string;
+    logoPublicId?: string | null;
   }
 ) {
   await updateProducer(producerId, data);
+  revalidatePath("/dashboard/configuracion/productora");
+}
+
+export async function updateProducerConfigurationAction(
+  producerId: string,
+  data: {
+    serviceCharge?: number;
+    maxValidatorsPerEvent?: number;
+    maxInvitesPerEvent?: number;
+  }
+) {
+  await updateProducerConfiguration(producerId, data);
   revalidatePath("/dashboard/configuracion/productora");
 }
 

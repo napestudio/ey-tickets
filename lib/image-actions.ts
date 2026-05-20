@@ -20,7 +20,8 @@ type UploadError = {
  */
 export async function uploadImage(
   formData: FormData,
-  folder: string
+  folder: string,
+  maxWidth = 1920
 ): Promise<UploadSuccess | UploadError> {
   const file = formData.get("file") as File | null;
   if (!file) return { ok: false };
@@ -28,7 +29,7 @@ export async function uploadImage(
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
     const publicId = uuidv4();
-    const result = await cloudinaryUpload(buffer, folder, publicId);
+    const result = await cloudinaryUpload(buffer, folder, publicId, maxWidth);
     return {
       url: result.secure_url,
       publicId: result.public_id,

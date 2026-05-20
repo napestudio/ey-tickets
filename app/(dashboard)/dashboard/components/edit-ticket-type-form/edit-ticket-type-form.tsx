@@ -81,7 +81,7 @@ export default function EditTycketTypeForm({
 }) {
   const { toast } = useToast();
   const router = useRouter();
-  const backHref = `/dashboard/evento/${eventId}/edit?tab=tickets`;
+  const backHref = `/dashboard/evento/ticket-types/${eventId}`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const parsedTicketDates = JSON.parse(ticket.dates as string);
   // Extraemos el valor date del string parseado de feachas

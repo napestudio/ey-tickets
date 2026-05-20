@@ -19,6 +19,8 @@ export interface TicketType {
   time?: string | null;
   price: number;
   eventId: string;
+  createdById?: string | null;
+  createdBy?: { id: string; name: string | null } | null;
   discount?: number | null;
   buyGet?: number | null;
   limit?: number | null;
@@ -32,6 +34,10 @@ export interface TicketType {
   createdAt?: Date;
   updatedAt?: Date;
   isFree?: boolean;
+}
+
+export interface TicketTypeWithStats extends TicketType {
+  totalSold: number;
 }
 
 export type DatesType = {
