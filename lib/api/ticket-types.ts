@@ -1,6 +1,6 @@
 import { TicketType } from "@/types/tickets";
 import { Prisma } from "@prisma/client";
-import {prisma} from "../prisma";
+import { prisma } from "../prisma";
 import { isAfter } from "date-fns";
 import {
   getProducerStockSummary,
@@ -55,7 +55,7 @@ export async function createTicketType(data: TicketType) {
 
 export async function updateTicketType(
   ticketId: string,
-  ticketData: Partial<TicketType>
+  ticketData: Partial<TicketType>,
 ) {
   const { createdBy, id, createdAt, updatedAt, ...updateData } = ticketData;
   return await prisma.ticketType.update({
@@ -66,7 +66,9 @@ export async function updateTicketType(
 
 // ─── Legacy: mantenidas por compatibilidad ────────────────────────────────────
 
-export async function getMaxTicketsPerEvent(producerId: string): Promise<number> {
+export async function getMaxTicketsPerEvent(
+  producerId: string,
+): Promise<number> {
   const config = await prisma.producerConfiguration.findUnique({
     where: { producerId },
     select: { maxTicketsPerEvent: true },
@@ -106,7 +108,7 @@ export async function getRemainingTicketsByProducer(producerId: string) {
     for (const ticket of event.ticketTypes) {
       const sold = ticket.orders.reduce(
         (acc, order) => acc + order.quantity,
-        0
+        0,
       );
 
       if (isEventActive) {
@@ -126,14 +128,14 @@ export async function getRemainingTicketsByProducer(producerId: string) {
 export async function createTicketTypeWithLimit(
   ticket: TicketType,
   producerId: string,
-  creatorUserId?: string
+  creatorUserId?: string,
 ) {
   // 1. Pool de la productora
   const summary = await getProducerStockSummary(producerId);
 
   if (summary.unallocated < ticket.quantity) {
     throw new Error(
-      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`
+      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`,
     );
   }
 
@@ -152,7 +154,7 @@ export async function createTicketTypeWithLimit(
 
     if (ticket.quantity > remainingForEvent) {
       throw new Error(
-        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`
+        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`,
       );
     }
   }
@@ -177,7 +179,7 @@ export async function createTicketTypeWithLimit(
 
       if (ticket.quantity > remainingForMember) {
         throw new Error(
-          `Superaste tu cupo personal de tickets. Disponibles: ${remainingForMember}, solicitado: ${ticket.quantity}`
+          `Superaste tu cupo personal de tickets. Disponibles: ${remainingForMember}, solicitado: ${ticket.quantity}`,
         );
       }
     }
