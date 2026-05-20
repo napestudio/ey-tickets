@@ -289,6 +289,7 @@ model EventMember {
 model TicketType {
   id           String           @id @default(cuid())
   title        String
+  description  String?
   date         DateTime?
   time         String?
   price        Decimal          @db.Decimal(10, 2)

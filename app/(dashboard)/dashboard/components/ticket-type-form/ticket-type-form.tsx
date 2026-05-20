@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -58,6 +59,7 @@ export default function TycketTypeForm({
         message: "Debes seleccionar al menos una fecha",
       }),
     title: z.string(),
+    description: z.string().optional(),
     price: z.number(),
     quantity: z.number().max(remainingTickets || 0, {
       message: `No podés crear más de tickets de los disponibles.`,
@@ -74,6 +76,7 @@ export default function TycketTypeForm({
     defaultValues: {
       selectedDates: [],
       title: "",
+      description: "",
       price: 0,
       status: "ACTIVE",
       quantity: 0,
@@ -93,6 +96,7 @@ export default function TycketTypeForm({
 
     const data: TicketType = {
       title: values.title,
+      description: values.description || null,
       price: !values.isFree ? (values.price as number) : 0,
       dates: stringDates,
       quantity: values.quantity,
@@ -138,6 +142,22 @@ export default function TycketTypeForm({
                       <FormLabel>Titulo</FormLabel>
                       <FormControl>
                         <Input placeholder="Titulo del Ticket" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descripción</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Descripción del ticket (opcional)"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

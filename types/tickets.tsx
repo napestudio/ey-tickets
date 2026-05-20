@@ -14,6 +14,7 @@ type TicketTypes =
 export interface TicketType {
   id?: string;
   title: string;
+  description?: string | null;
   date?: Date | null;
   time?: string | null;
   price: number;

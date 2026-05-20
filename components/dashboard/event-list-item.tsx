@@ -68,7 +68,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
   return (
     <>
       <TableCell>
-        <div className="relative h-10 w-[60px]">
+        <div className="relative h-15 w-15">
           <Image
             src={evento.image || "/placeholder.svg"}
             alt={evento.title}
@@ -79,9 +79,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
       </TableCell>
       <TableCell className="font-medium">{evento.title}</TableCell>
       <TableCell>{formattedDate}</TableCell>
-      <TableCell className="max-w-[180px] truncate">
-        {evento.location}
-      </TableCell>
+      <TableCell className="max-w-45 truncate">{evento.location}</TableCell>
       <TableCell>
         <Badge variant="outline">{evento.producer?.name}</Badge>
       </TableCell>

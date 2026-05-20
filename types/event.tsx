@@ -28,7 +28,9 @@ export interface Evento {
   ticketTypes?: TicketType[];
   validatorToken?: ValidatorToken[];
   eventPayments?: EventPayment[];
-  endDate?: Date;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  createdAt?: Date;
   producer?: { id: string; name: string; slug: string } | null;
 }
 export interface EventoWithTicketsType {

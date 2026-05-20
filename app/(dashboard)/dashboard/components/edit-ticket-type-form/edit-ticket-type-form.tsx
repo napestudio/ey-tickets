@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -57,6 +58,7 @@ const FormSchema = z.object({
       message: "Debes seleccionar al menos una fecha",
     }),
   title: z.string(),
+  description: z.string().optional(),
   price: z.number(),
   quantity: z.number(),
   discount: z.number().optional(),
@@ -90,6 +92,7 @@ export default function EditTycketTypeForm({
     defaultValues: {
       selectedDates: datesValue, // Usamos el valor de date para el checkbox
       title: ticket.title,
+      description: ticket.description || "",
       price: ticket.price as number,
       status: ticket.status,
       quantity: ticket.quantity,
@@ -130,6 +133,7 @@ export default function EditTycketTypeForm({
 
     const data: Partial<TicketType> = {
       title: values.title,
+      description: values.description || null,
       price: values.price as number,
       dates: stringDates,
       quantity: values.quantity,
@@ -163,6 +167,23 @@ export default function EditTycketTypeForm({
               <FormLabel>Titulo</FormLabel>
               <FormControl>
                 <Input placeholder="Titulo del Ticket" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descripción</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Descripción del ticket (opcional)"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
