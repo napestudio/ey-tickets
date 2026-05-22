@@ -238,7 +238,6 @@ model Event {
   slug        String       @unique
   description String
   address     String
-  location    String?
   state       String?
   city        String?
   image         String?
@@ -246,7 +245,13 @@ model Event {
   dates         String?
   startDate   DateTime?
   endDate     DateTime?
-  status      GlobalStatus
+  status          GlobalStatus
+  category        EventCategory?
+  legalText       String?
+  restrictions    String[]
+  venue           String?
+  ageRestriction  Int?
+  website         String?
   producerId  String
   createdById String?
   createdAt   DateTime     @default(now())
@@ -543,4 +548,22 @@ enum TicketPackageStatus {
   ACTIVE
   EXPIRED
   CANCELED
+}
+
+enum EventCategory {
+  MUSIC
+  THEATER
+  CONFERENCE
+  SPORT
+  ART
+  GASTRONOMY
+  COMEDY
+  DANCE
+  FESTIVAL
+  CINEMA
+  CORPORATE
+  EXHIBITION
+  NIGHTLIFE
+  WORKSHOP
+  OTHER
 }

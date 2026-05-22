@@ -79,7 +79,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
       </TableCell>
       <TableCell className="font-medium">{evento.title}</TableCell>
       <TableCell>{formattedDate}</TableCell>
-      <TableCell className="max-w-45 truncate">{evento.location}</TableCell>
+      <TableCell className="max-w-45 truncate">{evento.venue}</TableCell>
       <TableCell>{evento.producer?.name}</TableCell>
 
       <TableCell>{renderStatusBadge(evento.status || "")}</TableCell>
@@ -91,7 +91,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
           {/* <Progress value={soldPercentage} className="h-2" /> */}
         </div>
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
@@ -112,9 +112,8 @@ export default function EventListItem({ evento }: { evento: Evento }) {
                   </Link>
                 </DropdownMenuItem>
               ))}
-            <DropdownMenuItem>
-              {" "}
-              <Link href={`/dashboard/evento/${evento.id}/edit?tab=tickets`}>
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/evento/ticket-types/${evento.id}`}>
                 Tickets
               </Link>
             </DropdownMenuItem>

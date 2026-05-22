@@ -13,7 +13,7 @@ import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
 import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
-import { EventStatus } from "@/types/event";
+import { EventCategory, EventStatus } from "@/types/event";
 import { Product } from "@/types/product";
 import { DatesType, TicketOrderType, TicketType } from "@/types/tickets";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -21,7 +21,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { DiscountCode } from "@/types/discount-code";
 import { UserInvitation as InvitationType } from "@/types/user-invitations";
-import QRCode from "qrcode";
 import bcrypt from "bcryptjs";
 import {
   sendTicketConfirmationEmail,
@@ -51,7 +50,6 @@ export type Evento = {
   slug: string;
   description: string;
   address: string;
-  location?: string | null;
   state?: string | null;
   city?: string | null;
   producerId: string;
@@ -61,6 +59,12 @@ export type Evento = {
   dates: string;
   status: EventStatus;
   endDate: string;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 };
 
 export async function createEvent(data: Evento) {
@@ -698,10 +702,9 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   const eventData = await Eventos.getEventById(tickets[0].eventId!);
 
   for (const ticket of tickets) {
-    const path = await setQrCode(ticket.id);
     qrTickets.push({
       code: ticket.code ?? 0,
-      path,
+      ticketId: ticket.id ?? "",
       date: ticket.date,
       ticketType: { title: ticket.ticketType?.title ?? "" },
     });
@@ -710,19 +713,14 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   await sendTicketConfirmationEmail({
     recipientEmail: tickets[0].email,
     eventTitle: eventData?.title ?? '',
-    eventLocation: eventData?.location ?? '',
+    eventLocation: eventData?.venue ?? eventData?.city ?? '',
     eventAddress: eventData?.address ?? '',
     tickets: qrTickets,
   });
 }
 
 export async function setQrCode(ticketId = "") {
-  try {
-    // Generate the QR code
-    return await QRCode.toDataURL(`${ticketId}`);
-  } catch (err) {
-    throw new Error("Error generando codigo QR");
-  }
+  return `${process.env.BASE_URL}/api/tickets/qr/${ticketId}`;
 }
 
 export async function validateTicketById(ticketId: string, eventId: string) {
@@ -1146,7 +1144,7 @@ export const downloadPdfFile = async (ticketId: any) => {
   doc.text(`${response.order.ticketType.title || "-"}`, 20, 48);
   doc.text(`Fecha:  ${formattedDate}`, 20, 53);
   doc.text(`Dirección: ${response.event.address || "-"}`, 20, 58);
-  doc.text(`Lugar: ${response.event.location || "-"}`, 20, 63);
+  doc.text(`Lugar: ${response.event.venue || response.event.city || "-"}`, 20, 63);
 
   // Agregar imagen QR al PDF (posición x: 140, y: 30, tamaño: 50x50)
   doc.addImage(qrCodeBase64, "PNG", 20, 68, 40, 40);

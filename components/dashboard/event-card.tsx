@@ -65,7 +65,7 @@ export default function EventCard({
               <CardDescription>
                 <span className="flex items-center gap-2 mb-2">
                   <MapPin className="mr-1 h-4 w-4" />
-                  {evento.location}
+                  {evento.venue}
                 </span>
                 <span className="flex items-center gap-2 mb-4">
                   <Calendar className="mr-1 h-4 w-4" />

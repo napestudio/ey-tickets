@@ -9,12 +9,28 @@ export type EventStatus =
   | "CONCLUDED"
   | "DELETED";
 
+export type EventCategory =
+  | "MUSIC"
+  | "THEATER"
+  | "CONFERENCE"
+  | "SPORT"
+  | "ART"
+  | "GASTRONOMY"
+  | "COMEDY"
+  | "DANCE"
+  | "FESTIVAL"
+  | "CINEMA"
+  | "CORPORATE"
+  | "EXHIBITION"
+  | "NIGHTLIFE"
+  | "WORKSHOP"
+  | "OTHER";
+
 export interface Evento {
   id: string;
   title: string;
   slug?: string;
   description: string;
-  location?: string | null;
   address: string;
   state?: string | null;
   city?: string | null;
@@ -32,13 +48,18 @@ export interface Evento {
   endDate?: Date | null;
   createdAt?: Date;
   producer?: { id: string; name: string; slug: string } | null;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 }
 export interface EventoWithTicketsType {
   id: string;
   title: string;
   slug?: string;
   description: string;
-  location?: string | null;
   address: string;
   state?: string | null;
   city?: string | null;
@@ -52,4 +73,10 @@ export interface EventoWithTicketsType {
   eventPayments?: EventPayment[];
   tickets?: Partial<TicketOrderType>[] | undefined;
   producer?: { id: string; name: string; slug: string } | null;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 }

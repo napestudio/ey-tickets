@@ -145,7 +145,7 @@ export const getEventById = cache(async (eventId: string) => {
           order: {
             select: {
               event: {
-                select: { title: true, location: true, address: true },
+                select: { title: true, venue: true, address: true },
               },
               ticketType: {
                 select: { title: true },

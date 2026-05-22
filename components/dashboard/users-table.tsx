@@ -171,7 +171,7 @@ export default function UsersTable({
                           alt={account.name || "Avatar"}
                         />
                         <AvatarFallback>
-                          {account.name!.substring(0, 2).toUpperCase()}
+                          {account.name?.substring(0, 2).toUpperCase() || "EY"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -183,7 +183,9 @@ export default function UsersTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <RoleBadge role={account.producerMember?.role as OrganizationRole} />
+                    <RoleBadge
+                      role={account.producerMember?.role as OrganizationRole}
+                    />
                   </TableCell>
                   <TableCell>0</TableCell>
                   {/* {customer.type !== "SUPERADMIN" && ( */}
