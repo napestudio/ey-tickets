@@ -10,10 +10,6 @@ import type { TextColor, HeroBackground, ButtonVariant } from "@/components/webs
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-//type HeroBackground = "none" | "muted" | "primary" | "dark";
-//type TextColor      = "white" | "muted" | "accent" | "black";
-//type ButtonVariant  = "primary" | "secondary" | "ghost" | "outline" | "link";
-
 interface HeroContextValue {
   background: HeroBackground;
 }
