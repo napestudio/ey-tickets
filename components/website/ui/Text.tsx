@@ -1,42 +1,29 @@
 "use client";
 import * as React from "react";
+
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+import { textSizeTokens, colorTokens, weightTokens } from "@/components/website/ui/lib/design-system/tokens";
+import { InlineTag } from "./lib/design-system/types"; 
+
 const textVariants = cva("font-base-neue", {
   variants: {
-    size: {
-      xs: "text-sm",
-      sm: "text-base",
-      md: "text-xl",
-    },
-    color: {
-      white: "text-white",
-      muted: "text-white/60",
-      accent: "text-brand-400",
-      black: "text-black",
-    },
-    weight: {
-      normal: "font-normal",
-      bold: "font-bold",
-    },
+    size:   textSizeTokens,   // solo xs | sm | md
+    color:  colorTokens,
+    weight: weightTokens,
   },
   // Default "black" para evitar texto invisible sobre fondos blancos
-  defaultVariants: { size: "md", color: "black", weight: "normal" },
+  defaultVariants: { size: "sm", color: "black", weight: "normal" },
 });
 
-// ─── Tipos por tag ────────────────────────────────────────────────────────────
-// Separa label del resto para forzar htmlFor cuando se usa como label.
-
-type InlineTag = "p" | "span" | "strong" | "em";
-
-interface TextBaseProps
+interface RichTextBaseProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "color">,
     VariantProps<typeof textVariants> {
   as?: InlineTag;
 }
 
-interface TextLabelProps
+interface RichTextProps
   extends Omit<React.LabelHTMLAttributes<HTMLLabelElement>, "color">,
     VariantProps<typeof textVariants> {
   as: "label";
@@ -44,11 +31,11 @@ interface TextLabelProps
   htmlFor: string;
 }
 
-type TextProps = TextBaseProps | TextLabelProps;
+type TextProps = RichTextBaseProps | RichTextProps;
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-const Text = React.forwardRef<HTMLElement, TextProps>(
+const RichText = React.forwardRef<HTMLElement, TextProps>(
   ({ as: Tag = "p", size, color, weight, className, ...rest }, ref) => {
     const Component = Tag as React.ElementType;
 
@@ -81,7 +68,7 @@ const Text = React.forwardRef<HTMLElement, TextProps>(
     );
   }
 );
-Text.displayName = "Text";
+RichText.displayName = "RichText";
 
-export { Text };
-export type { TextProps, TextBaseProps, TextLabelProps };
+export { RichText };
+export type { TextProps, RichTextBaseProps, RichTextProps };

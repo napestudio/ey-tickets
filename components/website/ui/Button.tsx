@@ -1,36 +1,37 @@
 "use client";
+import * as React from "react";
 import Link from "next/link";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+
+import {
+  buttonVariantTokens,
+  buttonSizeTokens,
+} from "@/components/website/ui/lib/design-system/tokens";
+import type { ButtonVariant, ButtonSize } from "@/components/website/ui/lib/design-system/types";
+
+// ─── Variantes ────────────────────────────────────────────────────────────────
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-xl font-base-neue font-bold transition-colors cursor-pointer",
   {
     variants: {
-      variant: {
-        primary: "bg-black text-white hover:bg-white/10",
-        secondary: "bg-transparent border border-white text-white hover:bg-white/10",
-        ghost: "bg-transparent text-black hover:bg-white/10",
-        outline: "bg-transparent border border-black text-black hover:bg-white/10",
-        link: "bg-transparent text-black underline-offset-4 hover:underline",
-      },
-      size: {
-        sm: "text-sm px-4 py-2",
-        md: "text-base px-6 py-3",
-        lg: "text-xl px-8 py-4",
-      },
+      variant: buttonVariantTokens,
+      size:    buttonSizeTokens,
     },
     defaultVariants: { variant: "primary", size: "md" },
   }
 );
 
-// Props base compartidas
-interface BaseProps extends VariantProps<typeof buttonVariants> {
+// ─── Props ────────────────────────────────────────────────────────────────────
+
+interface BaseProps {
+  variant?:   ButtonVariant;
+  size?:      ButtonSize;
   className?: string;
-  children: React.ReactNode;
+  children:   React.ReactNode;
 }
 
-// Dos tipos mutuamente exclusivos
 type AsButton = BaseProps &
   Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps> & {
     href?: never;
@@ -41,23 +42,40 @@ type AsLink = BaseProps &
     href: string;
   };
 
-type ButtonProps = AsButton | AsLink;
+export type ButtonProps = AsButton | AsLink;
 
-export function Button({ variant, size, className, children, ...rest }: ButtonProps) {
+// ─── Componente ───────────────────────────────────────────────────────────────
+
+const Button = React.forwardRef<
+  HTMLButtonElement,
+  ButtonProps
+>(({ variant, size, className, children, ...rest }, ref) => {
   const classes = cn(buttonVariants({ variant, size }), className);
 
   if ("href" in rest && rest.href !== undefined) {
     const { href, ...linkRest } = rest as AsLink;
     return (
-      <Link href={href} className={classes} {...linkRest}>
+      <Link
+        href={href}
+        className={classes}
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        {...linkRest}
+      >
         {children}
       </Link>
     );
   }
 
   return (
-    <button className={classes} {...(rest as AsButton)}>
+    <button
+      className={classes}
+      ref={ref as React.Ref<HTMLButtonElement>}
+      {...(rest as AsButton)}
+    >
       {children}
     </button>
   );
-}
+});
+Button.displayName = "Button";
+
+export { Button };

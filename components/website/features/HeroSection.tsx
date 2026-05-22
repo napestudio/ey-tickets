@@ -3,14 +3,16 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/website/ui/Button";
-import { Text } from "@/components/website/ui/Text";
+import { RichText } from "@/components/website/ui/Text";
 import { Title } from "../ui/Title";
+
+import type { TextColor, HeroBackground, ButtonVariant } from "@/components/website/ui/lib/design-system/types";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-type HeroBackground = "none" | "muted" | "primary" | "dark";
-type TextColor      = "white" | "muted" | "accent" | "black";
-type ButtonVariant  = "primary" | "secondary" | "ghost" | "outline" | "link";
+//type HeroBackground = "none" | "muted" | "primary" | "dark";
+//type TextColor      = "white" | "muted" | "accent" | "black";
+//type ButtonVariant  = "primary" | "secondary" | "ghost" | "outline" | "link";
 
 interface HeroContextValue {
   background: HeroBackground;
@@ -135,7 +137,7 @@ const HeroEyebrow = React.forwardRef<HTMLElement, HeroEyebrowProps>(
   ({ className, color, ...props }, ref) => {
     const { background } = useHeroContext();
     return (
-      <Text
+      <RichText
         ref={ref}
         as="p"
         size="xs"
@@ -207,7 +209,7 @@ const HeroDescription = React.forwardRef<HTMLElement, HeroDescriptionProps>(
   ({ className, color, ...props }, ref) => {
     const { background } = useHeroContext();
     return (
-      <Text
+      <RichText
         ref={ref}
         as="p"
         size="sm"

@@ -12,14 +12,14 @@ interface LabelProps
   className?: string;
 }
 
-function Label({ className, ...props }: LabelProps) {
+function Label({ className, ...rest }: LabelProps) {
   return (
-    <label
-      data-slot="label"
+    <label      
       className={cn(labelVariants(), className)}
-      {...props}
+      {...rest}
     />
   );
 }
 
 export { Label };
+export type { LabelProps };

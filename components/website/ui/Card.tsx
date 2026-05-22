@@ -2,22 +2,20 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Title } from "./Title";
-import { Text } from "./Text";
+import { RichText } from "./Text";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type TextColor = "white" | "muted" | "accent" | "black";
+import type { TextColor } from "@/components/website/ui/lib/design-system/types";
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     className={cn("rounded-xl border bg-card text-card-foreground", className)}
-    {...props}
+    {...rest}
   />
 ));
 Card.displayName = "Card";
@@ -27,11 +25,11 @@ Card.displayName = "Card";
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     className={cn("flex flex-col space-y-1.5 p-6", className)}
-    {...props}
+    {...rest}
   />
 ));
 CardHeader.displayName = "CardHeader";
@@ -44,7 +42,7 @@ interface CardTitleProps
 }
 
 const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, color = "black", ...props }, ref) => (
+  ({ className, color = "black", ...rest }, ref) => (
     <Title
       ref={ref}
       as="h3"
@@ -52,7 +50,7 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
       weight="bold"
       color={color}
       className={cn("tracking-tight", className)}
-      {...props}
+      {...rest}
     />
   )
 );
@@ -66,14 +64,14 @@ interface CardDescriptionProps
 }
 
 const CardDescription = React.forwardRef<HTMLElement, CardDescriptionProps>(
-  ({ className, color = "muted", ...props }, ref) => (
-    <Text
+  ({ className, color = "muted", ...rest }, ref) => (
+    <RichText
       ref={ref}
       as="p"
       size="sm"
       color={color}
       className={cn("max-w-prose", className)}
-      {...props}
+      {...rest}
     />
   )
 );
@@ -84,8 +82,8 @@ CardDescription.displayName = "CardDescription";
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...rest} />
 ));
 CardContent.displayName = "CardContent";
 
@@ -94,11 +92,11 @@ CardContent.displayName = "CardContent";
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     className={cn("flex items-center p-6 pt-0", className)}
-    {...props}
+    {...rest}
   />
 ));
 CardFooter.displayName = "CardFooter";

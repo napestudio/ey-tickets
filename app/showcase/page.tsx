@@ -1,4 +1,4 @@
-import { Text } from "@/components/website/ui/Text";
+import { RichText } from "@/components/website/ui/Text";
 import { Title } from "@/components/website/ui/Title";
 import {
   Card,
@@ -35,16 +35,16 @@ function Section({
   return (
     <section className="py-16 border-b border-gray-100 last:border-none">
       <div className="mb-10">
-        <Text as="span" className="text-xs font-mono tracking-widest text-gray-400 uppercase">
+        <RichText as="span" className="text-xs font-mono tracking-widest text-gray-400 uppercase">
           Primitivo
-        </Text>
+        </RichText>
         <Title as="h2" className="text-3xl font-bold text-black mt-1">
           {title}
         </Title>
         {description && (
-          <Text as="p" className="text-sm text-gray-500 mt-2 max-w-lg">
+          <RichText as="p" className="text-sm text-gray-500 mt-2 max-w-lg">
             {description}
-          </Text>
+          </RichText>
         )}
       </div>
       {children}
@@ -63,12 +63,12 @@ function VariantBlock({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <Text
+      <RichText
         as="span"
         className="text-[11px] font-mono text-gray-400 tracking-wider uppercase"
       >
         {label}
-      </Text>
+      </RichText>
       <div
         className={`rounded-lg border border-gray-100 px-6 py-5 ${bg} flex flex-wrap items-center gap-4`}
       >
@@ -89,19 +89,19 @@ export default function ShowcasePage() {
     <main className="min-h-screen bg-white pt-20">
       {/* Header */}
       <div className="border-b border-gray-100 px-8 py-10 max-w-6xl mx-auto">
-        <Text className="text-xs font-mono tracking-widest text-gray-400 uppercase">
+        <RichText className="text-xs font-mono tracking-widest text-gray-400 uppercase">
           Design System
-        </Text>
+        </RichText>
         <Title
           as="h1"
           className="text-5xl font-bold text-black mt-2 tracking-tight"
         >
           Primitivos
         </Title>
-        <Text className="text-gray-500 mt-3 text-sm max-w-md">
+        <RichText className="text-gray-500 mt-3 text-sm max-w-md">
           Referencia visual de todos los componentes primitivos del sistema.
           Cada sección muestra las variantes disponibles y sus casos de uso.
-        </Text>
+        </RichText>
       </div>
 
       <div className="max-w-6xl mx-auto px-8">
@@ -112,59 +112,59 @@ export default function ShowcasePage() {
         >
           <Grid>
             <VariantBlock label="size">
-              <Text as="p" size="xs" color="black">
+              <RichText as="p" size="xs" color="black">
                 xs — Texto pequeño
-              </Text>
-              <Text as="p" size="sm" color="black">
+              </RichText>
+              <RichText as="p" size="sm" color="black">
                 sm — Texto base
-              </Text>
-              <Text as="p" size="md" color="black">
+              </RichText>
+              <RichText as="p" size="md" color="black">
                 md — Texto medio
-              </Text>
+              </RichText>
             </VariantBlock>
 
             <VariantBlock label="color" bg="bg-gray-950">
-              <Text as="p" color="white">
+              <RichText as="p" color="white">
                 white
-              </Text>
-              <Text as="p" color="muted">
+              </RichText>
+              <RichText as="p" color="muted">
                 muted
-              </Text>
-              <Text as="p" color="accent">
+              </RichText>
+              <RichText as="p" color="accent" className="bg-white px-2 rounded">
                 accent
-              </Text>
-              <Text as="p" color="black" className="bg-white px-2 rounded">
+              </RichText>
+              <RichText as="p" color="black" className="bg-white px-2 rounded">
                 black
-              </Text>
+              </RichText>
             </VariantBlock>
 
             <VariantBlock label="weight">
-              <Text as="p" color="black" weight="normal">
+              <RichText as="p" color="black" weight="normal">
                 normal — The quick brown fox
-              </Text>
-              <Text as="p" color="black" weight="bold">
+              </RichText>
+              <RichText as="p" color="black" weight="bold">
                 bold — The quick brown fox
-              </Text>
+              </RichText>
             </VariantBlock>
 
             <VariantBlock label="as — tags semánticos">
-              <Text as="p" color="black">
+              <RichText as="p" color="black">
                 as=&quot;p&quot; — párrafo
-              </Text>
-              <Text as="span" color="black">
+              </RichText>
+              <RichText as="span" color="black">
                 as=&quot;span&quot; — inline
-              </Text>
-              <Text as="strong" color="black" weight="bold">
+              </RichText>
+              <RichText as="strong" color="black" weight="bold">
                 as=&quot;strong&quot; — énfasis fuerte
-              </Text>
-              <Text as="em" color="black">
+              </RichText>
+              <RichText as="em" color="black">
                 as=&quot;em&quot; — énfasis
-              </Text>
+              </RichText>
             </VariantBlock>
 
             <VariantBlock label='as="label" — accesible con htmlFor'>
               <div className="flex flex-col gap-1">
-                <Text
+                <RichText
                   as="label"
                   htmlFor="demo-input"
                   color="black"
@@ -172,7 +172,7 @@ export default function ShowcasePage() {
                   weight="bold"
                 >
                   Email
-                </Text>
+                </RichText>
                 <Input
                   id="demo-input"
                   type="email"
@@ -183,13 +183,13 @@ export default function ShowcasePage() {
             </VariantBlock>
 
             <VariantBlock label="composición — strong dinámico">
-              <Text as="p" color="black">
+              <RichText as="p" color="black">
                 El usuario{" "}
-                <Text as="strong" color="black" weight="bold">
+                <RichText as="strong" color="black" weight="bold">
                   Juan Pérez
-                </Text>{" "}
+                </RichText>{" "}
                 inició sesión correctamente.
-              </Text>
+              </RichText>
             </VariantBlock>
           </Grid>
         </Section>
@@ -202,19 +202,19 @@ export default function ShowcasePage() {
           <Grid>
             <VariantBlock label="size">
               <div className="flex flex-col gap-3 w-full">
-                <Title as="h1" size="xl" color="black">
+                <Title>
                   xl — Display grande
                 </Title>
-                <Title as="h2" size="lg" color="black">
+                <Title as="h2">
                   lg — Display medio
                 </Title>
-                <Title as="h3" size="md" color="black">
+                <Title as="h3">
                   md — Heading sección
                 </Title>
-                <Title as="h4" size="sm" color="black">
+                <Title as="h4">
                   sm — Subheading
                 </Title>
-                <Title as="h5" size="xs" color="black">
+                <Title as="h5">
                   xs — Label heading
                 </Title>
               </div>
@@ -258,10 +258,10 @@ export default function ShowcasePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Text as="p" size="xs" color="black">
+                  <RichText>
                     Contenido principal del card. Puede contener cualquier
                     elemento.
-                  </Text>
+                  </RichText>
                 </CardContent>
                 <CardFooter className="gap-2">
                   <button className="text-xs font-medium bg-black text-white px-3 py-1.5 rounded">
@@ -281,9 +281,9 @@ export default function ShowcasePage() {
                   <CardDescription>Sin footer, solo contenido.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Text as="p" size="xs" color="black">
+                  <RichText as="p" size="xs" color="black">
                     Útil para cards informativas sin acciones.
-                  </Text>
+                  </RichText>
                 </CardContent>
               </Card>
             </VariantBlock>
@@ -297,9 +297,9 @@ export default function ShowcasePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Text as="p" size="xs" color="muted">
+                  <RichText as="p" size="xs" color="muted">
                     Contenido sobre fondo oscuro.
-                  </Text>
+                  </RichText>
                 </CardContent>
               </Card>
             </VariantBlock>
@@ -417,9 +417,9 @@ export default function ShowcasePage() {
                 </HeroContent>
                 <HeroMedia>
                   <div className="w-full aspect-video bg-white/10 rounded-lg flex items-center justify-center">
-                    <Text as="span" size="xs" color="muted">
+                    <RichText as="span" size="xs" color="muted">
                       Media slot
-                    </Text>
+                    </RichText>
                   </div>
                 </HeroMedia>
               </HeroSection>
@@ -448,9 +448,9 @@ export default function ShowcasePage() {
                 </HeroContent>
                 <HeroMedia>
                   <div className="w-full aspect-video bg-white/10 rounded-lg flex items-center justify-center">
-                    <Text as="span" size="xs" color="muted">
+                    <RichText as="span" size="xs" color="muted">
                       Media slot
-                    </Text>
+                    </RichText>
                   </div>
                 </HeroMedia>
               </HeroSection>
@@ -515,14 +515,14 @@ export default function ShowcasePage() {
                     primaryLabel="Primario"
                     secondaryLabel="Secundario"
                   >
-                    <Text
+                    <RichText
                       as="span"
                       size="xs"
                       color="black"
                       className="self-center"
                     >
                       o contactanos
-                    </Text>
+                    </RichText>
                   </HeroActions>
                 </HeroContent>
               </HeroSection>
@@ -558,10 +558,10 @@ export default function ShowcasePage() {
 
       {/* Footer */}
       <div className="border-t border-gray-100 px-8 py-8 max-w-6xl mx-auto">
-        <Text as="p" size="xs" color="muted" className="text-gray-400">
+        <RichText as="p" size="xs" color="muted" className="text-gray-400">
           Design System · Primitivos — actualizado automáticamente con cada
           cambio en los componentes.
-        </Text>
+        </RichText>
       </div>
     </main>
   );

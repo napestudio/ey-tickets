@@ -4,26 +4,18 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const textAreaVariants = cva("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", {
+import { textSizeTokens, colorTokens, weightTokens } from "@/components/website/ui/lib/design-system/tokens";
+
+const textAreaVariants = cva("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background", {
   variants: {
-    size: {
-      default: "text-sm",
-      sm: "text-sm",
-      md: "text-base",
-      lg: "text-lg",
-    },
-    color: {
-      default: "text-white",
-      white: "text-white",
-      muted: "text-white/60",
-      accent: "text-brand-400",
-    },
+    size: textSizeTokens,
+    color: colorTokens,
     border: {
       default: "border-input",
       error: "border-red-500",
     },
   },
-  defaultVariants: { size: "default", color: "default", border: "default" },
+  defaultVariants: { size: "sm", color: "black", border: "default" },
 });
 
 export interface TextareaProps extends VariantProps<typeof textAreaVariants> {
@@ -31,12 +23,12 @@ export interface TextareaProps extends VariantProps<typeof textAreaVariants> {
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, size, color, border, ...props }, ref) => {
+  ({ className, size, color, border, ...rest }, ref) => {
     return (
       <textarea
         className={cn(textAreaVariants({ size, color, border }), className)}
         ref={ref}
-        {...props}
+        {...rest}
       />
     );
   },
