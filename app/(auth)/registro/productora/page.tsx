@@ -122,7 +122,7 @@ export default function ProducerRegistrationPage() {
 
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Tu cuenta (Owner)
+                Tu cuenta
               </h3>
               <div>
                 <Label htmlFor="userName">Tu nombre</Label>
