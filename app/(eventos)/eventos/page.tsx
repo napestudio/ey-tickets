@@ -1,7 +1,5 @@
 import EventCard from "@/components/event-card/event-card";
-import EventMarquee from "@/components/marquee/marquee";
 import { getAllActiveEvents } from "@/lib/api/eventos";
-import { HomeCard } from "@/types/card";
 import { Metadata } from "next/types";
 
 export const metadata: Metadata = {
@@ -31,16 +29,14 @@ export default async function EventosPage() {
         </h1>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
           {eventos &&
-            eventos.map((evento: HomeCard) => (
-              <EventCard evento={evento} key={evento.id} />
+            eventos.map((evento) => (
+              <EventCard
+                evento={{ ...evento, location: evento.city }}
+                key={evento.id}
+              />
             ))}
         </div>
       </section>
-      {eventos && eventos.length > 1 && (
-        <div className="w-full overflow-hidden py-5 relative mt-10 bg-white">
-          <EventMarquee eventos={eventos} />
-        </div>
-      )}
     </>
   );
 }

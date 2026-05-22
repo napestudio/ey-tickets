@@ -4,14 +4,7 @@ import type React from "react";
 import Link from "next/link";
 
 import { useState } from "react";
-import {
-  Loader2,
-  CreditCard,
-  Wallet,
-  BanknoteIcon as Bank,
-  Landmark,
-  DollarSign,
-} from "lucide-react";
+import { Wallet, Landmark, DollarSign } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,11 +14,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import {
   Card,
@@ -36,7 +26,7 @@ import {
 } from "@/components/ui/card";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -55,18 +45,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Session } from "next-auth";
-import { createPaymentMethod, updatePaymentMethod } from "@/lib/actions";
+import { updatePaymentMethod } from "@/lib/actions";
 import { PaymentMethod, PaymentType } from "@prisma/client";
 import { toast } from "../ui/use-toast";
 
 const paymentMethodSchema = z.object({
-  type: z.enum(["CASH", "DIGITAL"], {
+  type: z.enum(["CASH", "DIGITAL", "TRANSFER"], {
     required_error: "Seleccioná un método de pago",
   }),
   accountName: z.string().min(1, "Este campo es obligatorio"),
   apiKey: z.string().optional(),
-
+  cbu: z.string().optional(),
+  alias: z.string().optional(),
+  transferEmail: z
+    .string()
+    .email("Ingresá un email válido")
+    .optional()
+    .or(z.literal("")),
   enabled: z.boolean().default(true),
   seller: z.string(),
 });
@@ -91,10 +86,14 @@ export function EditPaymentMethodDialog({
   const form = useForm<PaymentMethodForm>({
     resolver: zodResolver(paymentMethodSchema),
     defaultValues: {
-      type: paymentMethod.type,
+      type: paymentMethod.type as "CASH" | "DIGITAL" | "TRANSFER",
       accountName: paymentMethod.name || "",
       apiKey: paymentMethod.apiKey || "",
-      // secretKey: "",
+      cbu: (paymentMethod as PaymentMethod & { cbu?: string }).cbu || "",
+      alias: (paymentMethod as PaymentMethod & { alias?: string }).alias || "",
+      transferEmail:
+        (paymentMethod as PaymentMethod & { transferEmail?: string })
+          .transferEmail || "",
       enabled: paymentMethod.enabled,
       seller: paymentMethod.userId || "",
     },
@@ -108,17 +107,21 @@ export function EditPaymentMethodDialog({
     try {
       const payload = {
         name: data.accountName,
-        type: data.type,
+        type: data.type as PaymentType,
         producerId: paymentMethod.producerId,
         userId: data.type === "CASH" ? data.seller : undefined,
         apiKey: data.type === "DIGITAL" ? data.apiKey : null,
+        cbu: data.type === "TRANSFER" ? data.cbu || null : null,
+        alias: data.type === "TRANSFER" ? data.alias || null : null,
+        transferEmail:
+          data.type === "TRANSFER" ? data.transferEmail || null : null,
         enabled: data.enabled,
         creatorId: paymentMethod.creatorId,
       };
 
       await updatePaymentMethod(payload, paymentMethod.id);
     } catch (error) {
-      console.error("Error creando método de pago", error);
+      console.error("Error actualizando método de pago", error);
     } finally {
       toast({
         title: "Datos actualizados correctamente",
@@ -133,7 +136,7 @@ export function EditPaymentMethodDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -153,8 +156,8 @@ export function EditPaymentMethodDialog({
                   <CardHeader>
                     <CardTitle>Configuración</CardTitle>
                     <CardDescription>
-                      Ingresa los campos requeridos para crear un nuevo método
-                      de pago.
+                      Ingresa los campos requeridos para actualizar el método de
+                      pago.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -177,6 +180,7 @@ export function EditPaymentMethodDialog({
                         </FormItem>
                       )}
                     />
+
                     {selectedMethod === "CASH" && (
                       <>
                         {sellers && (
@@ -185,6 +189,7 @@ export function EditPaymentMethodDialog({
                             name="seller"
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel>Vendedor asignado</FormLabel>
                                 <Select
                                   onValueChange={field.onChange}
                                   defaultValue={field.value}
@@ -212,53 +217,84 @@ export function EditPaymentMethodDialog({
                       </>
                     )}
 
-                    {selectedMethod !== "CASH" && (
+                    {selectedMethod === "DIGITAL" && (
+                      <FormField
+                        control={form.control}
+                        name="apiKey"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Access Token MercadoPago</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ingresa el Access Token de MercadoPago"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              <Link
+                                target="_blank"
+                                href="https://www.mercadopago.com.ar/developers/es/docs/security/oauth/creation"
+                              >
+                                Cómo creo un AccessToken
+                              </Link>
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {selectedMethod === "TRANSFER" && (
                       <>
                         <FormField
                           control={form.control}
-                          name="apiKey"
+                          name="cbu"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Access Token MercadoPago</FormLabel>
+                              <FormLabel>CBU / CVU</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="Ingresa el Access Token de MercadoPago"
+                                  placeholder="Ingresa el CBU o CVU"
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>
-                                <Link
-                                  target="_blank"
-                                  href="https://www.mercadopago.com.ar/developers/es/docs/security/oauth/creation"
-                                >
-                                  Cómo creo un AccessToken{" "}
-                                </Link>
-                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-
-                        {/* <FormField
+                        <FormField
                           control={form.control}
-                          name="secretKey"
+                          name="alias"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Secret Key</FormLabel>
+                              <FormLabel>Alias</FormLabel>
                               <FormControl>
                                 <Input
-                                  type="password"
-                                  placeholder="Enter your secret key"
+                                  placeholder="Ingresa el alias"
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>
-                                Tu clave secreta.
-                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
-                        /> */}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="transferEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="email"
+                                  placeholder="Ingresa el email"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </>
                     )}
 
@@ -269,10 +305,10 @@ export function EditPaymentMethodDialog({
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                           <div className="space-y-0.5">
                             <FormLabel>Habilitado</FormLabel>
-                            <FormDescription>
+                            {/* <FormDescription>
                               Una vez habilitado, este método de pago estará
                               disponible para su uso en la plataforma.
-                            </FormDescription>
+                            </FormDescription> */}
                           </div>
                           <FormControl>
                             <Switch
@@ -288,7 +324,7 @@ export function EditPaymentMethodDialog({
               )}
             </div>
 
-            <DialogFooter className="flex-shrink-0 pt-2">
+            <DialogFooter className="shrink-0 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -296,12 +332,7 @@ export function EditPaymentMethodDialog({
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isSubmitting || (selectedMethod === "CASH" && !sellers)
-                }
-              >
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Guardando..." : "Guardar cambios"}
               </Button>
             </DialogFooter>

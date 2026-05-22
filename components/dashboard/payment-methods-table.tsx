@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import {
-  Search,
-  Filter,
   MoreHorizontal,
   Edit,
   Trash,
   CheckCircle2,
+  Landmark,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -108,6 +107,10 @@ export default function PaymentMethodsTable({
       DIGITAL: {
         label: "MercadoPago",
         color: "bg-blue text-white",
+      },
+      TRANSFER: {
+        label: "Transferencia",
+        color: "bg-amber-500 text-white",
       },
       DEFAULT: {
         label: type,
@@ -223,6 +226,11 @@ export default function PaymentMethodsTable({
                             <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
                             <path d="M12 18V6" />
                           </svg>
+                        </div>
+                      )}
+                      {method.type === "TRANSFER" && (
+                        <div className="h-10 w-10 flex items-center justify-center bg-amber-500 text-white rounded-md overflow-hidden">
+                          <Landmark className="h-6 w-6" />
                         </div>
                       )}
                       <div>

@@ -1,4 +1,4 @@
-import PaymentMethodsLoader from "@/app/(dashboard)/dashboard/metodos-de-pago/methods-loader";
+import { EventDescription } from "@/components/dashboard/event-description";
 import {
   Card,
   CardContent,
@@ -8,98 +8,60 @@ import {
 } from "@/components/ui/card";
 import { Evento } from "@/types/event";
 import DeleteEventButton from "../delete-event-button";
-import PaymentMethodsList from "../payment-methods-list";
 import { Separator } from "@/components/ui/separator";
-import { Session } from "next-auth";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "lucide-react";
+import { datesFormater } from "@/lib/utils";
+import EditEventForm from "@/components/dashboard/edit-event-form";
 
 interface DetailsTabProps {
   evento: Evento;
   isSeller: boolean;
   isEventOwner: boolean;
-  session: Session;
 }
 
 export default function DetailsTab({
   evento,
   isSeller,
   isEventOwner,
-  session,
 }: DetailsTabProps) {
-  return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Descripción del evento</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{evento.description}</p>
-        </CardContent>
-      </Card>
+  const groupedDates = datesFormater(evento.dates as string);
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dirección</CardTitle>
-          <CardDescription>
-            {evento.location} | {evento.address}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-      {!isSeller && isEventOwner && (
-        <div className="flex flex-col max-w-[90vw] gap-5">
-          {evento.eventPayments &&
-            evento.eventPayments?.length > 0 &&
-            evento.producerId && (
-              <>
-                <PaymentMethodsList methods={evento.eventPayments} />
-                <Separator />
-                <Card className="px-5">
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger>
-                        Métodos de pago disponibles
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <>
-                          {evento.eventPayments && (
-                            <PaymentMethodsLoader
-                              producerId={evento.producerId}
-                              eventId={evento.id}
-                              session={session}
-                            />
-                          )}
-                        </>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </Card>
-              </>
-            )}
+  const renderStatusBadge = (status: string) => {
+    const statusMap: Record<string, { label: string; color: string }> = {
+      ACTIVE: {
+        label: "ACTIVO",
+        color: "bg-cyan-500/20 text-green-700 hover:bg-green-500/20",
+      },
+      CONCLUDED: {
+        label: "FINALIZADO",
+        color: "bg-gray-500/20 text-gray-700 hover:bg-gray-500/20",
+      },
+      CANCELED: {
+        label: "CANCELADO",
+        color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
+      },
+      DELETED: {
+        label: "ELIMINADO",
+        color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
+      },
+      DEFAULT: { label: status, color: "" },
+    };
+    const { label, color } = statusMap[status] || statusMap.DEFAULT;
+    return (
+      <Badge className={color} variant="secondary">
+        {label}
+      </Badge>
+    );
+  };
 
-          {evento.eventPayments &&
-            evento.producerId &&
-            evento.eventPayments?.length === 0 && (
-              <>
-                {evento.eventPayments && (
-                  <PaymentMethodsLoader
-                    producerId={evento.producerId}
-                    eventId={evento.id}
-                    session={session}
-                  />
-                )}
-              </>
-            )}
-        </div>
-      )}
-      {!isSeller && isEventOwner && (
-        <div className="pt-28">
+  if (isEventOwner && !isSeller) {
+    return (
+      <div className="space-y-8">
+        <EditEventForm evento={evento} />
+        <div className="pt-12">
           <Separator />
-          <Card className="bg-black text-white">
+          <Card className="bg-black text-white mt-6">
             <CardHeader>
               <CardTitle>Eliminar evento permanentemente</CardTitle>
               <CardDescription className="text-white">
@@ -112,7 +74,41 @@ export default function DetailsTab({
             </CardContent>
           </Card>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Descripción del evento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EventDescription html={evento.description} />
+
+          {evento.status && (
+            <div>
+              <CardTitle>Estado</CardTitle>
+              {renderStatusBadge(evento.status)}
+            </div>
+          )}
+          <div className="flex items-center">
+            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{groupedDates}</span>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium mb-1">Creado por</h4>
+            <p className="text-sm">{evento.producer?.name}</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium mb-1">Dirección</h4>
+            <p className="text-sm">
+              {evento.address}{evento.venue ? ` | ${evento.venue}` : ""}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </>
   );
 }

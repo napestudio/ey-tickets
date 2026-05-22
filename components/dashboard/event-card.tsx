@@ -40,7 +40,13 @@ export default function EventCard({
         >
           <div className="relative h-48 w-full bg-neutral-300">
             {evento.image && (
-              <Image src={evento.image} alt="" fill className="object-cover" />
+              <Image
+                src={evento.image}
+                alt=""
+                fill
+                className="object-cover"
+                priority
+              />
             )}
             {evento.status === "CANCELED" && (
               <div className="absolute left-2 top-2 bg-red-500 rounded-full text-white px-3 py-1">
@@ -59,7 +65,7 @@ export default function EventCard({
               <CardDescription>
                 <span className="flex items-center gap-2 mb-2">
                   <MapPin className="mr-1 h-4 w-4" />
-                  {evento.location}
+                  {evento.venue}
                 </span>
                 <span className="flex items-center gap-2 mb-4">
                   <Calendar className="mr-1 h-4 w-4" />

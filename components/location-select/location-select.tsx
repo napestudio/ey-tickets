@@ -27,7 +27,11 @@ export function LocationSelect({
   onCityChange,
   disabled = false,
 }: LocationSelectProps) {
-  const cities = provinceValue ? (CITIES_BY_PROVINCE[provinceValue] ?? []) : [];
+  const cities = provinceValue
+    ? [...(CITIES_BY_PROVINCE[provinceValue] ?? [])].sort((a, b) =>
+        a.localeCompare(b, "es")
+      )
+    : [];
 
   function handleProvinceChange(value: string) {
     onProvinceChange(value);

@@ -3,7 +3,8 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { deleteEventImage, updateEvent, uploadEventImage } from "@/lib/actions";
+import { updateEvent } from "@/lib/actions";
+import { uploadImage, deleteImage } from "@/lib/image-actions";
 import { useState } from "react";
 
 import {
@@ -15,15 +16,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import DatesPicker from "@/components/dates-picker/dates-picker";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/dashboard/rich-text-editor";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Evento } from "@/types/event";
-import { cn } from "@/lib/utils";
+import { Evento, EventCategory } from "@/types/event";
+import { cn, datesFormater } from "@/lib/utils";
 
 import { useToast } from "@/components/ui/use-toast";
 import { FileUploader } from "@/app/(dashboard)/dashboard/components/file-uploader/file-uploader";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, Pencil, X } from "lucide-react";
 
 import Box from "./box";
 import {
@@ -38,438 +40,908 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar } from "../ui/calendar";
+import { LocationSelect } from "@/components/location-select/location-select";
+import { Badge } from "../ui/badge";
+import { EventDescription } from "./event-description";
+
+type DateSelection = { id: number; date: string };
+
+const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
+  MUSIC: "Música",
+  THEATER: "Teatro",
+  CONFERENCE: "Conferencia",
+  SPORT: "Deporte",
+  ART: "Arte",
+  GASTRONOMY: "Gastronomía",
+  COMEDY: "Comedia",
+  DANCE: "Danza",
+  FESTIVAL: "Festival",
+  CINEMA: "Cine",
+  CORPORATE: "Corporativo",
+  EXHIBITION: "Exposición",
+  NIGHTLIFE: "Vida nocturna",
+  WORKSHOP: "Taller",
+  OTHER: "Otro",
+};
 
 const formSchema = z.object({
   title: z.string().min(5, {
     message: "El titulo debe tener al menos 5 caracteres.",
   }),
   description: z.string(),
-  location: z.string(),
+  state: z.string().optional(),
+  city: z.string().optional(),
   address: z.string(),
   image: z.string(),
+  imagePublicId: z.string().nullish(),
   file: z.any(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
   endDate: z.date({
     required_error: "La fecha de finalización es obligatoria",
   }),
+  category: z
+    .enum([
+      "MUSIC",
+      "THEATER",
+      "CONFERENCE",
+      "SPORT",
+      "ART",
+      "GASTRONOMY",
+      "COMEDY",
+      "DANCE",
+      "FESTIVAL",
+      "CINEMA",
+      "CORPORATE",
+      "EXHIBITION",
+      "NIGHTLIFE",
+      "WORKSHOP",
+      "OTHER",
+    ])
+    .nullish(),
+  legalText: z.string().optional(),
+  venue: z.string().optional(),
+  ageRestriction: z.coerce.number().int().positive().nullish(),
+  website: z.string().optional(),
 });
 
+type FormSchema = z.infer<typeof formSchema>;
+
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  ACTIVE: {
+    label: "ACTIVO",
+    color: "bg-cyan-500/20 text-green-700 hover:bg-green-500/20",
+  },
+  DRAFT: {
+    label: "BORRADOR",
+    color: "bg-yellow-500/20 text-yellow-700 hover:bg-yellow-500/20",
+  },
+  CONCLUDED: {
+    label: "FINALIZADO",
+    color: "bg-gray-500/20 text-gray-700 hover:bg-gray-500/20",
+  },
+  CANCELED: {
+    label: "CANCELADO",
+    color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
+  },
+  DELETED: {
+    label: "ELIMINADO",
+    color: "bg-red-500/20 text-red-700 hover:bg-red-500/20",
+  },
+};
+
 export default function EditEventForm({ evento }: { evento: Evento }) {
-  const parsedDates = JSON.parse(evento.dates);
-  const [dateTimeSelections, setDateTimeSelections] = useState(parsedDates);
+  const parsedDates: DateSelection[] = JSON.parse(evento.dates);
+
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [dateTimeSelections, setDateTimeSelections] =
+    useState<DateSelection[]>(parsedDates);
+  const [savedDateTimeSelections, setSavedDateTimeSelections] =
+    useState<DateSelection[]>(parsedDates);
   const [files, setFiles] = useState<File[]>([]);
-  const [deleteImageValue, setDeleteImageValue] = useState<boolean>(false);
+  const [imagePublicId, setImagePublicId] = useState<string | null>(
+    evento.imagePublicId ?? null,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fileUpdated, setFileUpdated] = useState<boolean>(false);
+  const [restrictions, setRestrictions] = useState<string[]>(
+    evento.restrictions ?? [],
+  );
+  const [savedRestrictions, setSavedRestrictions] = useState<string[]>(
+    evento.restrictions ?? [],
+  );
 
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: evento.title,
       description: evento.description,
-      location: evento.location,
+      state: evento.state ?? "",
+      city: evento.city ?? "",
       address: evento.address,
       image: evento.image || "",
+      imagePublicId: evento.imagePublicId ?? null,
       file: evento.image || "",
       status: evento.status,
       endDate: new Date(evento.endDate || ""),
+      category: evento.category ?? null,
+      legalText: evento.legalText ?? "",
+      venue: evento.venue ?? "",
+      ageRestriction: evento.ageRestriction ?? null,
+      website: evento.website ?? "",
     },
   });
 
+  const [
+    title,
+    description,
+    image,
+    city,
+    state,
+    address,
+    status,
+    endDate,
+    category,
+    legalText,
+    venue,
+    ageRestriction,
+    website,
+  ] = form.watch([
+    "title",
+    "description",
+    "image",
+    "city",
+    "state",
+    "address",
+    "status",
+    "endDate",
+    "category",
+    "legalText",
+    "venue",
+    "ageRestriction",
+    "website",
+  ]);
+
   const handleAddDateTime = () => {
-    const newSelection = {
-      id: dateTimeSelections.length,
-      date: new Date().toISOString().slice(0, 16),
-    };
-    setDateTimeSelections([...dateTimeSelections, newSelection]);
+    const lastDate = dateTimeSelections[dateTimeSelections.length - 1];
+    const [lastDatePart, lastTimePart] = lastDate?.date.split("T") ?? ["", ""];
+    const timePart = lastTimePart || "20:00";
+    let nextDatePart = "";
+    if (lastDatePart) {
+      const next = new Date(`${lastDatePart}T00:00:00`);
+      next.setDate(next.getDate() + 1);
+      nextDatePart = next.toISOString().slice(0, 10);
+    }
+    const newId =
+      dateTimeSelections.length > 0
+        ? Math.max(...dateTimeSelections.map((s) => s.id)) + 1
+        : 0;
+    setDateTimeSelections([
+      ...dateTimeSelections,
+      { id: newId, date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}` },
+    ]);
   };
 
   const handleRemoveDateTime = (id: number) => {
     setDateTimeSelections(
-      dateTimeSelections.filter((selection: any) => selection.id !== id),
+      dateTimeSelections.filter((selection) => selection.id !== id),
     );
   };
 
   const handleDateChange = (date: string, id: number) => {
-    const updatedSelections = dateTimeSelections.map((selection: any) => {
-      if (selection.id === id) {
-        return { ...selection, date: date };
-      }
-      return selection;
-    });
-    setDateTimeSelections(updatedSelections);
+    setDateTimeSelections(
+      dateTimeSelections.map((selection) =>
+        selection.id === id ? { ...selection, date } : selection,
+      ),
+    );
   };
 
-  // const handleDeleteImage = async (url: string) => {
-  //   try {
-  //     await deleteEventImage(evento.image);
-  //   } catch (error) {
-  //     throw new Error("Error eliminando imagen");
-  //   }
-  // };
+  const handleAddRestriction = () => {
+    setRestrictions([...restrictions, ""]);
+  };
 
-  // Encontrar la última fecha seleccionada
-  const lastDate = dateTimeSelections.reduce((latest: any, selection: any) => {
-    return new Date(selection.date) > new Date(latest.date)
-      ? selection
-      : latest;
-  });
+  const handleRestrictionChange = (index: number, value: string) => {
+    const updated = [...restrictions];
+    updated[index] = value;
+    setRestrictions(updated);
+  };
 
-  // Crear endDate con la última fecha seleccionada a las 23:59
-  const endDate = new Date(lastDate.date);
-  endDate.setHours(23, 59, 0, 0);
+  const handleRemoveRestriction = (index: number) => {
+    setRestrictions(restrictions.filter((_, i) => i !== index));
+  };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleSave = async (section: string) => {
     setIsLoading(true);
-    const parsedDates = JSON.stringify(dateTimeSelections);
 
-    if (deleteImageValue) {
-      const res = await deleteEventImage(evento.image);
-      if (res.result === "ok") values.image = "";
-      setDeleteImageValue(false);
-    }
-
-    if (fileUpdated && files.length > 0) {
+    if (section === "imagen" && fileUpdated && files.length > 0) {
       try {
+        if (imagePublicId) {
+          await deleteImage(imagePublicId);
+        }
         const formData = new FormData();
         formData.append("file", files[0]);
-        const res = await uploadEventImage(formData);
-        if (!res) {
-          throw new Error("Oops something went wrong");
+        const res = await uploadImage(formData, "events");
+        if (!res || "ok" in res) {
+          throw new Error("Error subiendo la imagen");
         }
-        if (res.url) {
-          values.image = res.url;
-          setFileUpdated(false);
-        }
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error subiendo la imagen",
-        });
+        form.setValue("image", res.url);
+        form.setValue("imagePublicId", res.publicId);
+        setImagePublicId(res.publicId);
+        setFileUpdated(false);
+      } catch {
+        toast({ variant: "destructive", title: "Error subiendo la imagen" });
         setIsLoading(false);
         return;
-      } finally {
-        setIsLoading(false);
       }
     }
 
-    updateEvent(
-      {
-        title: values.title,
-        description: values.description,
-        location: values.location,
-        address: values.address,
-        image: values.image || null,
-        dates: parsedDates,
+    try {
+      const values = form.getValues();
+      const filteredRestrictions = restrictions.filter((r) => r.trim() !== "");
+      await updateEvent(
+        {
+          title: values.title,
+          description: values.description,
+          state: values.state,
+          city: values.city,
+          address: values.address,
+          image: values.image || null,
+          imagePublicId: values.imagePublicId ?? imagePublicId,
+          dates: JSON.stringify(dateTimeSelections),
+          endDate: new Date(values.endDate).toISOString(),
+          status: values.status,
+          category: values.category ?? null,
+          legalText: values.legalText ?? null,
+          restrictions: filteredRestrictions,
+          venue: values.venue ?? null,
+          ageRestriction: values.ageRestriction ?? null,
+          website: values.website ?? null,
+        },
+        evento.id,
+      );
+      form.reset(values);
+      setSavedDateTimeSelections([...dateTimeSelections]);
+      setSavedRestrictions(filteredRestrictions);
+      setActiveSection(null);
+      toast({ title: "Evento actualizado" });
+    } catch {
+      toast({ variant: "destructive", title: "Error editando el evento" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        endDate: new Date(values.endDate).toISOString(),
-        status: values.status,
-      },
-      evento.id,
-    )
-      .then((res) => {
-        toast({
-          title: "Evento editado!",
-        });
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: "Error editando el evento",
-        });
-      });
-  }
+  const handleCancel = (section: string) => {
+    form.reset();
+    setDateTimeSelections([...savedDateTimeSelections]);
+    if (section === "imagen") {
+      setFiles([]);
+      setFileUpdated(false);
+    }
+    if (section === "restrictions") {
+      setRestrictions([...savedRestrictions]);
+    }
+    setActiveSection(null);
+  };
+
+  const renderSectionHeader = (key: string, sectionTitle: string) => (
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="font-bold">{sectionTitle}</h2>
+      {activeSection !== key && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          disabled={isLoading}
+          onClick={() => setActiveSection(key)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+
+  const renderSectionActions = (key: string) => (
+    <div className="flex gap-2 mt-4">
+      <Button
+        type="button"
+        onClick={() => handleSave(key)}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Guardando...
+          </>
+        ) : (
+          "Guardar"
+        )}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => handleCancel(key)}
+        disabled={isLoading}
+      >
+        Cancelar
+      </Button>
+    </div>
+  );
 
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((values) => onSubmit(values))}
-          className="space-y-8 w-full"
-        >
-          <div
-            className={cn(
-              "grid lg:grid-cols-3 gap-5",
-              isLoading && "opacity-50 pointer-events-none",
-            )}
-          >
-            <div className="lg:col-span-2 space-y-5">
-              <Box>
-                <div className="space-y-4">
-                  <h2 className="font-bold">Datos del evento</h2>
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-medium">Título</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Titulo del evento" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Descripción</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Descripción del evento"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+    <Form {...form}>
+      <form className="space-y-5 w-full">
+        {/* IMAGEN */}
+        <Box>
+          {renderSectionHeader("imagen", "Imagen del evento")}
+          {activeSection === "imagen" ? (
+            <>
+              <FormField
+                control={form.control}
+                name="file"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploader
+                        onFieldChange={field.onChange}
+                        imageUrl={field.value}
+                        setFiles={setFiles}
+                        setFileUpdated={setFileUpdated}
+                        onDelete={async (_url: string) => {
+                          if (imagePublicId) {
+                            await deleteImage(imagePublicId);
+                          }
+                          setImagePublicId(null);
+                          form.setValue("image", "");
+                          form.setValue("imagePublicId", null);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("imagen")}
+            </>
+          ) : (
+            <>
+              {image ? (
+                <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted">
+                  <img
+                    src={image}
+                    alt={evento.title}
+                    className="object-cover w-full h-full"
                   />
                 </div>
-              </Box>
-              <Box>
-                <div className="space-y-4">
-                  <h2 className="font-bold">Ubicación</h2>
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lugar</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="ubicación del evento"
-                            {...field}
-                          />
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Dirección del evento"
-                            {...field}
-                          />
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              ) : (
+                <div className="w-full aspect-video rounded-md bg-muted flex items-center justify-center text-sm text-muted-foreground">
+                  Sin imagen
                 </div>
-              </Box>
-              <Box>
-                <div className="space-y-4">
-                  <h2 className="font-bold">Fechas</h2>
+              )}
+            </>
+          )}
+        </Box>
 
-                  <DatesPicker
-                    dateTimeSelections={dateTimeSelections}
-                    onAddDateTime={handleAddDateTime}
-                    onRemoveDateTime={handleRemoveDateTime}
-                    onDateChange={handleDateChange}
-                  />
-                </div>
-              </Box>
-              <Box>
-                <div className="space-y-4">
-                  <h2 className="font-bold">Fin de la venta</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Selecciona la fecha y hora de finalización de venta de
-                    tickets
-                  </p>
-                  <div className="flex gap-4 lg:flex-row">
-                    {/* FECHA */}
-                    <FormField
-                      control={form.control}
-                      name="endDate"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-max">
-                          <FormLabel>Fecha</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={cn(
-                                    "w-full font-normal",
-                                    !field.value && "text-muted-foreground",
-                                  )}
-                                >
-                                  {field.value
-                                    ? format(field.value, "PPP", { locale: es })
-                                    : "Seleccionar fecha"}
-                                  <CalendarIcon className="ml-4 h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
-                              <Calendar
-                                mode="single"
-                                locale={es}
-                                selected={field.value}
-                                onSelect={(date) => {
-                                  const current = field.value ?? new Date();
-                                  const updated = new Date(date!);
-                                  updated.setHours(
-                                    current.getHours(),
-                                    current.getMinutes(),
-                                  );
-                                  updated.setSeconds(0, 0);
-                                  field.onChange(updated);
-                                }}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* HORA */}
-                    <FormField
-                      control={form.control}
-                      name="endDate"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Hora</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={`${field.value
-                                .getHours()
-                                .toString()
-                                .padStart(2, "0")}:${field.value
-                                .getMinutes()
-                                .toString()
-                                .padStart(2, "0")}`}
-                              onValueChange={(time) => {
-                                const [hours, minutes] = time
-                                  .split(":")
-                                  .map(Number);
-                                const updated = new Date(field.value);
-                                updated.setHours(hours, minutes, 0, 0);
-                                field.onChange(updated);
-                              }}
-                            >
-                              <SelectTrigger className="w-[140px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <ScrollArea className="h-[15rem]">
-                                  {Array.from({ length: 96 }).map((_, i) => {
-                                    const hour = Math.floor(i / 4)
-                                      .toString()
-                                      .padStart(2, "0");
-                                    const minute = ((i % 4) * 15)
-                                      .toString()
-                                      .padStart(2, "0");
-                                    return (
-                                      <SelectItem
-                                        key={i}
-                                        value={`${hour}:${minute}`}
-                                      >
-                                        {hour}:{minute}
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </ScrollArea>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </Box>
+        {/* DATOS DEL EVENTO */}
+        <Box>
+          {renderSectionHeader("datos", "Datos del evento")}
+          {activeSection === "datos" ? (
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-medium">Título</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Titulo del evento" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descripción</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("datos")}
             </div>
-            <div>
-              <Box>
-                <div className="space-y-4">
-                  <h2 className="font-bold">Imagen del evento</h2>
-
-                  <FormField
-                    control={form.control}
-                    name="file"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FileUploader
-                            onFieldChange={field.onChange}
-                            imageUrl={field.value}
-                            setFiles={setFiles}
-                            setDeleteImageValue={setDeleteImageValue}
-                            setFileUpdated={setFileUpdated}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </Box>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Título</p>
+                <p className="text-sm font-medium">{title}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Descripción
+                </p>
+                <EventDescription html={description} />
+              </div>
             </div>
-            <div>
-              <Box>
-                <h3 className="font-bold mb-4">Estado</h3>
+          )}
+        </Box>
+
+        {/* UBICACIÓN */}
+        <Box>
+          {renderSectionHeader("ubicacion", "Ubicación")}
+          {activeSection === "ubicacion" ? (
+            <div className="space-y-4">
+              <LocationSelect
+                provinceValue={state ?? ""}
+                cityValue={city ?? ""}
+                onProvinceChange={(value) => form.setValue("state", value)}
+                onCityChange={(value) => form.setValue("city", value)}
+                disabled={isLoading}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dirección</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Dirección del evento" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="venue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Nombre del lugar{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (opcional)
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ej: Teatro Colón, Estadio Monumental"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("ubicacion")}
+            </div>
+          ) : (
+            <div className="space-y-1 text-sm">
+              {(city || state) && (
+                <p>{[city, state].filter(Boolean).join(", ")}</p>
+              )}
+              {address && <p>{address}</p>}
+              {venue && <p className="text-muted-foreground">{venue}</p>}
+            </div>
+          )}
+        </Box>
+
+        {/* FECHAS */}
+        <Box>
+          {renderSectionHeader("fechas", "Fechas")}
+          {activeSection === "fechas" ? (
+            <>
+              <DatesPicker
+                dateTimeSelections={dateTimeSelections}
+                onAddDateTime={handleAddDateTime}
+                onRemoveDateTime={handleRemoveDateTime}
+                onDateChange={handleDateChange}
+              />
+              {renderSectionActions("fechas")}
+            </>
+          ) : (
+            <p className="text-sm">
+              {dateTimeSelections.length > 0
+                ? datesFormater(JSON.stringify(dateTimeSelections))
+                : "Sin fechas"}
+            </p>
+          )}
+        </Box>
+
+        {/* FIN DE LA VENTA */}
+        <Box>
+          {renderSectionHeader("fin_venta", "Fin de la venta")}
+          {activeSection === "fin_venta" ? (
+            <>
+              <p className="text-sm text-muted-foreground mb-4">
+                Selecciona la fecha y hora de finalización de venta de tickets
+              </p>
+              <div className="flex gap-4 lg:flex-row">
                 <FormField
                   control={form.control}
-                  name="status"
+                  name="endDate"
                   render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={evento.status}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Estado" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="ACTIVE">Publicado</SelectItem>
-                          <SelectItem value="DRAFT">Borrador</SelectItem>
-                          <SelectItem value="CANCELED">Cancelado</SelectItem>
-                          <SelectItem value="CONCLUDED">Finalizado</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <FormItem className="flex flex-col w-max">
+                      <FormLabel>Fecha</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value
+                                ? format(field.value, "PPP", { locale: es })
+                                : "Seleccionar fecha"}
+                              <CalendarIcon className="ml-4 h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            locale={es}
+                            selected={field.value}
+                            onSelect={(date) => {
+                              const current = field.value ?? new Date();
+                              const updated = new Date(date!);
+                              updated.setHours(
+                                current.getHours(),
+                                current.getMinutes(),
+                              );
+                              updated.setSeconds(0, 0);
+                              field.onChange(updated);
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </Box>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Guardando...
-                </>
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Hora</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={`${field.value
+                            .getHours()
+                            .toString()
+                            .padStart(2, "0")}:${field.value
+                            .getMinutes()
+                            .toString()
+                            .padStart(2, "0")}`}
+                          onValueChange={(time) => {
+                            const [hours, minutes] = time
+                              .split(":")
+                              .map(Number);
+                            const updated = new Date(field.value);
+                            updated.setHours(hours, minutes, 0, 0);
+                            field.onChange(updated);
+                          }}
+                        >
+                          <SelectTrigger className="w-35">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <ScrollArea className="h-60">
+                              {Array.from({ length: 96 }).map((_, i) => {
+                                const hour = Math.floor(i / 4)
+                                  .toString()
+                                  .padStart(2, "0");
+                                const minute = ((i % 4) * 15)
+                                  .toString()
+                                  .padStart(2, "0");
+                                return (
+                                  <SelectItem
+                                    key={i}
+                                    value={`${hour}:${minute}`}
+                                  >
+                                    {hour}:{minute}
+                                  </SelectItem>
+                                );
+                              })}
+                            </ScrollArea>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {renderSectionActions("fin_venta")}
+            </>
+          ) : (
+            <p className="text-sm">
+              {endDate
+                ? format(endDate, "d 'de' MMMM yyyy 'a las' HH:mm", {
+                    locale: es,
+                  })
+                : "Sin fecha"}
+            </p>
+          )}
+        </Box>
+        {/* CATEGORÍA */}
+        <Box>
+          {renderSectionHeader("category", "Categoría")}
+          {activeSection === "category" ? (
+            <>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar categoría" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(
+                          Object.keys(EVENT_CATEGORY_LABELS) as EventCategory[]
+                        ).map((key) => (
+                          <SelectItem key={key} value={key}>
+                            {EVENT_CATEGORY_LABELS[key]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("category")}
+            </>
+          ) : (
+            <p className="text-sm">
+              {category ? (
+                (EVENT_CATEGORY_LABELS[category as EventCategory] ?? category)
               ) : (
-                "Guardar cambios"
+                <span className="text-muted-foreground">Sin categoría</span>
               )}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+            </p>
+          )}
+        </Box>
+
+        {/* RESTRICCIONES */}
+        <Box>
+          {renderSectionHeader("restrictions", "Restricciones de acceso")}
+          {activeSection === "restrictions" ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                {restrictions.map((restriction, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <Input
+                      value={restriction}
+                      placeholder="Ej: Mayores de 18 años"
+                      onChange={(e) =>
+                        handleRestrictionChange(index, e.target.value)
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveRestriction(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleAddRestriction}
+                >
+                  + Agregar restricción
+                </Button>
+              </div>
+              <FormField
+                control={form.control}
+                name="ageRestriction"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Edad mínima{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (opcional)
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={99}
+                        placeholder="Ej: 18"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("restrictions")}
+            </div>
+          ) : (
+            <div className="space-y-2 text-sm">
+              {savedRestrictions.length > 0 ? (
+                <ul className="space-y-1">
+                  {savedRestrictions.map((r, i) => (
+                    <li key={i} className="text-muted-foreground">
+                      — {r}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">Sin restricciones</p>
+              )}
+              {ageRestriction && (
+                <p className="text-muted-foreground">
+                  Edad mínima: {ageRestriction} años
+                </p>
+              )}
+            </div>
+          )}
+        </Box>
+
+        {/* LEGALES */}
+        <Box>
+          {renderSectionHeader("legalText", "Legales")}
+          {activeSection === "legalText" ? (
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="legalText"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Texto legal{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (opcional)
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Términos y condiciones, texto legal del evento..."
+                        className="min-h-30 resize-y"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("legalText")}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {legalText ? legalText : "Sin texto legal"}
+            </p>
+          )}
+        </Box>
+
+        {/* SITIO WEB */}
+        <Box>
+          {renderSectionHeader("website", "Sitio web")}
+          {activeSection === "website" ? (
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      URL{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (opcional)
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://www.mievento.com"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("website")}
+            </div>
+          ) : (
+            <>
+              {website ? (
+                <a
+                  href={website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {website}
+                </a>
+              ) : (
+                <p className="text-sm text-muted-foreground">Sin sitio web</p>
+              )}
+            </>
+          )}
+        </Box>
+
+        {/* ESTADO */}
+        <Box>
+          {renderSectionHeader("estado", "Estado")}
+          {activeSection === "estado" ? (
+            <>
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Estado" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ACTIVE">Publicado</SelectItem>
+                        <SelectItem value="DRAFT">Borrador</SelectItem>
+                        <SelectItem value="CANCELED">Cancelado</SelectItem>
+                        <SelectItem value="CONCLUDED">Finalizado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {renderSectionActions("estado")}
+            </>
+          ) : (
+            <>
+              {status && STATUS_MAP[status] && (
+                <Badge className={STATUS_MAP[status].color} variant="secondary">
+                  {STATUS_MAP[status].label}
+                </Badge>
+              )}
+            </>
+          )}
+        </Box>
+      </form>
+    </Form>
   );
 }

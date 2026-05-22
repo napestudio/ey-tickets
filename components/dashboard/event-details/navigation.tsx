@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
-import { ArrowLeft, Edit, Globe } from "lucide-react";
+import { ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 import { SITE_URL } from "@/lib/constants";
@@ -40,15 +40,6 @@ export default function Navigation({
           )}
           {!isSeller && isEventOwner && (
             <>
-              <Button variant="outline" size="sm">
-                <Link
-                  href={`/dashboard/evento/${evento.id}/edit`}
-                  className="flex items-center"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
-                </Link>
-              </Button>
               {evento.status !== "CANCELED" && (
                 <CancelEventButton id={evento.id} />
               )}

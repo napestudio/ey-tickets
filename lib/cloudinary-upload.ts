@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import sharp from "sharp";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,33 +8,71 @@ cloudinary.config({
   secure: true,
 });
 
-export async function uploadFile(
+export type CloudinaryUploadResult = {
+  secure_url: string;
+  public_id: string;
+  format: string;
+};
+
+export type CloudinaryDeleteResult = {
+  result: string;
+};
+
+const MAX_SIZE_BYTES = 900 * 1024; // 900 KB
+
+async function compressToMaxSize(buffer: Buffer, maxWidth = 1920): Promise<Buffer> {
+  const metadata = await sharp(buffer).metadata();
+  const isAnimated = (metadata.pages ?? 1) > 1;
+
+  // Animated GIFs are passed through without compression
+  if (isAnimated) return buffer;
+
+  let quality = 85;
+  let compressed: Buffer = await sharp(buffer)
+    .resize({ width: maxWidth, withoutEnlargement: true })
+    .jpeg({ quality, progressive: true })
+    .toBuffer();
+
+  while (compressed.length > MAX_SIZE_BYTES && quality > 20) {
+    quality -= 10;
+    compressed = await sharp(buffer)
+      .resize({ width: maxWidth, withoutEnlargement: true })
+      .jpeg({ quality, progressive: true })
+      .toBuffer();
+  }
+
+  return compressed;
+}
+
+export async function uploadImage(
   file: Buffer,
   folder: string,
-  public_id: string
-) {
+  publicId: string,
+  maxWidth = 1920
+): Promise<CloudinaryUploadResult> {
+  const compressed = await compressToMaxSize(file, maxWidth);
+
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
+    const stream = cloudinary.uploader.upload_stream(
       {
         folder,
-        public_id,
-        transformation: [{ crop: "scale", quality: "auto", width: "800" }],
+        public_id: publicId,
+        resource_type: "image",
+        overwrite: true,
       },
       (error, result) => {
-        if (result) resolve(result);
+        if (result) resolve(result as CloudinaryUploadResult);
         else reject(error);
       }
     );
-    uploadStream.end(file);
+    stream.end(compressed);
   });
 }
 
-export async function deleteFile(publicId: string) {
-  const newUrl = publicId.substring(publicId.lastIndexOf("/") + 1);  
-  return await cloudinary.uploader.destroy(
-    `${process.env.CLIENT_ID}/${newUrl.split(".")[0]}`,
-    {}
-  );  
+export async function deleteImage(
+  publicId: string
+): Promise<CloudinaryDeleteResult> {
+  return await cloudinary.uploader.destroy(publicId);
 }
 
 export default cloudinary;

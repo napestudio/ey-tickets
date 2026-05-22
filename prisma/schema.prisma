@@ -81,6 +81,7 @@ model User {
   createdPaymentMethods  PaymentMethod[]         @relation("CreatedPaymentMethods")
   createdEvents          Event[]                 @relation("CreatedEvents")
   memberTicketAllocation MemberTicketAllocation?
+  createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
 }
 
 model UserConfiguration {
@@ -107,10 +108,11 @@ model Producer {
   phone     String?
   state     String?
   city      String?
-  logo      String?
-  website   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  logo          String?
+  logoPublicId  String?
+  website       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   members                 ProducerMember[]
   events                  Event[]
@@ -236,12 +238,20 @@ model Event {
   slug        String       @unique
   description String
   address     String
-  location    String
-  image       String?
-  dates       String?
+  state       String?
+  city        String?
+  image         String?
+  imagePublicId String?
+  dates         String?
   startDate   DateTime?
   endDate     DateTime?
-  status      GlobalStatus
+  status          GlobalStatus
+  category        EventCategory?
+  legalText       String?
+  restrictions    String[]
+  venue           String?
+  ageRestriction  Int?
+  website         String?
   producerId  String
   createdById String?
   createdAt   DateTime     @default(now())
@@ -286,6 +296,7 @@ model EventMember {
 model TicketType {
   id           String           @id @default(cuid())
   title        String
+  description  String?
   date         DateTime?
   time         String?
   price        Decimal          @db.Decimal(10, 2)
@@ -293,6 +304,7 @@ model TicketType {
   limit        Int?
   buyGet       Int?
   eventId      String
+  createdById  String?
   status       TicketTypeStatus
   type         TicketTypes
   startDate    DateTime?        @default(now())
@@ -308,6 +320,7 @@ model TicketType {
   promotion    Promotion[]
   ticketOrder  TicketOrder[]
   event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy    User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
   @@map("ticket_types")
 }
@@ -427,16 +440,19 @@ model Promotion {
 // ─────────────────────────────────────────────
 
 model PaymentMethod {
-  id         String      @id @default(cuid())
-  type       PaymentType
-  name       String?
-  producerId String
-  userId     String? // Solo se usa si es CASH
-  creatorId  String // Usuario que creó este método
-  apiKey     String? // Solo para métodos tipo DIGITAL (ej: MP)
-  enabled    Boolean     @default(true)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id            String      @id @default(cuid())
+  type          PaymentType
+  name          String?
+  producerId    String
+  userId        String? // Solo se usa si es CASH
+  creatorId     String // Usuario que creó este método
+  apiKey        String? // Solo para métodos tipo DIGITAL (ej: MP)
+  cbu           String? // CBU/CVU para transferencias
+  alias         String? // Alias CBU para transferencias
+  transferEmail String? // Email para transferencias
+  enabled       Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   producer Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
   user     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -479,6 +495,7 @@ enum EventRole {
 enum PaymentType {
   CASH
   DIGITAL
+  TRANSFER
 }
 
 enum GlobalStatus {
@@ -531,4 +548,22 @@ enum TicketPackageStatus {
   ACTIVE
   EXPIRED
   CANCELED
+}
+
+enum EventCategory {
+  MUSIC
+  THEATER
+  CONFERENCE
+  SPORT
+  ART
+  GASTRONOMY
+  COMEDY
+  DANCE
+  FESTIVAL
+  CINEMA
+  CORPORATE
+  EXHIBITION
+  NIGHTLIFE
+  WORKSHOP
+  OTHER
 }

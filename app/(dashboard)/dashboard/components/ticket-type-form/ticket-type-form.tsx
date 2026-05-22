@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -39,15 +40,19 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Box from "@/components/dashboard/box";
 import { es } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 
 export default function TycketTypeForm({
   evento,
   remainingTickets,
+  redirectTo,
 }: {
   evento: Evento;
   remainingTickets: number;
+  redirectTo?: string;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const parsedEventDates = JSON.parse(evento.dates);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(false);
@@ -58,6 +63,7 @@ export default function TycketTypeForm({
         message: "Debes seleccionar al menos una fecha",
       }),
     title: z.string(),
+    description: z.string().optional(),
     price: z.number(),
     quantity: z.number().max(remainingTickets || 0, {
       message: `No podés crear más de tickets de los disponibles.`,
@@ -74,6 +80,7 @@ export default function TycketTypeForm({
     defaultValues: {
       selectedDates: [],
       title: "",
+      description: "",
       price: 0,
       status: "ACTIVE",
       quantity: 0,
@@ -93,6 +100,7 @@ export default function TycketTypeForm({
 
     const data: TicketType = {
       title: values.title,
+      description: values.description || null,
       price: !values.isFree ? (values.price as number) : 0,
       dates: stringDates,
       quantity: values.quantity,
@@ -110,15 +118,19 @@ export default function TycketTypeForm({
       createTicketType(data);
       form.reset();
       setHasDiscount(false);
-      setIsLoading(false);
       toast({
         title: "Tipo de ticket creado!",
       });
+      if (redirectTo) {
+        router.push(redirectTo);
+      }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error al crear el tipo de ticket!",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -138,6 +150,22 @@ export default function TycketTypeForm({
                       <FormLabel>Titulo</FormLabel>
                       <FormControl>
                         <Input placeholder="Titulo del Ticket" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descripción</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Descripción del ticket (opcional)"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
