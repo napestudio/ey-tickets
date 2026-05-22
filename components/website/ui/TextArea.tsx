@@ -18,7 +18,9 @@ const textAreaVariants = cva("flex min-h-[80px] w-full rounded-md border border-
   defaultVariants: { size: "sm", color: "black", border: "default" },
 });
 
-export interface TextareaProps extends VariantProps<typeof textAreaVariants> {
+interface TextareaProps
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "color" | "size">,
+    VariantProps<typeof textAreaVariants>{
     className?: string;
 }
 
@@ -36,3 +38,4 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 Textarea.displayName = "Textarea";
 
 export { Textarea };
+export type { TextareaProps };
