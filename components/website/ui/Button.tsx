@@ -58,7 +58,6 @@ const Button = React.forwardRef<
       <Link
         href={href}
         className={classes}
-        ref={ref as React.Ref<HTMLAnchorElement>}
         {...linkRest}
       >
         {children}
