@@ -13,7 +13,7 @@ import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
 import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
-import { EventStatus } from "@/types/event";
+import { EventCategory, EventStatus } from "@/types/event";
 import { Product } from "@/types/product";
 import { DatesType, TicketOrderType, TicketType } from "@/types/tickets";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -59,7 +59,7 @@ export type Evento = {
   dates: string;
   status: EventStatus;
   endDate: string;
-  category?: string | null;
+  category?: EventCategory | null;
   legalText?: string | null;
   restrictions?: string[];
   venue?: string | null;
@@ -713,7 +713,7 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   await sendTicketConfirmationEmail({
     recipientEmail: tickets[0].email,
     eventTitle: eventData?.title ?? '',
-    eventLocation: eventData?.location ?? '',
+    eventLocation: eventData?.venue ?? eventData?.city ?? '',
     eventAddress: eventData?.address ?? '',
     tickets: qrTickets,
   });
@@ -1144,7 +1144,7 @@ export const downloadPdfFile = async (ticketId: any) => {
   doc.text(`${response.order.ticketType.title || "-"}`, 20, 48);
   doc.text(`Fecha:  ${formattedDate}`, 20, 53);
   doc.text(`Dirección: ${response.event.address || "-"}`, 20, 58);
-  doc.text(`Lugar: ${response.event.location || "-"}`, 20, 63);
+  doc.text(`Lugar: ${response.event.venue || response.event.city || "-"}`, 20, 63);
 
   // Agregar imagen QR al PDF (posición x: 140, y: 30, tamaño: 50x50)
   doc.addImage(qrCodeBase64, "PNG", 20, 68, 40, 40);

@@ -115,7 +115,8 @@
       "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/ticket-types/[eventId]/)",
       "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id]/ticket-types/)",
       "Bash(pnpm prisma migrate dev --name add_event_category_and_legal_fields)",
-      "Bash(pnpm prisma db push --accept-data-loss)"
+      "Bash(pnpm prisma db push --accept-data-loss)",
+      "Bash(xargs grep -l \"HomeCard\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

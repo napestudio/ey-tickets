@@ -173,7 +173,8 @@ export async function getTicketOrderById(id: string) {
         select: {
           title: true,
           address: true,
-          location: true,
+          city: true,
+          venue: true,
         },
       },
     },
