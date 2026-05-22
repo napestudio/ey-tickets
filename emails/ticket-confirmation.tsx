@@ -1,18 +1,22 @@
-import { Column, Img, Link, Row, Section, Text } from "react-email";
+import { Column, Hr, Img, Link, Row, Section, Text } from "react-email";
 import { EmailLayout } from "./components/email-layout";
 
 export type QrTicketEmailData = {
   code: number;
-  path: string;
+  ticketId: string;
   date: Date;
   ticketType: { title: string };
+};
+
+type QrTicketTemplateData = QrTicketEmailData & {
+  qrSrc: string;
 };
 
 type TicketConfirmationEmailProps = {
   eventTitle: string;
   eventLocation: string;
   eventAddress: string;
-  tickets: QrTicketEmailData[];
+  tickets: QrTicketTemplateData[];
 };
 
 function formatTicketDate(date: Date): string {
@@ -28,56 +32,149 @@ export function TicketConfirmationEmail({
 }: TicketConfirmationEmailProps) {
   return (
     <EmailLayout>
-      <Section className="bg-white p-5 text-center border-b border-gray-200">
-        <Text className="uppercase text-black m-0 font-bold text-2xl">
-          <span className="font-extrabold">¡Hola! </span>
-          <span className="font-normal">
-            Estas son tus entradas para {eventTitle}
-          </span>
+      {/* Header */}
+      <Section
+        style={{
+          backgroundColor: "#0f3730",
+          padding: "24px 20px",
+          textAlign: "center",
+        }}
+      >
+        <Text
+          style={{
+            color: "#3addbe",
+            fontSize: "13px",
+            fontWeight: "600",
+            letterSpacing: "3px",
+            textTransform: "uppercase",
+            margin: "0 0 8px 0",
+          }}
+        >
+          Confirmación de compra
+        </Text>
+        <Text
+          style={{
+            color: "#ffffff",
+            fontSize: "24px",
+            fontWeight: "800",
+            margin: 0,
+            lineHeight: "1.2",
+          }}
+        >
+          {eventTitle}
         </Text>
       </Section>
-      <Section className="p-5">
+
+      {/* Intro */}
+      <Section style={{ padding: "20px 24px 8px" }}>
+        <Text style={{ color: "#111111", fontSize: "16px", margin: 0 }}>
+          ¡Hola! Tus entradas están listas. Presentalas al ingresar al evento.
+        </Text>
+      </Section>
+
+      {/* Tickets */}
+      <Section style={{ padding: "8px 24px 16px" }}>
         {tickets.map((ticket, i) => (
-          <Row
-            key={i}
-            style={{ border: "1px solid #e2e8f0", marginBottom: "1rem" }}
-          >
-            <Column style={{ width: "75%", padding: "1rem" }}>
-              <Text className="text-sm text-black m-0">
-                N.: {String(ticket.code).padStart(5, "0")}
-              </Text>
-              <Text className="text-2xl text-black m-0">{eventTitle}</Text>
-              <Text className="text-base text-black m-0">
-                {ticket.ticketType.title}
-              </Text>
-              <Text className="text-sm text-black m-0">
-                Lugar: <strong>{eventLocation}</strong>
-              </Text>
-              <Text className="text-sm text-black m-0">
-                Dirección: <strong>{eventAddress}</strong>
-              </Text>
-              <Text className="text-sm text-black m-0">
-                Fecha: <strong>{formatTicketDate(ticket.date)}</strong>
-              </Text>
-            </Column>
-            <Column
+          <div key={i}>
+            <Row
               style={{
-                borderLeft: "1px dashed #e2e8f0",
-                width: "25%",
-                textAlign: "center",
+                border: "2px solid #ededed",
+                borderRadius: "8px",
+                marginBottom: "12px",
                 overflow: "hidden",
               }}
             >
-              <Img src={ticket.path} alt={eventTitle} width="100%" />
-            </Column>
-          </Row>
+              {/* Info column */}
+              <Column style={{ width: "70%", padding: "16px" }}>
+                <Text
+                  style={{
+                    color: "#3addbe",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    letterSpacing: "2px",
+                    textTransform: "uppercase",
+                    margin: "0 0 4px 0",
+                  }}
+                >
+                  Entrada N.° {String(ticket.code).padStart(5, "0")}
+                </Text>
+                <Text
+                  style={{
+                    color: "#111111",
+                    fontSize: "18px",
+                    fontWeight: "700",
+                    margin: "0 0 4px 0",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  {eventTitle}
+                </Text>
+                <Text
+                  style={{
+                    display: "inline-block",
+                    backgroundColor: "#0f3730",
+                    color: "#3addbe",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    padding: "3px 10px",
+                    borderRadius: "99px",
+                    margin: "0 0 10px 0",
+                  }}
+                >
+                  {ticket.ticketType.title}
+                </Text>
+                <Text
+                  style={{ color: "#555555", fontSize: "13px", margin: "0 0 2px 0" }}
+                >
+                  📍 <strong>{eventLocation}</strong>
+                </Text>
+                <Text
+                  style={{ color: "#555555", fontSize: "13px", margin: "0 0 2px 0" }}
+                >
+                  {eventAddress}
+                </Text>
+                <Text style={{ color: "#555555", fontSize: "13px", margin: 0 }}>
+                  🗓 <strong>{formatTicketDate(ticket.date)}</strong>
+                </Text>
+              </Column>
+              {/* QR column */}
+              <Column
+                style={{
+                  width: "30%",
+                  borderLeft: "2px dashed #ededed",
+                  textAlign: "center",
+                  padding: "16px 12px",
+                  backgroundColor: "#fafafa",
+                }}
+              >
+                <Img
+                  src={ticket.qrSrc}
+                  alt={`QR entrada ${ticket.code}`}
+                  width="100"
+                  height="100"
+                  style={{ display: "block", margin: "0 auto 6px" }}
+                />
+                <Text
+                  style={{ color: "#999999", fontSize: "10px", margin: 0, textAlign: "center" }}
+                >
+                  Escaneá para validar
+                </Text>
+              </Column>
+            </Row>
+          </div>
         ))}
-        <Text className="text-lg leading-relaxed text-[#222222]">
-          Recordá llevar tu dni. ¡Nos vemos ahí!.
+      </Section>
+
+      <Hr style={{ borderColor: "#ededed", margin: "0 24px" }} />
+
+      {/* Footer note */}
+      <Section style={{ padding: "16px 24px" }}>
+        <Text style={{ color: "#555555", fontSize: "14px", margin: "0 0 12px 0" }}>
+          Recordá llevar tu DNI. ¡Nos vemos ahí!
         </Text>
         <Link
-          href={`${process.env.BASE_URL}terminos-y-condiciones`}
-          className="text-dark underline"
+          href={`${process.env.BASE_URL}/terminos-y-condiciones`}
+          style={{ color: "#3addbe", fontSize: "12px" }}
         >
           Términos y Condiciones de Uso
         </Link>

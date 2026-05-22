@@ -111,11 +111,16 @@
       "Bash(find \"c:/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento\" -name \"*.tsx\" -o -name \"*.ts\")",
       "Bash(pnpm prisma migrate dev --name add-created-by-to-ticket-type)",
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id]/ticket-types/new/)",
-      "Bash(pnpm prisma migrate dev --name add-logo-public-id)"
+      "Bash(pnpm prisma migrate dev --name add-logo-public-id)",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/ticket-types/[eventId]/)",
+      "Bash(ls /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id]/ticket-types/)",
+      "Bash(pnpm prisma migrate dev --name add_event_category_and_legal_fields)",
+      "Bash(pnpm prisma db push --accept-data-loss)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",
-      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(dashboard)\\dashboard\\evento\\[id]\\edit"
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(dashboard)\\dashboard\\evento\\[id]\\edit",
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\tickets"
     ]
   }
 }

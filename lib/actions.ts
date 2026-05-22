@@ -21,7 +21,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { DiscountCode } from "@/types/discount-code";
 import { UserInvitation as InvitationType } from "@/types/user-invitations";
-import QRCode from "qrcode";
 import bcrypt from "bcryptjs";
 import {
   sendTicketConfirmationEmail,
@@ -51,7 +50,6 @@ export type Evento = {
   slug: string;
   description: string;
   address: string;
-  location?: string | null;
   state?: string | null;
   city?: string | null;
   producerId: string;
@@ -61,6 +59,12 @@ export type Evento = {
   dates: string;
   status: EventStatus;
   endDate: string;
+  category?: string | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 };
 
 export async function createEvent(data: Evento) {
@@ -698,10 +702,9 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   const eventData = await Eventos.getEventById(tickets[0].eventId!);
 
   for (const ticket of tickets) {
-    const path = await setQrCode(ticket.id);
     qrTickets.push({
       code: ticket.code ?? 0,
-      path,
+      ticketId: ticket.id ?? "",
       date: ticket.date,
       ticketType: { title: ticket.ticketType?.title ?? "" },
     });
@@ -717,12 +720,7 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
 }
 
 export async function setQrCode(ticketId = "") {
-  try {
-    // Generate the QR code
-    return await QRCode.toDataURL(`${ticketId}`);
-  } catch (err) {
-    throw new Error("Error generando codigo QR");
-  }
+  return `${process.env.BASE_URL}/api/tickets/qr/${ticketId}`;
 }
 
 export async function validateTicketById(ticketId: string, eventId: string) {

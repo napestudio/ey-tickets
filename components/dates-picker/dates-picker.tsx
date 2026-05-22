@@ -5,19 +5,12 @@ import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 interface DateTimeSelection {
@@ -70,7 +63,7 @@ export default function DatesPicker({
                     variant="outline"
                     className={cn(
                       "w-40 font-normal",
-                      !dateValue && "text-muted-foreground"
+                      !dateValue && "text-muted-foreground",
                     )}
                     type="button"
                   >
@@ -94,48 +87,18 @@ export default function DatesPicker({
 
             {/* Time picker */}
             <div className="flex flex-col gap-1">
-              {index === 0 && (
-                <span className="text-sm font-medium">
-                  Hora (apertura de puertas)
-                </span>
-              )}
-              <Select value={currentTime} onValueChange={handleTimeChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-60">
-                    {Array.from({ length: 96 }).map((_, i) => {
-                      const hour = Math.floor(i / 4)
-                        .toString()
-                        .padStart(2, "0");
-                      const minute = ((i % 4) * 15)
-                        .toString()
-                        .padStart(2, "0");
-                      const value = `${hour}:${minute}`;
-                      return (
-                        <SelectItem key={i} value={value}>
-                          {value}
-                        </SelectItem>
-                      );
-                    })}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+              {index === 0 && <span className="text-sm font-medium">Hora</span>}
+              <Input
+                type="time"
+                value={currentTime}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="w-max"
+              />
             </div>
 
             {/* Add / Remove button */}
-            <div>
-              {index === dateTimeSelections.length - 1 ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onAddDateTime}
-                >
-                  +
-                </Button>
-              ) : (
+            <div className="flex gap-2">
+              {index !== dateTimeSelections.length - 1 && (
                 <Button
                   type="button"
                   variant="outline"
@@ -144,6 +107,28 @@ export default function DatesPicker({
                 >
                   -
                 </Button>
+              )}
+              {index === dateTimeSelections.length - 1 && (
+                <>
+                  {dateTimeSelections.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRemoveDateTime(selection.id)}
+                    >
+                      -
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onAddDateTime}
+                  >
+                    +
+                  </Button>
+                </>
               )}
             </div>
           </div>

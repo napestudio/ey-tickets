@@ -59,7 +59,7 @@ export default function EventsHandler({
     .filter((event) => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.venue?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.producer?.name?.toLowerCase().includes(searchQuery.toLowerCase());
 

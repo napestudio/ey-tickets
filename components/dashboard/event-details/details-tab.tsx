@@ -104,7 +104,7 @@ export default function DetailsTab({
           <div>
             <h4 className="text-sm font-medium mb-1">Dirección</h4>
             <p className="text-sm">
-              {evento.address} | {evento.location}
+              {evento.address}{evento.venue ? ` | ${evento.venue}` : ""}
             </p>
           </div>
         </CardContent>
