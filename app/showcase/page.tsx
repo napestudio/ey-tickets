@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { RichText } from "@/components/website/ui/Text";
+import { RichText } from "@/components/website/ui/RichText";
 import { Title } from "@/components/website/ui/Title";
 import { Paragraph } from "@/components/website/ui/Paragraph";
 import { Button } from "@/components/website/ui/Button";

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Title } from "./Title";
-import { RichText } from "./Text";
+import { RichText } from "./RichText";
 
 import type { TextColor } from "@/components/website/ui/lib/design-system/types";
 

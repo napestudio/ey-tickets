@@ -1,6 +1,6 @@
 // components/features/ProductCard.tsx
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/Card";
-import { Text } from "../ui/Text";
+import { Text } from "../ui/RichText";
 import { Title } from "../ui/Title";
 import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
