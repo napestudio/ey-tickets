@@ -4,15 +4,7 @@ import type React from "react";
 import Link from "next/link";
 
 import { useState } from "react";
-import {
-  Loader2,
-  CreditCard,
-  Wallet,
-  BanknoteIcon as Bank,
-  Landmark,
-  DollarSign,
-  Plus,
-} from "lucide-react";
+import { Wallet, Landmark, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +17,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -37,7 +28,7 @@ import {
 } from "@/components/ui/card";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -48,38 +39,33 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { User } from "@/types/user";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Session } from "next-auth";
 import { createPaymentMethod } from "@/lib/actions";
 import { PaymentType } from "@prisma/client";
 
 const paymentMethodSchema = z.object({
-  type: z.enum(["mercadopago", "cash"], {
+  type: z.enum(["mercadopago", "transfer"], {
     required_error: "Seleccioná un método de pago",
   }),
   accountName: z.string().min(1, "Este campo es obligatorio"),
   apiKey: z.string().optional(),
-  // secretKey: z.string().optional(),
+  cbu: z.string().optional(),
+  alias: z.string().optional(),
+  transferEmail: z
+    .string()
+    .email("Ingresá un email válido")
+    .optional()
+    .or(z.literal("")),
   enabled: z.boolean().default(true),
-  seller: z.string(),
 });
 
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
 
 interface AddPaymentMethodDialogProps {
-  sellers?: User[];
   session: Session;
 }
 
 export function AddPaymentMethodDialog({
-  sellers,
   session,
 }: AddPaymentMethodDialogProps) {
   const [open, setOpen] = useState(false);
@@ -91,13 +77,14 @@ export function AddPaymentMethodDialog({
       type: "mercadopago",
       accountName: "",
       apiKey: "",
-      // secretKey: "",
+      cbu: "",
+      alias: "",
+      transferEmail: "",
       enabled: true,
-      seller: "",
     },
   });
 
-  const { watch, setValue } = form;
+  const { watch } = form;
   const selectedMethod = watch("type");
 
   const onSubmit = async (data: PaymentMethodForm) => {
@@ -109,10 +96,13 @@ export function AddPaymentMethodDialog({
         type:
           data.type === "mercadopago"
             ? ("DIGITAL" as PaymentType)
-            : ("CASH" as PaymentType),
+            : ("TRANSFER" as PaymentType),
         producerId: session.user.producerId!,
-        userId: data.type === "cash" ? data.seller : undefined,
         apiKey: data.type === "mercadopago" ? data.apiKey : null,
+        cbu: data.type === "transfer" ? data.cbu || null : null,
+        alias: data.type === "transfer" ? data.alias || null : null,
+        transferEmail:
+          data.type === "transfer" ? data.transferEmail || null : null,
         enabled: data.enabled,
         creatorId: session.user.id,
       };
@@ -125,11 +115,6 @@ export function AddPaymentMethodDialog({
     }
     form.reset();
     setOpen(false);
-    await new Promise((r) => setTimeout(r, 1000));
-
-    setIsSubmitting(false);
-    setOpen(false);
-    form.reset();
   };
 
   const paymentOptions = [
@@ -139,12 +124,11 @@ export function AddPaymentMethodDialog({
       description: "Usando MercadoPago Checkout Pro",
       icon: <Wallet className="h-6 w-6" />,
     },
-
     {
-      id: "cash",
-      name: "Efectivo | Punto de venta",
-      description: "Para cobros en efectivo",
-      icon: <DollarSign className="h-6 w-6" />,
+      id: "transfer",
+      name: "Transferencia",
+      description: "Transferencia bancaria (CBU/CVU)",
+      icon: <Landmark className="h-6 w-6" />,
     },
   ];
 
@@ -197,7 +181,7 @@ export function AddPaymentMethodDialog({
                               </FormControl>
                               <FormLabel
                                 htmlFor={option.id}
-                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground  has-data-[state=checked]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5  has-data-[state=checked]:bg-red-500"
+                                className="flex items-center justify-between w-full rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground has-data-[state=checked]:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                               >
                                 <div className="flex items-center gap-4">
                                   <div className="rounded-full bg-muted p-2 text-primary">
@@ -252,88 +236,85 @@ export function AddPaymentMethodDialog({
                         </FormItem>
                       )}
                     />
-                    {selectedMethod === "cash" && (
-                      <>
-                        {sellers && (
-                          <FormField
-                            control={form.control}
-                            name="seller"
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar vendedor" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {sellers?.map((seller) => (
-                                      <SelectItem
-                                        key={seller.id}
-                                        value={seller.id!}
-                                      >
-                                        {seller.email}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )}
-                          />
+
+                    {selectedMethod === "mercadopago" && (
+                      <FormField
+                        control={form.control}
+                        name="apiKey"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Access Token MercadoPago</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ingresa el Access Token de MercadoPago"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              <Link
+                                target="_blank"
+                                href="https://www.mercadopago.com.ar/developers/es/docs/security/oauth/creation"
+                              >
+                                Cómo creo un AccessToken
+                              </Link>
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </>
+                      />
                     )}
 
-                    {selectedMethod !== "cash" && (
+                    {selectedMethod === "transfer" && (
                       <>
                         <FormField
                           control={form.control}
-                          name="apiKey"
+                          name="cbu"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Access Token MercadoPago</FormLabel>
+                              <FormLabel>CBU / CVU</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="Ingresa el Access Token de MercadoPago"
+                                  placeholder="Ingresa el CBU o CVU"
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>
-                                <Link
-                                  target="_blank"
-                                  href="https://www.mercadopago.com.ar/developers/es/docs/security/oauth/creation"
-                                >
-                                  Cómo creo un AccessToken{" "}
-                                </Link>
-                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-
-                        {/* <FormField
+                        <FormField
                           control={form.control}
-                          name="secretKey"
+                          name="alias"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Secret Key</FormLabel>
+                              <FormLabel>Alias</FormLabel>
                               <FormControl>
                                 <Input
-                                  type="password"
-                                  placeholder="Enter your secret key"
+                                  placeholder="Ingresa el alias"
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>
-                                Tu clave secreta.
-                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
-                        /> */}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="transferEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="email"
+                                  placeholder="Ingresa el email"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </>
                     )}
 
@@ -344,10 +325,10 @@ export function AddPaymentMethodDialog({
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                           <div className="space-y-0.5">
                             <FormLabel>Habilitado</FormLabel>
-                            <FormDescription>
+                            {/* <FormDescription>
                               Una vez habilitado, este método de pago estará
                               disponible para su uso en la plataforma.
-                            </FormDescription>
+                            </FormDescription> */}
                           </div>
                           <FormControl>
                             <Switch
@@ -371,12 +352,7 @@ export function AddPaymentMethodDialog({
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isSubmitting || (selectedMethod === "cash" && !sellers)
-                }
-              >
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Agregando..." : "Agregar Método"}
               </Button>
             </DialogFooter>

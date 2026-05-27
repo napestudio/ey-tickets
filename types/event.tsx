@@ -9,32 +9,60 @@ export type EventStatus =
   | "CONCLUDED"
   | "DELETED";
 
+export type EventCategory =
+  | "MUSIC"
+  | "THEATER"
+  | "CONFERENCE"
+  | "SPORT"
+  | "ART"
+  | "GASTRONOMY"
+  | "COMEDY"
+  | "DANCE"
+  | "FESTIVAL"
+  | "CINEMA"
+  | "CORPORATE"
+  | "EXHIBITION"
+  | "NIGHTLIFE"
+  | "WORKSHOP"
+  | "OTHER";
+
 export interface Evento {
   id: string;
   title: string;
   slug?: string;
   description: string;
-  location: string;
   address: string;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   createdById?: string | null;
   image: string;
+  imagePublicId?: string | null;
   dates: string;
   status?: EventStatus;
   discountCode?: DiscountCode[] | undefined;
   ticketTypes?: TicketType[];
   validatorToken?: ValidatorToken[];
   eventPayments?: EventPayment[];
-  endDate?: Date;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  createdAt?: Date;
   producer?: { id: string; name: string; slug: string } | null;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 }
 export interface EventoWithTicketsType {
   id: string;
   title: string;
   slug?: string;
   description: string;
-  location: string;
   address: string;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   image: string;
   dates: string;
@@ -45,4 +73,10 @@ export interface EventoWithTicketsType {
   eventPayments?: EventPayment[];
   tickets?: Partial<TicketOrderType>[] | undefined;
   producer?: { id: string; name: string; slug: string } | null;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 }

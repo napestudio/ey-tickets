@@ -33,14 +33,8 @@ export const menuData: MenuSection[] = [
     title: "Configuración",
     items: [
       { title: "MercadoPago", href: "/dashboard/configuracion/mercado-pago" },
-      {
-        title: "Medios de pago",
-        href: "/dashboard/configuracion/mercado-pago",
-      },
-      // {
-      //   title: "Notificaciónes",
-      //   href: "/dashboard/configuracion/notificaciones",
-      // },
+      { title: "Métodos de pago", href: "/dashboard/metodos-de-pago" },
+      { title: "Punto de venta", href: "/dashboard/punto-de-venta" },
     ],
   },
   // { title: "Perfil", href: "/dashboard/configuracion/perfil" },

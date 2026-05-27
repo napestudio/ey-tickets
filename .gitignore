@@ -41,4 +41,6 @@ next-env.d.ts
 
 #
 /app/generated
+tmpclaude-*
 /.claude/
+/.claude/settings.json

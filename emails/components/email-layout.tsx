@@ -14,10 +14,11 @@ const tailwindConfig = {
   theme: {
     extend: {
       colors: {
-        brand: "#016fd0",
-        accent: "#e65a25",
-        dark: "#0f172a",
-        success: "#019645",
+        "ey-turquoise": "#3addbe",
+        "ey-turquoise-dark": "#33c1a6",
+        "ey-turquoise-darker": "#0f3730",
+        "ey-dark": "#111111",
+        "ey-gray": "#ededed",
       },
     },
   },
@@ -32,17 +33,41 @@ export function EmailLayout({ children }: EmailLayoutProps) {
     <Html lang="es">
       <Head />
       <Tailwind config={tailwindConfig}>
-        <Body className="bg-brand p-5 m-0 font-sans">
+        <Body
+          style={{ backgroundColor: "#111111", margin: 0, padding: "20px 0" }}
+          className="font-sans"
+        >
           <Section className="text-center mb-4">
             <Img
-              src={`${process.env.BASE_URL}/email-logo.png`}
+              src="cid:email-logo"
               width="160"
               alt="EyTickets"
             />
           </Section>
-          <Container className="max-w-[600px] mx-auto bg-white overflow-hidden border-4 border-black rounded-lg">
+          <Container
+            style={{
+              maxWidth: "600px",
+              margin: "0 auto",
+              backgroundColor: "#ffffff",
+              overflow: "hidden",
+              borderRadius: "12px",
+              border: "3px solid #3addbe",
+            }}
+          >
             {children}
           </Container>
+          <Section className="text-center mt-4">
+            <p
+              style={{
+                color: "#3addbe",
+                fontSize: "12px",
+                margin: 0,
+                opacity: 0.7,
+              }}
+            >
+              © EYTickets — eytickets.ar
+            </p>
+          </Section>
         </Body>
       </Tailwind>
     </Html>

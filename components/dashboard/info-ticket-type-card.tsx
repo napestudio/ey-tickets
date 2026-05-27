@@ -127,7 +127,7 @@ export default function InfoTicketTypeCard({ ticket }: { ticket: TicketType }) {
                 <DropdownMenuItem>
                   <Edit className="mr-2 h-4 w-4" />
                   <Link
-                    href={`/dashboard/evento/${ticket.eventId}/edit?tab=tickets`}
+                    href={`/dashboard/evento/${ticket.eventId}/ticket-types/${ticket.id}/edit`}
                   >
                     Editar ticket
                   </Link>

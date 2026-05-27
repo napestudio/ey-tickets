@@ -29,12 +29,18 @@ export default async function PaymentMethodsLoader({
     methods = await getPaymentMethodsByCreatorId(id);
   }
 
-  if (!methods || methods.length === 0) {
-    <Box>No hay Métodos de Pago creados</Box>;
+  // Exclude CASH (Punto de Venta) from the payment methods page — managed separately
+  const filtered = eventId
+    ? (methods ?? [])
+    : (methods ?? []).filter((m) => m.type !== "CASH");
+
+  if (!filtered.length) {
+    return <Box>No hay Métodos de Pago creados</Box>;
   }
+
   return (
     <PaymentMethodsTable
-      methods={methods ?? []}
+      methods={filtered}
       eventId={eventId}
       sellers={sellers}
     />

@@ -75,7 +75,6 @@ export default async function Evento({ params }: { params: { id: string } }) {
   const { evento, serviceCharge, soldTickets, paymentMethod } = eventData;
 
   const groupedDates = datesFormater(evento?.dates as string);
-  console.log(evento.ticketTypes);
 
   return (
     <>

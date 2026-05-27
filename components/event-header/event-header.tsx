@@ -16,10 +16,11 @@ export default function EventHeader({
   height = 20,
 }: EventHeaderProps) {
   const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return `${description.slice(0, maxLength)}...`;
+    const plain = description.replace(/<[^>]*>/g, "");
+    if (plain.length > maxLength) {
+      return `${plain.slice(0, maxLength)}...`;
     }
-    return description;
+    return plain;
   };
   if (!evento) return;
   return (
@@ -50,10 +51,11 @@ export default function EventHeader({
                 <div className="flex items-center gap-2 ">
                   <MapPin className="w-4 h-4 flex-shrink-0 font-bold" />
                   <div>
-                    <span className="text-sm font-bold">
-                      {evento?.location}
-                    </span>{" "}
-                    /
+                    {evento?.venue && (
+                      <span className="text-sm font-bold">
+                        {evento.venue} -
+                      </span>
+                    )}
                     <span className="text-sm font-medium">
                       {evento?.address}
                     </span>

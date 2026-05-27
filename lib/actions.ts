@@ -11,9 +11,9 @@ import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
-import { updateProducer } from "@/lib/api/producers";
+import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
-import { EventStatus } from "@/types/event";
+import { EventCategory, EventStatus } from "@/types/event";
 import { Product } from "@/types/product";
 import { DatesType, TicketOrderType, TicketType } from "@/types/tickets";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -21,7 +21,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { DiscountCode } from "@/types/discount-code";
 import { UserInvitation as InvitationType } from "@/types/user-invitations";
-import QRCode from "qrcode";
 import bcrypt from "bcryptjs";
 import {
   sendTicketConfirmationEmail,
@@ -38,10 +37,12 @@ import { getPaidOrdersDataByEvent } from "@/lib/api/orders";
 import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
-import cloudinary, { deleteFile, uploadFile } from "@/lib/cloudinary-upload";
+import { uploadImage as cloudinaryUpload, deleteImage as cloudinaryDelete } from "@/lib/cloudinary-upload";
 import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsPDF } from "jspdf";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 // Type temporal
 export type Evento = {
@@ -49,13 +50,21 @@ export type Evento = {
   slug: string;
   description: string;
   address: string;
-  location: string;
+  state?: string | null;
+  city?: string | null;
   producerId: string;
   createdById?: string;
   image: string | null;
+  imagePublicId?: string | null;
   dates: string;
   status: EventStatus;
   endDate: string;
+  category?: EventCategory | null;
+  legalText?: string | null;
+  restrictions?: string[];
+  venue?: string | null;
+  ageRestriction?: number | null;
+  website?: string | null;
 };
 
 export async function createEvent(data: Evento) {
@@ -193,6 +202,14 @@ export async function getTicketTypesByEventId(eventId: string) {
   }
 }
 
+export async function getTicketTypesWithStatsByEventId(eventId: string) {
+  try {
+    return await TicketTypes.getTicketTypesWithStatsByEventId(eventId);
+  } catch (error) {
+    throw new Error("Error en getTicketTypesWithStatsByEventId");
+  }
+}
+
 export async function getTyicketTypeById(ticketTypeId: string) {
   try {
     const result = await TicketTypes.getTicketTypesById(ticketTypeId);
@@ -241,12 +258,21 @@ export async function getUsedInvitesByProducer(producerId: string) {
 }
 
 export async function createTicketType(data: TicketType) {
+  const session = await getServerSession(authOptions);
+  const createdById = session?.user?.id ?? null;
+
+  const dataWithCreator = { ...data, createdById };
+
   try {
     const event = await Eventos.getEventById(data.eventId);
     if (event?.producerId) {
-      await TicketTypes.createTicketTypeWithLimit(data, event.producerId);
+      await TicketTypes.createTicketTypeWithLimit(
+        dataWithCreator,
+        event.producerId,
+        createdById ?? undefined
+      );
     } else {
-      await TicketTypes.createTicketType(data);
+      await TicketTypes.createTicketType(dataWithCreator);
     }
   } catch (error) {
     throw new Error(
@@ -254,7 +280,7 @@ export async function createTicketType(data: TicketType) {
     );
   }
 
-  revalidatePath(`/dashboard/evento/${data.eventId}/edit`);
+  revalidatePath(`/dashboard/evento/ticket-types/${data.eventId}`);
 }
 
 export async function updateTicketType(
@@ -413,42 +439,55 @@ export async function deleteUser(userId: string, userEmail: string) {
 
 type PaymentMethodInput = {
   name?: string;
-  type: "CASH" | "DIGITAL";
+  type: "CASH" | "DIGITAL" | "TRANSFER";
   producerId: string;
   userId?: string;
   apiKey?: string | null;
+  cbu?: string | null;
+  alias?: string | null;
+  transferEmail?: string | null;
   enabled?: boolean;
   creatorId?: string;
 };
 
 export async function createPaymentMethod(data: PaymentMethodInput) {
-  const { type, userId } = data;
-  if (type === "CASH" && !userId) {
-    throw new Error("CASH tiene que contener un userId");
-  }
   try {
     const method = await PaymentMethod.createPaymentMethod(data);
-    revalidatePath("/dashboard/payment-methods");
+    revalidatePath("/dashboard/metodos-de-pago");
     return method;
   } catch (error) {
     throw new Error(`Error creando Metodo de Pago: ${error}`);
   }
 }
-export async function updatePaymentMethod(data: any, paymentMethodId: string) {
-  const { type, userId } = data;
 
-  if (type === "CASH" && !userId) {
-    throw new Error("CASH tiene que contener un userId");
+export async function createPuntoDeVenta(data: PaymentMethodInput) {
+  const { userId } = data;
+  if (!userId) {
+    throw new Error("Punto de venta requiere un vendedor asignado");
   }
+  try {
+    const method = await PaymentMethod.createPaymentMethod({
+      ...data,
+      type: "CASH",
+    });
+    revalidatePath("/dashboard/punto-de-venta");
+    return method;
+  } catch (error) {
+    throw new Error(`Error creando Punto de Venta: ${error}`);
+  }
+}
+
+export async function updatePaymentMethod(data: PaymentMethodInput, paymentMethodId: string) {
   try {
     const method = await PaymentMethod.updatePaymentMethod(
       data,
       paymentMethodId
     );
-    revalidatePath("/dashboard/payment-methods");
+    revalidatePath("/dashboard/metodos-de-pago");
+    revalidatePath("/dashboard/punto-de-venta");
     return method;
   } catch (error) {
-    throw new Error(`Error creando Metodo de Pago: ${error}`);
+    throw new Error(`Error actualizando Metodo de Pago: ${error}`);
   }
 }
 
@@ -663,10 +702,9 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   const eventData = await Eventos.getEventById(tickets[0].eventId!);
 
   for (const ticket of tickets) {
-    const path = await setQrCode(ticket.id);
     qrTickets.push({
       code: ticket.code ?? 0,
-      path,
+      ticketId: ticket.id ?? "",
       date: ticket.date,
       ticketType: { title: ticket.ticketType?.title ?? "" },
     });
@@ -675,19 +713,14 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
   await sendTicketConfirmationEmail({
     recipientEmail: tickets[0].email,
     eventTitle: eventData?.title ?? '',
-    eventLocation: eventData?.location ?? '',
+    eventLocation: eventData?.venue ?? eventData?.city ?? '',
     eventAddress: eventData?.address ?? '',
     tickets: qrTickets,
   });
 }
 
 export async function setQrCode(ticketId = "") {
-  try {
-    // Generate the QR code
-    return await QRCode.toDataURL(`${ticketId}`);
-  } catch (err) {
-    throw new Error("Error generando codigo QR");
-  }
+  return `${process.env.BASE_URL}/api/tickets/qr/${ticketId}`;
 }
 
 export async function validateTicketById(ticketId: string, eventId: string) {
@@ -1001,36 +1034,27 @@ export async function getSoldTicketsByType(tickets: any[]) {
   }
 }
 
-export async function uploadEventImage(formData: any) {
-  const file = formData.get("file") as File;
+export async function uploadEventImage(formData: FormData) {
+  const file = formData.get("file") as File | null;
   if (!file) return { ok: false, status: 400 };
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name.split(".")[0];
-    const res = (await uploadFile(
-      buffer,
-      `${process.env.CLIENT_ID}`,
-      fileName
-    )) as {
-      secure_url: string;
-      public_id: string;
-      format: string;
-    };
+    const { v4: uuidv4 } = await import("uuid");
+    const res = await cloudinaryUpload(buffer, "events", uuidv4());
     return {
       url: res.secure_url,
       publicId: res.public_id,
       format: res.format,
     };
-  } catch (error) {
-    //throw new Error("Error trayendo las entradas vendidas");
+  } catch {
     return { ok: false, status: 400 };
   }
 }
 
 export async function deleteEventImage(publicId: string) {
   try {
-    return await deleteFile(publicId);
-  } catch (error) {
+    return await cloudinaryDelete(publicId);
+  } catch {
     throw new Error("Error eliminando la imagen");
   }
 }
@@ -1120,7 +1144,7 @@ export const downloadPdfFile = async (ticketId: any) => {
   doc.text(`${response.order.ticketType.title || "-"}`, 20, 48);
   doc.text(`Fecha:  ${formattedDate}`, 20, 53);
   doc.text(`Dirección: ${response.event.address || "-"}`, 20, 58);
-  doc.text(`Lugar: ${response.event.location || "-"}`, 20, 63);
+  doc.text(`Lugar: ${response.event.venue || response.event.city || "-"}`, 20, 63);
 
   // Agregar imagen QR al PDF (posición x: 140, y: 30, tamaño: 50x50)
   doc.addImage(qrCodeBase64, "PNG", 20, 68, 40, 40);
@@ -1139,9 +1163,22 @@ export async function updateProducerDetailsAction(
     city?: string;
     website?: string;
     logo?: string;
+    logoPublicId?: string | null;
   }
 ) {
   await updateProducer(producerId, data);
+  revalidatePath("/dashboard/configuracion/productora");
+}
+
+export async function updateProducerConfigurationAction(
+  producerId: string,
+  data: {
+    serviceCharge?: number;
+    maxValidatorsPerEvent?: number;
+    maxInvitesPerEvent?: number;
+  }
+) {
+  await updateProducerConfiguration(producerId, data);
   revalidatePath("/dashboard/configuracion/productora");
 }
 

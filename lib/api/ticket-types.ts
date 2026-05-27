@@ -1,5 +1,6 @@
 import { TicketType } from "@/types/tickets";
-import {prisma} from "../prisma";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../prisma";
 import { isAfter } from "date-fns";
 import {
   getProducerStockSummary,
@@ -28,25 +29,46 @@ export async function getTicketTypesByEventId(eventId: string) {
   });
 }
 
+export async function getTicketTypesWithStatsByEventId(eventId: string) {
+  return await prisma.ticketType.findMany({
+    where: {
+      eventId,
+      status: { not: "DELETED" },
+    },
+    orderBy: { position: "asc" },
+    include: {
+      createdBy: { select: { id: true, name: true } },
+      orders: {
+        where: { status: "PAID", isInvitation: false },
+        select: { quantity: true },
+      },
+    },
+  });
+}
+
 export async function createTicketType(data: TicketType) {
-  return await prisma.ticketType.create({ data });
+  const { createdBy, ...createData } = data;
+  return await prisma.ticketType.create({
+    data: createData as Prisma.TicketTypeUncheckedCreateInput,
+  });
 }
 
 export async function updateTicketType(
   ticketId: string,
-  ticketData: Partial<TicketType>
+  ticketData: Partial<TicketType>,
 ) {
+  const { createdBy, id, createdAt, updatedAt, ...updateData } = ticketData;
   return await prisma.ticketType.update({
-    where: {
-      id: ticketId,
-    },
-    data: ticketData,
+    where: { id: ticketId },
+    data: updateData as Prisma.TicketTypeUncheckedUpdateInput,
   });
 }
 
 // ─── Legacy: mantenidas por compatibilidad ────────────────────────────────────
 
-export async function getMaxTicketsPerEvent(producerId: string): Promise<number> {
+export async function getMaxTicketsPerEvent(
+  producerId: string,
+): Promise<number> {
   const config = await prisma.producerConfiguration.findUnique({
     where: { producerId },
     select: { maxTicketsPerEvent: true },
@@ -86,7 +108,7 @@ export async function getRemainingTicketsByProducer(producerId: string) {
     for (const ticket of event.ticketTypes) {
       const sold = ticket.orders.reduce(
         (acc, order) => acc + order.quantity,
-        0
+        0,
       );
 
       if (isEventActive) {
@@ -106,14 +128,14 @@ export async function getRemainingTicketsByProducer(producerId: string) {
 export async function createTicketTypeWithLimit(
   ticket: TicketType,
   producerId: string,
-  creatorUserId?: string
+  creatorUserId?: string,
 ) {
   // 1. Pool de la productora
   const summary = await getProducerStockSummary(producerId);
 
   if (summary.unallocated < ticket.quantity) {
     throw new Error(
-      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`
+      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`,
     );
   }
 
@@ -132,7 +154,7 @@ export async function createTicketTypeWithLimit(
 
     if (ticket.quantity > remainingForEvent) {
       throw new Error(
-        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`
+        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`,
       );
     }
   }
@@ -157,11 +179,14 @@ export async function createTicketTypeWithLimit(
 
       if (ticket.quantity > remainingForMember) {
         throw new Error(
-          `Superaste tu cupo personal de tickets. Disponibles: ${remainingForMember}, solicitado: ${ticket.quantity}`
+          `Superaste tu cupo personal de tickets. Disponibles: ${remainingForMember}, solicitado: ${ticket.quantity}`,
         );
       }
     }
   }
 
-  return prisma.ticketType.create({ data: ticket });
+  const { createdBy, ...createData } = ticket;
+  return prisma.ticketType.create({
+    data: createData as Prisma.TicketTypeUncheckedCreateInput,
+  });
 }

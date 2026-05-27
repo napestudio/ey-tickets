@@ -1,10 +1,5 @@
 import { Evento, EventoWithTicketsType } from "@/types/event";
 
-import { Calendar, MapPin, Users } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
-
-import { datesFormater } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 
 import DashboardHeader from "../dashboard-header";
@@ -28,7 +23,10 @@ import DetailsTab from "./details-tab";
 import Navigation from "./navigation";
 import SideBar from "./side-bar";
 import SoldTicketsTab from "./sold-tickets-tab";
+import PaymentMethodsTab from "./payment-methods-tab";
 import MinimalEventSalesStats from "../mininimal-event-sales-stats";
+import AccionesTab from "./acciones-tab";
+
 export default async function EventDetails({
   evento,
 }: {
@@ -36,7 +34,7 @@ export default async function EventDetails({
 }) {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const groupedDates = datesFormater(evento.dates as string);
+
   if (evento.status === "DELETED") {
     redirect("/dashboard");
   }
@@ -62,6 +60,7 @@ export default async function EventDetails({
 
   const remaingingTickets = stockSummary.unallocated;
   const remainingInvites = maxInvitesAmount - usedInvites;
+
   return (
     <>
       <div className="space-y-6">
@@ -76,39 +75,6 @@ export default async function EventDetails({
         />
         <div className="grid gap-6 md:grid-cols-7">
           <div className="md:col-span-5 space-y-6">
-            <Card>
-              <div className="relative h-45 md:h-75 bg-neutral-300 w-full">
-                {evento.image && (
-                  <Image
-                    src={evento.image}
-                    alt={evento.title}
-                    fill
-                    className="object-cover rounded-t-lg"
-                  />
-                )}
-                <div className="absolute right-2 top-2 bg-black rounded-full text-white px-3 py-1">
-                  {evento.status}
-                </div>
-              </div>
-              <CardContent className="pt-6">
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center">
-                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>{groupedDates}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>{evento.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>Creado por {evento.producer?.name}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             <Tabs defaultValue="overview" className="w-full">
               <div className="overflow-x-auto max-w-[90vw] w-full">
                 <TabsList>
@@ -131,14 +97,20 @@ export default async function EventDetails({
                   >
                     Entradas Vendidas
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="paymentMethods"
+                    disabled={isSeller || !isEventOwner}
+                  >
+                    Métodos de pago
+                  </TabsTrigger>
+                  <TabsTrigger value="acciones">Acciones</TabsTrigger>
                 </TabsList>
               </div>
               <TabsContent value="overview" className="space-y-6">
                 <DetailsTab
                   isEventOwner={isEventOwner}
                   isSeller={isSeller}
-                  evento={evento}
-                  session={session}
+                  evento={evento as unknown as Evento}
                 />
               </TabsContent>
               <TabsContent value="tickets" className="space-y-6">
@@ -150,18 +122,25 @@ export default async function EventDetails({
               <TabsContent value="soldList" className="space-y-6">
                 <SoldTicketsTab evento={evento} />
               </TabsContent>
+              <TabsContent value="paymentMethods" className="space-y-6">
+                <PaymentMethodsTab evento={evento} session={session} />
+              </TabsContent>
+              <TabsContent value="acciones" className="space-y-6">
+                <AccionesTab
+                  evento={evento as unknown as Evento}
+                  isSeller={isSeller}
+                  isEventOwner={isEventOwner}
+                  remainingInvites={remainingInvites}
+                  remainingTickets={remaingingTickets}
+                  maxInvitesAmount={maxInvitesAmount}
+                  soldTickets={soldTickets}
+                />
+              </TabsContent>
             </Tabs>
           </div>
           <div className="md:col-span-2 space-y-6">
             <SideBar
-              evento={evento}
-              isEventOwner={isEventOwner}
-              isSeller={isSeller}
-              remainingInvites={remainingInvites}
-              remainingTickets={remaingingTickets}
-              maxInvitesAmount={maxInvitesAmount}
               salesStats={<MinimalEventSalesStats eventId={evento.id} />}
-              soldTickets={soldTickets}
               eventStockCap={eventAllocation?.quantity ?? null}
             />
           </div>

@@ -15,14 +15,6 @@ export default async function NewEvent() {
     <>
       <div className="space-y-6 pb-8">
         <DashboardHeader title="Nuevo evento" subtitle="Crea un evento nuevo" />
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al Dashboard
-            </Link>
-          </Button>
-        </div>
         <div>
           <CreateEventForm producerId={producerId} />
         </div>

@@ -68,7 +68,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
   return (
     <>
       <TableCell>
-        <div className="relative h-10 w-[60px]">
+        <div className="relative h-15 w-15">
           <Image
             src={evento.image || "/placeholder.svg"}
             alt={evento.title}
@@ -79,23 +79,19 @@ export default function EventListItem({ evento }: { evento: Evento }) {
       </TableCell>
       <TableCell className="font-medium">{evento.title}</TableCell>
       <TableCell>{formattedDate}</TableCell>
-      <TableCell className="max-w-[180px] truncate">
-        {evento.location}
-      </TableCell>
-      <TableCell>
-        <Badge variant="outline">{evento.producer?.name}</Badge>
-      </TableCell>
+      <TableCell className="max-w-45 truncate">{evento.venue}</TableCell>
+      <TableCell>{evento.producer?.name}</TableCell>
 
       <TableCell>{renderStatusBadge(evento.status || "")}</TableCell>
       <TableCell>
-        <div className="w-[100px] space-y-1">
+        <div className="w-25 space-y-1">
           <div className="text-xs font-bold">
             $ {total?.toLocaleString("es-ar")}
           </div>
           {/* <Progress value={soldPercentage} className="h-2" /> */}
         </div>
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
@@ -116,9 +112,8 @@ export default function EventListItem({ evento }: { evento: Evento }) {
                   </Link>
                 </DropdownMenuItem>
               ))}
-            <DropdownMenuItem>
-              {" "}
-              <Link href={`/dashboard/evento/${evento.id}/edit?tab=tickets`}>
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/evento/ticket-types/${evento.id}`}>
                 Tickets
               </Link>
             </DropdownMenuItem>

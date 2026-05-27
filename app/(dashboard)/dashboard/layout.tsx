@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import "@uploadthing/react/styles.css";
 
 import { authOptions } from "../../api/auth/[...nextauth]/options";
 import SideBar from "../../../components/dashboard/side-bar";

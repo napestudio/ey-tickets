@@ -27,10 +27,22 @@ export function LocationSelect({
   onCityChange,
   disabled = false,
 }: LocationSelectProps) {
-  const cities = provinceValue ? (CITIES_BY_PROVINCE[provinceValue] ?? []) : [];
+  // provinceValue stores the province name; derive the ID for internal lookups
+  const selectedProvince =
+    PROVINCES.find((p) => p.name === provinceValue) ??
+    PROVINCES.find((p) => p.id === provinceValue); // backward compat with existing records
+  const provinceId = selectedProvince?.id ?? "";
+
+  const cities = provinceId
+    ? [...(CITIES_BY_PROVINCE[provinceId] ?? [])].sort((a, b) =>
+        a.localeCompare(b, "es")
+      )
+    : [];
 
   function handleProvinceChange(value: string) {
-    onProvinceChange(value);
+    // value is the ID from SelectItem; emit the name so forms/DB store the readable label
+    const province = PROVINCES.find((p) => p.id === value);
+    onProvinceChange(province?.name ?? value);
     onCityChange("");
   }
 
@@ -41,7 +53,7 @@ export function LocationSelect({
           Provincia
         </label>
         <Select
-          value={provinceValue}
+          value={provinceId}
           onValueChange={handleProvinceChange}
           disabled={disabled}
         >
@@ -65,12 +77,12 @@ export function LocationSelect({
         <Select
           value={cityValue}
           onValueChange={onCityChange}
-          disabled={disabled || !provinceValue}
+          disabled={disabled || !provinceId}
         >
           <SelectTrigger>
             <SelectValue
               placeholder={
-                provinceValue
+                provinceId
                   ? "Seleccioná una ciudad"
                   : "Primero elegí una provincia"
               }
