@@ -45,7 +45,7 @@ export type TextColor = "white" | "muted" | "accent" | "black";
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Variantes visuales del Button. */
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "link";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "link";
 
 /** Tamaños del Button. */
 export type ButtonSize = "sm" | "md" | "lg";

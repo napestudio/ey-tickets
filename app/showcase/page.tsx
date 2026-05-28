@@ -24,7 +24,8 @@ import {
   HeroSubTitle,
   HeroDescription,
   HeroActions,
-} from "@/components/website/features/HeroSection";
+} from "@/components/website/HeroSection";
+import { Label } from "@/components/website/ui/Label";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -111,60 +112,6 @@ export default function ShowcasePage() {
 
       <div className="max-w-6xl mx-auto px-8">
 
-        {/* ─── RichText ──────────────────────────────────────────── */}
-        <Section
-          title="RichText"
-          description="Componente base para texto corrido. Soporta p, span, strong, em y label."
-        >
-          <Grid>
-            <VariantBlock label="size">
-              <RichText as="p" size="xs" color="black">xs — Texto pequeño</RichText>
-              <RichText as="p" size="sm" color="black">sm — Texto base</RichText>
-              <RichText as="p" size="md" color="black">md — Texto medio</RichText>
-            </VariantBlock>
-
-            <VariantBlock label="color" bg="bg-gray-950">
-              <RichText as="p" color="white">white</RichText>
-              <RichText as="p" color="muted">muted</RichText>
-              <RichText as="p" color="accent" className="bg-white px-2 rounded">accent</RichText>
-              <RichText as="p" color="black" className="bg-white px-2 rounded">black</RichText>
-            </VariantBlock>
-
-            <VariantBlock label="weight">
-              <RichText as="p" color="black" weight="normal">normal — The quick brown fox</RichText>
-              <RichText as="p" color="black" weight="bold">bold — The quick brown fox</RichText>
-            </VariantBlock>
-
-            <VariantBlock label="as — tags semánticos">
-              <RichText as="p" color="black">as=&quot;p&quot; — párrafo</RichText>
-              <RichText as="span" color="black">as=&quot;span&quot; — inline</RichText>
-              <RichText as="strong" color="black" weight="bold">as=&quot;strong&quot; — énfasis fuerte</RichText>
-              <RichText as="em" color="black">as=&quot;em&quot; — énfasis</RichText>
-            </VariantBlock>
-
-            <VariantBlock label='as="label" — accesible con htmlFor'>
-              <div className="flex flex-col gap-1">
-                <RichText as="label" htmlFor="demo-input" color="black" size="xs" weight="bold">
-                  Email
-                </RichText>
-                <Input
-                  id="demo-input"
-                  type="email"
-                  placeholder="hola@empresa.com"
-                />
-              </div>
-            </VariantBlock>
-
-            <VariantBlock label="composición — strong dinámico">
-              <RichText as="p" color="black">
-                El usuario{" "}
-                <RichText as="strong" color="black" weight="bold">Juan Pérez</RichText>
-                {" "}inició sesión correctamente.
-              </RichText>
-            </VariantBlock>
-          </Grid>
-        </Section>
-
         {/* ─── Paragraph ─────────────────────────────────────────── */}
         <Section
           title="Paragraph"
@@ -172,20 +119,9 @@ export default function ShowcasePage() {
         >
           <Grid>
             <VariantBlock label="size">
-              <Paragraph size="xs" color="black">xs — Texto pequeño</Paragraph>
-              <Paragraph size="sm" color="black">sm — Texto base</Paragraph>
-              <Paragraph size="md" color="black">md — Texto medio</Paragraph>
-            </VariantBlock>
-
-            <VariantBlock label="color" bg="bg-gray-950">
-              <Paragraph color="white">white</Paragraph>
-              <Paragraph color="muted">muted</Paragraph>
-              <Paragraph color="accent" className="bg-white px-2 rounded">accent</Paragraph>
-            </VariantBlock>
-
-            <VariantBlock label="weight">
-              <Paragraph color="black" weight="normal">normal — The quick brown fox</Paragraph>
-              <Paragraph color="black" weight="bold">bold — The quick brown fox</Paragraph>
+              <Paragraph size="xs">xs — Texto pequeño</Paragraph>
+              <Paragraph size="sm">sm — Texto base</Paragraph>
+              <Paragraph size="md">md — Texto medio</Paragraph>
             </VariantBlock>
           </Grid>
         </Section>
@@ -198,23 +134,12 @@ export default function ShowcasePage() {
           <Grid>
             <VariantBlock label="size">
               <div className="flex flex-col gap-3 w-full">
-                <Title as="h1" size="xl" color="black">xl — Display grande</Title>
-                <Title as="h2" size="lg" color="black">lg — Display medio</Title>
-                <Title as="h3" size="md" color="black">md — Heading sección</Title>
-                <Title as="h4" size="sm" color="black">sm — Subheading</Title>
-                <Title as="h5" size="xs" color="black">xs — Label heading</Title>
+                <Title as="h1">xl — Display grande</Title>
+                <Title as="h2">lg — Display medio</Title>
+                <Title as="h3">md — Heading sección</Title>
+                <Title as="h4">sm — Subheading</Title>
+                <Title as="h5">xs — Label heading</Title>
               </div>
-            </VariantBlock>
-
-            <VariantBlock label="color" bg="bg-gray-950">
-              <Title as="h2" size="lg" color="white">white</Title>
-              <Title as="h2" size="lg" color="muted">muted</Title>
-              <Title as="h2" size="lg" color="accent">accent</Title>
-            </VariantBlock>
-
-            <VariantBlock label="weight">
-              <Title as="h2" size="md" color="black" weight="normal">normal — Heading liviano</Title>
-              <Title as="h2" size="md" color="black" weight="bold">bold — Heading fuerte</Title>
             </VariantBlock>
           </Grid>
         </Section>
@@ -228,7 +153,6 @@ export default function ShowcasePage() {
             <VariantBlock label="variant">
               <Button variant="primary">primary</Button>
               <Button variant="secondary">secondary</Button>
-              <Button variant="ghost">ghost</Button>
               <Button variant="outline">outline</Button>
               <Button variant="link">link</Button>
             </VariantBlock>
@@ -245,7 +169,7 @@ export default function ShowcasePage() {
             </VariantBlock>
 
             <VariantBlock label="variant × size — matriz">
-              {(["primary", "secondary", "outline", "ghost"] as const).map((v) =>
+              {(["primary", "secondary", "outline"] as const).map((v) =>
                 (["sm", "md", "lg"] as const).map((s) => (
                   <Button key={`${v}-${s}`} variant={v} size={s}>
                     {v} {s}
@@ -268,7 +192,7 @@ export default function ShowcasePage() {
 
             <VariantBlock label="border — estado de error">
               <div className="flex flex-col gap-1 w-full max-w-xs">
-                <Input border="error" placeholder="Email inválido" />
+                <Input placeholder="Email inválido" />
                 <RichText as="p" size="xs" color="black" className="text-red-500">
                   Este campo es requerido.
                 </RichText>
@@ -310,7 +234,7 @@ export default function ShowcasePage() {
 
             <VariantBlock label="border — estado de error">
               <div className="flex flex-col gap-1 w-full max-w-sm">
-                <Textarea border="error" placeholder="Este campo tiene un error" />
+                <Textarea placeholder="Este campo tiene un error" />
                 <RichText as="p" size="xs" color="black" className="text-red-500">
                   El mensaje no puede estar vacío.
                 </RichText>
@@ -324,6 +248,47 @@ export default function ShowcasePage() {
                 </RichText>
                 <Textarea id="textarea-msg" placeholder="Describí tu consulta..." />
               </div>
+            </VariantBlock>
+          </Grid>
+        </Section>
+
+          {/* ─── RichText ──────────────────────────────────────────── */}
+        <Section
+          title="RichText"
+          description="Componente base para texto corrido. Soporta p, span, strong, em."
+        >
+          <Grid>
+            <VariantBlock label="size">
+              <RichText as="p" size="xs" color="black">xs — Texto pequeño</RichText>
+              <RichText as="p" size="sm" color="black">sm — Texto base</RichText>
+              <RichText as="p" size="md" color="black">md — Texto medio</RichText>
+            </VariantBlock>
+
+            <VariantBlock label="color" bg="bg-gray-950">
+              <RichText as="p" color="white">white</RichText>
+              <RichText as="p" color="muted">muted</RichText>
+              <RichText as="p" color="accent" className="bg-white px-2 rounded">accent</RichText>
+              <RichText as="p" color="black" className="bg-white px-2 rounded">black</RichText>
+            </VariantBlock>
+
+            <VariantBlock label="weight">
+              <RichText as="p" color="black" weight="normal">normal — The quick brown fox</RichText>
+              <RichText as="p" color="black" weight="bold">bold — The quick brown fox</RichText>
+            </VariantBlock>
+
+            <VariantBlock label="as — tags semánticos">
+              <RichText as="p" color="black">as=&quot;p&quot; — párrafo</RichText>
+              <RichText as="span" color="black">as=&quot;span&quot; — inline</RichText>
+              <RichText as="strong" color="black" weight="bold">as=&quot;strong&quot; — énfasis fuerte</RichText>
+              <RichText as="em" color="black">as=&quot;em&quot; — énfasis</RichText>
+            </VariantBlock>         
+
+            <VariantBlock label="composición — strong dinámico">
+              <RichText as="p" color="black">
+                El usuario{" "}
+                <RichText as="strong" color="black" weight="bold">Juan Pérez</RichText>
+                {" "}inició sesión correctamente.
+              </RichText>
             </VariantBlock>
           </Grid>
         </Section>
@@ -343,7 +308,7 @@ export default function ShowcasePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Paragraph size="sm" color="black">
+                  <Paragraph size="sm">
                     Contenido principal del card. Puede contener cualquier elemento.
                   </Paragraph>
                 </CardContent>
@@ -361,7 +326,7 @@ export default function ShowcasePage() {
                   <CardDescription>Sin footer, solo contenido.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Paragraph size="xs" color="black">
+                  <Paragraph size="xs">
                     Útil para cards informativas sin acciones.
                   </Paragraph>
                 </CardContent>
@@ -375,7 +340,7 @@ export default function ShowcasePage() {
                   <CardDescription color="muted">Descripción atenuada</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Paragraph size="xs" color="muted">
+                  <Paragraph size="xs">
                     Contenido sobre fondo oscuro.
                   </Paragraph>
                 </CardContent>
@@ -576,7 +541,7 @@ export default function ShowcasePage() {
 
       {/* Footer */}
       <div className="border-t border-gray-100 px-8 py-8 max-w-6xl mx-auto">
-        <Paragraph size="xs" color="black" className="text-gray-400">
+        <Paragraph size="xs" className="text-gray-400">
           Design System · Primitivos — actualizado automáticamente con cada cambio en los componentes.
         </Paragraph>
       </div>

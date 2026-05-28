@@ -128,8 +128,6 @@ import { Title } from "@/components/website/ui/Title";
 |---|---|---|---|
 | `as` | `"h1" \| "h2" \| "h3" \| "h4" \| "h5" \| "h6"` | `"h2"` | Tag de heading |
 | `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"lg"` | Tamaño tipográfico |
-| `color` | `"white" \| "muted" \| "accent" \| "black"` | `"black"` | Color del texto |
-| `weight` | `"normal" \| "bold"` | `"normal"` | Peso tipográfico |
 | `className` | `string` | — | Clases adicionales |
 
 Acepta todos los atributos nativos de `HTMLHeadingElement`.
@@ -138,19 +136,15 @@ Acepta todos los atributos nativos de `HTMLHeadingElement`.
 
 ```tsx
 // Heading de página
-<Title as="h1" size="xl" weight="bold" color="black">
+<Title as="h1">
   Título principal
 </Title>
 
 // Heading de sección
-<Title as="h2" size="md" color="black">
+<Title as="h2">
   Sección
 </Title>
 
-// Sobre fondo oscuro
-<Title as="h2" size="lg" color="white">
-  Título claro
-</Title>
 ```
 
 > **Nota:** `as` y `size` son independientes. Se puede tener `<h1>` con `size="xs"` si el contexto lo requiere — la jerarquía semántica y la visual son decisiones separadas.

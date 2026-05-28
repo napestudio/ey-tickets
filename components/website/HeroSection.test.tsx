@@ -10,7 +10,7 @@ import {
   HeroSubTitle,
   HeroDescription,
   HeroActions,
-} from "@/components/website/features/HeroSection";
+} from "@/components/website/HeroSection";
 
 /**
  * Convención de tokens:

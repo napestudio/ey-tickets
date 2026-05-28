@@ -5,30 +5,26 @@ import { cn } from "@/lib/utils";
 
 import {
   textSizeTokens,
-  colorTokens,
-  weightTokens,
 } from "@/components/website/ui/lib/design-system/tokens";
 
 const paragraphVariants = cva("font-base-neue", {
   variants: {
     size:   textSizeTokens,  // xs | sm | md
-    color:  colorTokens,
-    weight: weightTokens,
   },
-  defaultVariants: { size: "sm", color: "black", weight: "normal" },
+  defaultVariants: { size: "sm" },
 });
 
 interface ParagraphProps
-  extends Omit<React.HTMLAttributes<HTMLParagraphElement>, "color">,
+  extends React.HTMLAttributes<HTMLParagraphElement>,
     VariantProps<typeof paragraphVariants> {
   className?: string;
 }
 
 const Paragraph = React.forwardRef<HTMLParagraphElement, ParagraphProps>(
-  ({ size, color, weight, className, ...rest }, ref) => (
+  ({ size, className, ...rest }, ref) => (
     <p
       ref={ref}
-      className={cn(paragraphVariants({ size, color, weight }), className)}
+      className={cn(paragraphVariants({ size }), className)}
       {...rest}
     />
   )

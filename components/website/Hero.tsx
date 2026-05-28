@@ -1,6 +1,6 @@
-import {Button} from "../ui/Button";
-import {Card} from "../ui/Card";
-import { Paragraph } from "../ui/Paragraph";
+import {Button} from "./ui/Button";
+import {Card} from "./ui/Card";
+import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   const handleCL = () => {
@@ -18,7 +18,6 @@ export default function WebsiteHero() {
               </h1>
               <Paragraph
                 size="sm"
-                weight="normal"
                 className="mt-4 letter-spacing-wide"
               >
                 La manera más facil de gestionar tus eventos.

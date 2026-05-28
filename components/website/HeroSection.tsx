@@ -4,9 +4,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/website/ui/Button";
 import { RichText } from "@/components/website/ui/RichText";
-import { Title } from "../ui/Title";
+import { Title } from "./ui/Title";
 
 import type { TextColor, HeroBackground, ButtonVariant } from "@/components/website/ui/lib/design-system/types";
+import { Paragraph } from "./ui/Paragraph";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
@@ -160,8 +161,6 @@ const HeroTitle = React.forwardRef<HTMLHeadingElement, HeroTitleProps>(
       <Title
         ref={ref}
         as="h1"
-        size="xl"
-        weight="bold"
         color={color ?? textMap[background].title}
         className={cn("tracking-tight", className)}
         role="heading"
@@ -182,8 +181,6 @@ const HeroSubTitle = React.forwardRef<HTMLHeadingElement, HeroTitleProps>(
       <Title
         ref={ref}
         as="h2"
-        size="lg"
-        weight="bold"
         color={color ?? textMap[background].title}
         className={cn("tracking-tight", className)}
         role="heading"
@@ -205,9 +202,7 @@ const HeroDescription = React.forwardRef<HTMLElement, HeroDescriptionProps>(
   ({ className, color, ...props }, ref) => {
     const { background } = useHeroContext();
     return (
-      <RichText
-        ref={ref}
-        as="p"
+      <Paragraph
         size="sm"
         color={color ?? textMap[background].description}
         className={cn("max-w-prose", className)}

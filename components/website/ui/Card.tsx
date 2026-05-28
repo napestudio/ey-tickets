@@ -46,9 +46,6 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
     <Title
       ref={ref}
       as="h3"
-      size="md"
-      weight="bold"
-      color={color}
       className={cn("tracking-tight", className)}
       {...rest}
     />

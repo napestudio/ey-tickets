@@ -1,11 +1,9 @@
 // components/features/ProductCard.tsx
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/Card";
-import { Text } from "../ui/RichText";
-import { Title } from "../ui/Title";
-import { Button } from "../ui/Button";
-import { cn } from "@/lib/utils";
-import { Input } from "../ui/Input";
-import { Label } from "../ui/Label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/Card";
+
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
 
 interface ProductCardProps {
   title: string;
