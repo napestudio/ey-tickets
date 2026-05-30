@@ -265,15 +265,14 @@ export async function createTicketType(data: TicketType) {
 
   try {
     const event = await Eventos.getEventById(data.eventId);
-    if (event?.producerId) {
-      await TicketTypes.createTicketTypeWithLimit(
-        dataWithCreator,
-        event.producerId,
-        createdById ?? undefined
-      );
-    } else {
-      await TicketTypes.createTicketType(dataWithCreator);
+    if (!event?.producerId) {
+      throw new Error("El evento no tiene una productora asignada.");
     }
+    await TicketTypes.createTicketTypeWithLimit(
+      dataWithCreator,
+      event.producerId,
+      createdById ?? undefined
+    );
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : "Error creando el TicketType"
@@ -288,10 +287,12 @@ export async function updateTicketType(
   ticketId: string
 ) {
   try {
-    const result = await TicketTypes.updateTicketType(ticketId, data);
+    await TicketTypes.updateTicketTypeWithLimit(ticketId, data);
     revalidatePath(`/dashboard/evento/${data.eventId}`);
   } catch (error) {
-    throw new Error("Error editando el tipo de ticket");
+    throw new Error(
+      error instanceof Error ? error.message : "Error editando el tipo de ticket"
+    );
   }
 }
 
@@ -1207,6 +1208,7 @@ export async function assignEventAllocationAction(
   await TicketStock.upsertEventTicketAllocation({ producerId, eventId, quantity });
   revalidatePath("/dashboard/ticket-stock");
   revalidatePath(`/dashboard/evento/${eventId}`);
+  revalidatePath(`/dashboard/evento/ticket-types/${eventId}`);
 }
 
 export async function assignMemberAllocationAction(
@@ -1221,6 +1223,8 @@ export async function assignMemberAllocationAction(
 export async function removeEventAllocationAction(eventId: string) {
   await TicketStock.removeEventTicketAllocation(eventId);
   revalidatePath("/dashboard/ticket-stock");
+  revalidatePath(`/dashboard/evento/${eventId}`);
+  revalidatePath(`/dashboard/evento/ticket-types/${eventId}`);
 }
 
 export async function removeMemberAllocationAction(userId: string) {

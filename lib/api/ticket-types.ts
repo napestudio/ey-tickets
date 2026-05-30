@@ -3,7 +3,6 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { isAfter } from "date-fns";
 import {
-  getProducerStockSummary,
   getEventTicketAllocation,
   getMemberTicketAllocation,
 } from "./ticket-stock";
@@ -57,6 +56,47 @@ export async function updateTicketType(
   ticketId: string,
   ticketData: Partial<TicketType>,
 ) {
+  const { createdBy, id, createdAt, updatedAt, ...updateData } = ticketData;
+  return await prisma.ticketType.update({
+    where: { id: ticketId },
+    data: updateData as Prisma.TicketTypeUncheckedUpdateInput,
+  });
+}
+
+export async function updateTicketTypeWithLimit(
+  ticketId: string,
+  ticketData: Partial<TicketType>,
+) {
+  if (ticketData.quantity !== undefined) {
+    // El form no incluye eventId en el payload — fetchearlo desde DB
+    const current = await prisma.ticketType.findUniqueOrThrow({
+      where: { id: ticketId },
+      select: { eventId: true },
+    });
+    const eventId = current.eventId;
+
+    const [eventAllocation, othersUsage] = await Promise.all([
+      getEventTicketAllocation(eventId),
+      prisma.ticketType.aggregate({
+        _sum: { quantity: true },
+        where: { eventId, NOT: [{ status: "DELETED" }, { id: ticketId }] },
+      }),
+    ]);
+
+    if (!eventAllocation) {
+      throw new Error("Este evento no tiene tickets asignados.");
+    }
+
+    const usedByOthers = othersUsage._sum.quantity ?? 0;
+    const remaining = eventAllocation.quantity - usedByOthers;
+
+    if (ticketData.quantity > remaining) {
+      throw new Error(
+        `No podés asignar ${ticketData.quantity} tickets. El límite del evento permite ${remaining} para este tipo.`,
+      );
+    }
+  }
+
   const { createdBy, id, createdAt, updatedAt, ...updateData } = ticketData;
   return await prisma.ticketType.update({
     where: { id: ticketId },
@@ -130,36 +170,32 @@ export async function createTicketTypeWithLimit(
   producerId: string,
   creatorUserId?: string,
 ) {
-  // 1. Pool de la productora
-  const summary = await getProducerStockSummary(producerId);
-
-  if (summary.unallocated < ticket.quantity) {
+  // Guard: el evento debe tener una asignación explícita de stock
+  const eventAllocation = await getEventTicketAllocation(ticket.eventId);
+  if (!eventAllocation) {
     throw new Error(
-      `No hay suficiente stock disponible en la productora. Disponible: ${summary.unallocated}, solicitado: ${ticket.quantity}`,
+      "Este evento no tiene tickets asignados. Asigná stock al evento antes de crear tipos de tickets.",
     );
   }
 
-  // 2. Tope del evento (si tiene asignación)
-  const eventAllocation = await getEventTicketAllocation(ticket.eventId);
-  if (eventAllocation) {
-    const existing = await prisma.ticketType.aggregate({
-      _sum: { quantity: true },
-      where: {
-        eventId: ticket.eventId,
-        NOT: { status: "DELETED" },
-      },
-    });
-    const usedForEvent = existing._sum.quantity ?? 0;
-    const remainingForEvent = eventAllocation.quantity - usedForEvent;
+  // 1. Tope del evento
+  const existing = await prisma.ticketType.aggregate({
+    _sum: { quantity: true },
+    where: {
+      eventId: ticket.eventId,
+      NOT: { status: "DELETED" },
+    },
+  });
+  const usedForEvent = existing._sum.quantity ?? 0;
+  const remainingForEvent = eventAllocation.quantity - usedForEvent;
 
-    if (ticket.quantity > remainingForEvent) {
-      throw new Error(
-        `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`,
-      );
-    }
+  if (ticket.quantity > remainingForEvent) {
+    throw new Error(
+      `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`,
+    );
   }
 
-  // 3. Cupo del miembro (si tiene asignación personal)
+  // 2. Cupo del miembro (si tiene asignación personal)
   if (creatorUserId) {
     const memberAllocation = await getMemberTicketAllocation(creatorUserId);
     if (memberAllocation) {

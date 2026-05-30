@@ -90,7 +90,7 @@ export default function TycketTypeForm({
       endDate: undefined,
     },
   });
-  function onSubmit(values: z.infer<typeof FormSchema>) {
+  async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     const formatedDates = values.selectedDates.map((date, index) => ({
       id: index,
@@ -115,7 +115,7 @@ export default function TycketTypeForm({
     };
 
     try {
-      createTicketType(data);
+      await createTicketType(data);
       form.reset();
       setHasDiscount(false);
       toast({
