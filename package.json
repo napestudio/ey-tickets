@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -85,6 +88,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.6.0",
@@ -93,13 +99,16 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.8",
+    "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "^16.2.5",
+    "jsdom": "^29.1.1",
     "postcss": "8.5.10",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   }
 }
