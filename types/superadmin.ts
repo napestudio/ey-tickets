@@ -7,3 +7,40 @@ export interface ProducerSummary {
 export interface SuperadminProducersResponse {
   producers: ProducerSummary[];
 }
+
+export interface ProducerMemberDetail {
+  id: string;
+  role: string;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+  };
+}
+
+export interface ProducerEventSummary {
+  id: string;
+  title: string;
+  slug: string;
+  status: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  createdAt: Date;
+}
+
+export interface ProducerDetail {
+  id: string;
+  name: string;
+  slug: string;
+  email: string;
+  phone: string | null;
+  state: string | null;
+  city: string | null;
+  logo: string | null;
+  website: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  members: ProducerMemberDetail[];
+  events: ProducerEventSummary[];
+}
