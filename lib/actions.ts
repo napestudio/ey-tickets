@@ -304,6 +304,11 @@ export type CreateOrderType = {
   hasCode: boolean;
   discountCode: string | undefined;
   totalPrice: number;
+  name?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  dni?: string;
 };
 
 export async function createOrder(data: CreateOrderType) {

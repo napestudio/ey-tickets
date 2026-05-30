@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createCashOrder } from "@/lib/actions";
+import { createCashOrder, CreateOrderType } from "@/lib/actions";
 import { datesFormater } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { DiscountCode } from "@/types/discount-code";
@@ -139,7 +139,7 @@ export default function BuyTicketForm({
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
-    const orderData: any = {
+    const orderData: CreateOrderType = {
       ticketTypeId: data.ticketType,
       status: "PAID",
       quantity: parseInt(data.quantity),
@@ -151,7 +151,7 @@ export default function BuyTicketForm({
       email: data.email,
       phone: data.phone,
       dni: data.dni,
-      // totalPrice: total,
+      totalPrice: total,
     };
 
     createCashOrder(orderData)
