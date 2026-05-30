@@ -1,7 +1,6 @@
 import fs from "fs";
 import nodePath from "path";
 import { Resend } from "resend";
-import QRCode from "qrcode";
 import { SITE_NAME } from "@/lib/constants";
 import { TicketConfirmationEmail } from "./ticket-confirmation";
 import { PasswordResetEmail } from "./password-reset";
@@ -75,22 +74,10 @@ export async function sendTicketConfirmationEmail(
   const logo = buildLogoAttachment();
   if (logo) attachments.push(logo);
 
-  const ticketsForTemplate = await Promise.all(
-    tickets.map(async (ticket, i) => {
-      const qrBuffer = await QRCode.toBuffer(ticket.ticketId, {
-        width: 200,
-        margin: 2,
-      });
-      const contentId = `qr-${i}`;
-      attachments.push({
-        content: qrBuffer,
-        filename: `qr-${i}.png`,
-        content_id: contentId,
-        content_type: "image/png",
-      });
-      return { ...ticket, qrSrc: `cid:${contentId}` };
-    })
-  );
+  const ticketsForTemplate = tickets.map((ticket) => ({
+    ...ticket,
+    qrSrc: `${process.env.BASE_URL}/api/tickets/qr/${ticket.ticketId}`,
+  }));
 
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
