@@ -20,7 +20,7 @@ interface AccionesTabProps {
   isSeller: boolean;
   isEventOwner: boolean;
   remainingInvites: number;
-  remainingTickets: number;
+  hasAllocation: boolean;
   maxInvitesAmount: number;
   soldTickets: Record<
     string,
@@ -37,7 +37,7 @@ export default function AccionesTab({
   isSeller,
   isEventOwner,
   remainingInvites,
-  remainingTickets,
+  hasAllocation,
   maxInvitesAmount,
   soldTickets,
 }: AccionesTabProps) {
@@ -52,7 +52,7 @@ export default function AccionesTab({
             <Button
               asChild
               size="sm"
-              disabled={evento.status === "CANCELED" || remainingTickets <= 0}
+              disabled={evento.status === "CANCELED" || !hasAllocation}
             >
               <Link
                 href={`/dashboard/evento/${evento.id}/vender-entrada`}

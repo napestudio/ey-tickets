@@ -1,20 +1,17 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
+import { getEventsByProducerId } from "@/lib/api/eventos";
 import {
+  getEventAllocationsByProducer,
   getProducerStockSummary,
   getTicketPackagesByProducer,
-  getEventAllocationsByProducer,
-  getMemberAllocationsByProducer,
 } from "@/lib/api/ticket-stock";
-import { getEventsByProducerId } from "@/lib/api/eventos";
-import { getUsersByProducerId } from "@/lib/api/users";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import StockOverviewCards from "./components/stock-overview-cards";
-import PackageCatalog from "./components/package-catalog";
+import AcquireTicketsDialog from "./components/acquire-tickets-dialog";
 import EventAllocationsTable from "./components/event-allocations-table";
-import MemberAllocationsTable from "./components/member-allocations-table";
 import PackageHistoryTable from "./components/package-history-table";
+import StockOverviewCards from "./components/stock-overview-cards";
 
 export default async function TicketStockPage() {
   const session = await getServerSession(authOptions);
@@ -26,15 +23,12 @@ export default async function TicketStockPage() {
 
   const pid = producerId!;
 
-  const [summary, rawPackages, eventAllocations, memberAllocations, events, members] =
-    await Promise.all([
-      getProducerStockSummary(pid),
-      getTicketPackagesByProducer(pid),
-      getEventAllocationsByProducer(pid),
-      getMemberAllocationsByProducer(pid),
-      getEventsByProducerId(pid),
-      getUsersByProducerId(pid),
-    ]);
+  const [summary, rawPackages, eventAllocations, events] = await Promise.all([
+    getProducerStockSummary(pid),
+    getTicketPackagesByProducer(pid),
+    getEventAllocationsByProducer(pid),
+    getEventsByProducerId(pid),
+  ]);
 
   // Serializar Decimal → number para poder pasar a Client Components
   const packages = rawPackages.map((pkg) => ({
@@ -45,25 +39,21 @@ export default async function TicketStockPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <DashboardHeader
-        title="Stock de Tickets"
-        subtitle="Administrá tu inventario de entradas"
-      />
+      <div className="flex items-start justify-between gap-4">
+        <DashboardHeader
+          title="Stock de Tickets"
+          subtitle="Administrá tu inventario de entradas"
+        />
+        <div className="pt-1 shrink-0">
+          <AcquireTicketsDialog producerId={pid} />
+        </div>
+      </div>
 
       <StockOverviewCards summary={summary} />
-
-      <PackageCatalog producerId={pid} />
 
       <EventAllocationsTable
         allocations={eventAllocations}
         events={events}
-        producerId={pid}
-        availableStock={summary.unallocated}
-      />
-
-      <MemberAllocationsTable
-        allocations={memberAllocations}
-        members={members}
         producerId={pid}
         availableStock={summary.unallocated}
       />

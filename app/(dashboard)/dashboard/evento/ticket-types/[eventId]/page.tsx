@@ -3,6 +3,7 @@ import {
   getRemainingTicketsForEvent,
   getTicketTypesWithStatsByEventId,
 } from "@/lib/actions";
+import { getEventTicketAllocation } from "@/lib/api/ticket-stock";
 import TicketTypesTable from "@/app/(dashboard)/dashboard/components/ticket-types-table/ticket-types-table";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,15 @@ export default async function TicketTypePage({
 
   if (!evento) return null;
 
-  const [rawTicketTypes, remainingTickets] = await Promise.all([
-    getTicketTypesWithStatsByEventId(eventId),
-    getRemainingTicketsForEvent(eventId, evento?.producerId || ""),
-  ]);
+  const [rawTicketTypes, remainingTickets, eventAllocation] = await Promise.all(
+    [
+      getTicketTypesWithStatsByEventId(eventId),
+      getRemainingTicketsForEvent(eventId, evento?.producerId || ""),
+      getEventTicketAllocation(eventId),
+    ],
+  );
+
+  const hasAllocation = !!eventAllocation;
 
   const ticketTypes = rawTicketTypes.map((t) => ({
     id: t.id,
@@ -58,19 +64,34 @@ export default async function TicketTypePage({
           </Link>
         </Button>
         <div className="flex items-center gap-3">
-          <Card className="flex items-center gap-1 px-4 py-2 leading-none text-sm">
-            Disponibles{" "}
-            <span className="font-bold">{remainingTickets}</span>
+          <div className="flex flex-nowrap items-center gap-2 px-4 py-2 leading-none text-sm">
+            Disponibles <span className="font-bold">{remainingTickets}</span>
             <Ticket className="w-4 h-4" />
-          </Card>
-          <Button asChild>
-            <Link href={`/dashboard/evento/${eventId}/ticket-types/new`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo tipo de ticket
-            </Link>
+          </div>
+          <Button asChild={hasAllocation} disabled={!hasAllocation}>
+            {hasAllocation ? (
+              <Link href={`/dashboard/evento/${eventId}/ticket-types/new`}>
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo tipo de ticket
+              </Link>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo tipo de ticket
+              </>
+            )}
           </Button>
         </div>
       </div>
+      {!hasAllocation && (
+        <p className="text-sm text-muted-foreground">
+          Este evento no tiene tickets asignados. Asigná stock desde{" "}
+          <Link href="/dashboard/ticket-stock" className="underline">
+            Gestión de stock
+          </Link>{" "}
+          para poder crear tipos de tickets.
+        </p>
+      )}
       <TicketTypesTable ticketTypes={ticketTypes} />
     </div>
   );
