@@ -72,6 +72,7 @@ export default async function EditTicketTypePage({
           discount: ticketType.discount !== null ? Number(ticketType.discount) : null,
         } as unknown as TicketType}
         eventId={id}
+        remainingTickets={remainingTickets}
       />
     </div>
   );

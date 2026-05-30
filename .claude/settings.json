@@ -118,7 +118,18 @@
       "Bash(pnpm prisma db push --accept-data-loss)",
       "Bash(xargs grep -l \"HomeCard\")",
       "Bash(xargs grep -l \"sendTicketConfirmationEmail\")",
-      "Bash(grep -r \"RESEND\\\\|BASE_URL\" /c/dev/ey-tickets-nextjs/ey-tickets -path \"*/.next\" -prune -o -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.env*\" \\\\\\) -print)"
+      "Bash(grep -r \"RESEND\\\\|BASE_URL\" /c/dev/ey-tickets-nextjs/ey-tickets -path \"*/.next\" -prune -o -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.env*\" \\\\\\) -print)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/ticket-stock\" -type f -name \"*.tsx\" -o -name \"*.ts\")",
+      "Bash(grep -n \"type.*StockSummary\\\\|type.*TicketPackageStatus\\\\|type.*PackageCatalogItem\" \"/c/dev/ey-tickets-nextjs/ey-tickets/types\"/*)",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\evento\\\\ticket-types\" -type f -name \"*.tsx\" -o -name \"*.ts\")",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\evento\\\\ticket-types\" -type f)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/evento/[id]\" -type f -name \"*.tsx\")",
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\ticket-stock\\\\components\" -type f -name \"*.tsx\")",
+      "Read(//c/Users/renzo/.claude/projects/c--dev-ey-tickets-nextjs-ey-tickets/c47852de-513a-44a2-819b-e588472d148e/tool-results/**)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -name \"*ticket-type*\" -type f)",
+      "Bash(openssl rand -hex 32)",
+      "Bash(pnpm install)",
+      "Read(//c/dev/ey-tickets-nextjs/**)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

@@ -13,10 +13,7 @@ import {
   getUsedInvitesByProducer,
   getMaxInvitesPerEvent,
 } from "@/lib/actions";
-import {
-  getProducerStockSummary,
-  getEventTicketAllocation,
-} from "@/lib/api/ticket-stock";
+import { getEventTicketAllocation } from "@/lib/api/ticket-stock";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
 import DetailsTab from "./details-tab";
@@ -48,17 +45,14 @@ export default async function EventDetails({
     maxInvitesAmount,
     usedInvites,
     soldTickets,
-    stockSummary,
     eventAllocation,
   ] = await Promise.all([
     getMaxInvitesPerEvent(producerId ?? ""),
     getUsedInvitesByProducer(producerId ?? ""),
     getSoldTicketsByType(evento.tickets || []),
-    getProducerStockSummary(producerId ?? ""),
     getEventTicketAllocation(evento.id),
   ]);
 
-  const remaingingTickets = stockSummary.unallocated;
   const remainingInvites = maxInvitesAmount - usedInvites;
 
   return (
@@ -131,7 +125,7 @@ export default async function EventDetails({
                   isSeller={isSeller}
                   isEventOwner={isEventOwner}
                   remainingInvites={remainingInvites}
-                  remainingTickets={remaingingTickets}
+                  hasAllocation={!!eventAllocation}
                   maxInvitesAmount={maxInvitesAmount}
                   soldTickets={soldTickets}
                 />

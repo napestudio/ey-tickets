@@ -6,7 +6,9 @@ interface StockOverviewCardsProps {
   summary: StockSummary;
 }
 
-export default function StockOverviewCards({ summary }: StockOverviewCardsProps) {
+export default function StockOverviewCards({
+  summary,
+}: StockOverviewCardsProps) {
   const cards = [
     {
       title: "Total en pool",
@@ -20,12 +22,12 @@ export default function StockOverviewCards({ summary }: StockOverviewCardsProps)
       description: "En uso por eventos activos",
       icon: Calendar,
     },
-    {
-      title: "Asignado a miembros",
-      value: summary.allocatedToMembers,
-      description: "Cupos de miembros",
-      icon: Users,
-    },
+    // {
+    //   title: "Asignado a miembros",
+    //   value: summary.allocatedToMembers,
+    //   description: "Cupos de miembros",
+    //   icon: Users,
+    // },
     {
       title: "Disponible",
       value: summary.unallocated,
@@ -38,7 +40,10 @@ export default function StockOverviewCards({ summary }: StockOverviewCardsProps)
   return (
     <div className="grid gap-4 md:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title} className={card.highlight ? "border-destructive" : ""}>
+        <Card
+          key={card.title}
+          className={card.highlight ? "border-destructive" : ""}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
             <card.icon className="h-4 w-4 text-muted-foreground" />
@@ -49,7 +54,9 @@ export default function StockOverviewCards({ summary }: StockOverviewCardsProps)
             >
               {card.value.toLocaleString("es-AR")}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {card.description}
+            </p>
           </CardContent>
         </Card>
       ))}

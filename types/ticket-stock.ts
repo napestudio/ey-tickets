@@ -68,3 +68,22 @@ export type ProfitReport = {
   totalMargin: number | null;
   events: EventProfitRow[];
 };
+
+export type EventStatus = "DRAFT" | "ACTIVE" | "CONCLUDED" | "CANCELED" | "DELETED";
+
+export type AllocationWithUsage = {
+  id: string;
+  producerId: string;
+  eventId: string;
+  quantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+  event: {
+    id: string;
+    title: string;
+    status: EventStatus;
+    endDate: Date | null;
+  };
+  ticketTypesQuantity: number;
+  ticketsSold: number;
+};

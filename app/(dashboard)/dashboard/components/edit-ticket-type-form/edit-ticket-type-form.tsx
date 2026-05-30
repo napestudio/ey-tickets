@@ -52,33 +52,38 @@ import {
 import { es } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 
-const FormSchema = z.object({
-  selectedDates: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "Debes seleccionar al menos una fecha",
-    }),
-  title: z.string(),
-  description: z.string().optional(),
-  price: z.number(),
-  quantity: z.number(),
-  discount: z.number().optional(),
-  multi: z.boolean(),
-  isFree: z.boolean().default(false),
-  status: z.enum(["ACTIVE", "INACTIVE", "ENDED", "DELETED", "SOLDOUT"]),
-  // startDate: z.date(),
-  endDate: z.date().optional(),
-});
-
 export default function EditTycketTypeForm({
   evento,
   ticket,
   eventId,
+  remainingTickets,
 }: {
   evento: Evento;
   ticket: TicketType;
   eventId: string;
+  remainingTickets?: number;
 }) {
+  const maxAllowed = (remainingTickets ?? 0) + (ticket.quantity as number);
+
+  const FormSchema = z.object({
+    selectedDates: z
+      .array(z.string())
+      .refine((value) => value.some((item) => item), {
+        message: "Debes seleccionar al menos una fecha",
+      }),
+    title: z.string(),
+    description: z.string().optional(),
+    price: z.number(),
+    quantity: z.number().max(maxAllowed, {
+      message: `No podés superar el límite del evento (máx. ${maxAllowed}).`,
+    }),
+    discount: z.number().optional(),
+    multi: z.boolean(),
+    isFree: z.boolean().default(false),
+    status: z.enum(["ACTIVE", "INACTIVE", "ENDED", "DELETED", "SOLDOUT"]),
+    // startDate: z.date(),
+    endDate: z.date().optional(),
+  });
   const { toast } = useToast();
   const router = useRouter();
   const backHref = `/dashboard/evento/ticket-types/${eventId}`;
@@ -86,7 +91,6 @@ export default function EditTycketTypeForm({
   const parsedTicketDates = JSON.parse(ticket.dates as string);
   // Extraemos el valor date del string parseado de feachas
   const datesValue = parsedTicketDates.map((date: DatesType) => date.date);
-  const [isFree, setIsFree] = useState<boolean>(ticket.isFree || false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(
     ticket.discount !== 0 ? true : false,
@@ -108,13 +112,13 @@ export default function EditTycketTypeForm({
     },
   });
 
-  function handleDeleteTicketType(ticketId: string) {
+  async function handleDeleteTicketType(ticketId: string) {
     setIsLoading(true);
     const data: Partial<TicketType> = {
       status: "DELETED",
     };
     try {
-      updateTicketType(data, ticket.id as string);
+      await updateTicketType(data, ticket.id as string);
       toast({
         title: "Tipo de ticket eliminado!",
       });
@@ -129,7 +133,7 @@ export default function EditTycketTypeForm({
     }
   }
 
-  const onSubmit = (values: z.infer<typeof FormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
     setIsLoading(true);
     const formatedDates = values.selectedDates.map((date, index) => ({
       id: index,
@@ -150,7 +154,7 @@ export default function EditTycketTypeForm({
       status: values.status,
     };
     try {
-      updateTicketType(data, ticket.id as string);
+      await updateTicketType(data, ticket.id as string);
       toast({
         title: "Tipo de ticket editado!",
       });
@@ -207,10 +211,14 @@ export default function EditTycketTypeForm({
               <FormControl>
                 <Input
                   type="number"
+                  max={maxAllowed}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
+              <FormDescription>
+                Disponibles para este tipo: {maxAllowed}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
