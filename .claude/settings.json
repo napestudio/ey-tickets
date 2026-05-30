@@ -134,7 +134,8 @@
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(dashboard)\\dashboard\\evento\\[id]\\edit",
-      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\tickets"
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\tickets",
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\superadmin\\productoras"
     ]
   }
 }
