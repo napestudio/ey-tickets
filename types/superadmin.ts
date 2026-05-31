@@ -30,6 +30,7 @@ export interface CreateProducerResult {
 export interface ProducerSummary {
   id: string;
   name: string;
+  logo: string | null;
   eventCount: number;
 }
 

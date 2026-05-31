@@ -98,6 +98,7 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
     select: {
       id: true,
       name: true,
+      logo: true,
       _count: {
         select: { events: true },
       },
@@ -107,6 +108,7 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
   return producers.map((p) => ({
     id: p.id,
     name: p.name,
+    logo: p.logo,
     eventCount: p._count.events,
   }));
 }
