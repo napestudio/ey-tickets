@@ -6,7 +6,10 @@ interface EventProfitTableProps {
   events: EventProfitRow[];
 }
 
-const EVENT_STATUS_MAP: Record<string, { label: string; variant: "secondary" | "destructive" | "outline" }> = {
+const EVENT_STATUS_MAP: Record<
+  string,
+  { label: string; variant: "secondary" | "destructive" | "outline" }
+> = {
   ACTIVE: { label: "Activo", variant: "secondary" },
   DRAFT: { label: "Borrador", variant: "outline" },
   ENDED: { label: "Finalizado", variant: "outline" },
@@ -14,7 +17,16 @@ const EVENT_STATUS_MAP: Record<string, { label: string; variant: "secondary" | "
 };
 
 function formatARS(value: number) {
-  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`;
+  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+function formatCurrencyARS(value: number) {
+  return Number(value).toLocaleString("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }
 
 export default function EventProfitTable({ events }: EventProfitTableProps) {
@@ -35,13 +47,27 @@ export default function EventProfitTable({ events }: EventProfitTableProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 font-medium text-muted-foreground">Evento</th>
-                  <th className="text-left py-2 font-medium text-muted-foreground pl-4">Estado</th>
-                  <th className="text-right py-2 font-medium text-muted-foreground">Tickets vendidos</th>
-                  <th className="text-right py-2 font-medium text-muted-foreground">Ingresos</th>
-                  <th className="text-right py-2 font-medium text-muted-foreground">Costo est.</th>
-                  <th className="text-right py-2 font-medium text-muted-foreground">Ganancia</th>
-                  <th className="text-right py-2 font-medium text-muted-foreground">Margen</th>
+                  <th className="text-left py-2 font-medium text-muted-foreground">
+                    Evento
+                  </th>
+                  <th className="text-left py-2 font-medium text-muted-foreground pl-4">
+                    Estado
+                  </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Tickets vendidos
+                  </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Ingresos
+                  </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Costo est.
+                  </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Ganancia
+                  </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Margen
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -56,21 +82,29 @@ export default function EventProfitTable({ events }: EventProfitTableProps) {
                     <tr key={row.eventId} className="border-b last:border-0">
                       <td className="py-3 font-medium">{row.eventTitle}</td>
                       <td className="py-3 pl-4">
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                        <Badge variant={statusInfo.variant}>
+                          {statusInfo.label}
+                        </Badge>
                       </td>
                       <td className="py-3 text-right">
                         {row.ticketsSold.toLocaleString("es-AR")}
                       </td>
-                      <td className="py-3 text-right">{formatARS(row.revenue)}</td>
+                      <td className="py-3 text-right">
+                        {formatARS(row.revenue)}
+                      </td>
                       <td className="py-3 text-right text-muted-foreground">
                         {formatARS(row.estimatedCost)}
                       </td>
-                      <td className={`py-3 text-right font-medium ${isPositive ? "" : "text-destructive"}`}>
-                        {formatARS(row.profit)}
+                      <td
+                        className={`py-3 text-right font-medium ${isPositive ? "" : "text-destructive"}`}
+                      >
+                        {formatCurrencyARS(row.profit)}
                       </td>
                       <td className="py-3 text-right">
                         {row.margin !== null ? (
-                          <Badge variant={isPositive ? "secondary" : "destructive"}>
+                          <Badge
+                            variant={isPositive ? "secondary" : "destructive"}
+                          >
                             {row.margin.toFixed(1)}%
                           </Badge>
                         ) : (
