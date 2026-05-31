@@ -31,7 +31,10 @@ export interface ProducerSummary {
   id: string;
   name: string;
   logo: string | null;
+  createdAt: Date;
+  createdFrom: string;
   eventCount: number;
+  totalActiveTickets: number;
 }
 
 export interface SuperadminProducersResponse {
@@ -59,6 +62,18 @@ export interface ProducerEventSummary {
   createdAt: Date;
 }
 
+export interface TicketPackageDetail {
+  id: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  status: string;
+  purchasedAt: Date;
+  expiresAt: Date | null;
+  notes: string | null;
+  createdAt: Date;
+}
+
 export interface ProducerDetail {
   id: string;
   name: string;
@@ -71,6 +86,48 @@ export interface ProducerDetail {
   website: string | null;
   createdAt: Date;
   updatedAt: Date;
+  createdFrom: string;
   members: ProducerMemberDetail[];
   events: ProducerEventSummary[];
+  ticketPackages: TicketPackageDetail[];
+}
+
+export interface CreateTicketPackageInput {
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  expiresAt?: string;
+  notes?: string;
+}
+
+export interface TicketPackageSummary {
+  id: string;
+  producerId: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  status: string;
+  purchasedAt: Date;
+  expiresAt: Date | null;
+  notes: string | null;
+  createdAt: Date;
+}
+
+export interface AssignTicketsInput {
+  eventId: string;
+  quantity: number;
+}
+
+export interface EventAllocationSummary {
+  id: string;
+  producerId: string;
+  eventId: string;
+  quantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+  event: {
+    id: string;
+    title: string;
+    slug: string;
+  };
 }
