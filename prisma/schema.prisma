@@ -108,11 +108,14 @@ model Producer {
   phone     String?
   state     String?
   city      String?
-  logo          String?
-  logoPublicId  String?
-  website       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  logo            String?
+  logoPublicId    String?
+  website         String?
+  venueType       VenueType?
+  eventCategories EventCategory[]
+  createdFrom     ProducerSource  @default(WEBSITE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   members                 ProducerMember[]
   events                  Event[]
@@ -566,4 +569,22 @@ enum EventCategory {
   NIGHTLIFE
   WORKSHOP
   OTHER
+}
+
+enum VenueType {
+  BAR
+  TEATRO
+  SALON_DE_EVENTOS
+  ANFITEATRO
+  BOLICHE
+  CENTRO_DE_CONVENCIONES
+  ESTADIO
+  CLUB_SOCIAL
+  ESPACIO_CULTURAL
+  OTRO
+}
+
+enum ProducerSource {
+  WEBSITE
+  SUPERADMIN
 }
