@@ -129,7 +129,12 @@
       "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/components\" -name \"*ticket-type*\" -type f)",
       "Bash(openssl rand -hex 32)",
       "Bash(pnpm install)",
-      "Read(//c/dev/ey-tickets-nextjs/**)"
+      "Read(//c/dev/ey-tickets-nextjs/**)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(auth\\\\\\)/registro/)",
+      "Bash(ls -la \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\components\")",
+      "Bash(xargs grep -l \"step\\\\|Step\\\\|wizard\\\\|Wizard\")",
+      "Bash(pnpm prisma migrate dev --name add_venue_type_and_event_categories)",
+      "Bash(xargs grep -l \"superadmin\\\\|admin\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",
