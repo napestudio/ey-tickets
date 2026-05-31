@@ -99,8 +99,14 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
       id: true,
       name: true,
       logo: true,
+      createdAt: true,
+      createdFrom: true,
       _count: {
         select: { events: true },
+      },
+      ticketPackages: {
+        where: { status: "ACTIVE" },
+        select: { quantity: true },
       },
     },
   });
@@ -109,7 +115,13 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
     id: p.id,
     name: p.name,
     logo: p.logo,
+    createdAt: p.createdAt,
+    createdFrom: p.createdFrom,
     eventCount: p._count.events,
+    totalActiveTickets: p.ticketPackages.reduce(
+      (sum, pkg) => sum + pkg.quantity,
+      0
+    ),
   }));
 }
 
@@ -130,6 +142,7 @@ export async function getSuperadminProducerById(
       website: true,
       createdAt: true,
       updatedAt: true,
+      createdFrom: true,
       members: {
         select: {
           id: true,
@@ -156,10 +169,31 @@ export async function getSuperadminProducerById(
           createdAt: true,
         },
       },
+      ticketPackages: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          quantity: true,
+          unitPrice: true,
+          totalPrice: true,
+          status: true,
+          purchasedAt: true,
+          expiresAt: true,
+          notes: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
   if (!producer) return null;
 
-  return producer;
+  return {
+    ...producer,
+    ticketPackages: producer.ticketPackages.map((p) => ({
+      ...p,
+      unitPrice: p.unitPrice.toNumber(),
+      totalPrice: p.totalPrice.toNumber(),
+    })),
+  };
 }
