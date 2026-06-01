@@ -39,9 +39,10 @@ export function EmailLayout({ children }: EmailLayoutProps) {
         >
           <Section className="text-center mb-4">
             <Img
-              src="cid:email-logo"
+              src={`${process.env.BASE_URL}/images/Logo.svg`}
               width="160"
               alt="EyTickets"
+              className="mx-auto py-10"
             />
           </Section>
           <Container
