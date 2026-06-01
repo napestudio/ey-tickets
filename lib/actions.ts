@@ -726,7 +726,7 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
 }
 
 export async function setQrCode(ticketId = "") {
-  return `${process.env.BASE_URL}/api/tickets/qr/${ticketId}`;
+  return `${process.env.NEXT_PUBLIC_BASE_URL}/api/tickets/qr/${ticketId}`;
 }
 
 export async function validateTicketById(ticketId: string, eventId: string) {

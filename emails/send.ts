@@ -76,7 +76,7 @@ export async function sendTicketConfirmationEmail(
 
   const ticketsForTemplate = tickets.map((ticket) => ({
     ...ticket,
-    qrSrc: `${process.env.BASE_URL}/api/tickets/qr/${ticket.ticketId}`,
+    qrSrc: `${process.env.NEXT_PUBLIC_BASE_URL}/api/tickets/qr/${ticket.ticketId}`,
   }));
 
   const { error } = await getResend().emails.send({
