@@ -18,13 +18,18 @@ interface PackageHistoryTableProps {
   packages: PackageRow[];
 }
 
-const STATUS_MAP: Record<string, { label: string; variant: "secondary" | "destructive" | "outline" }> = {
+const STATUS_MAP: Record<
+  string,
+  { label: string; variant: "secondary" | "destructive" | "outline" }
+> = {
   ACTIVE: { label: "Activo", variant: "secondary" },
   EXPIRED: { label: "Expirado", variant: "outline" },
   CANCELED: { label: "Cancelado", variant: "destructive" },
 };
 
-export default function PackageHistoryTable({ packages }: PackageHistoryTableProps) {
+export default function PackageHistoryTable({
+  packages,
+}: PackageHistoryTableProps) {
   return (
     <Card>
       <CardHeader>
@@ -75,17 +80,21 @@ export default function PackageHistoryTable({ packages }: PackageHistoryTablePro
                         {pkg.quantity.toLocaleString("es-AR")}
                       </td>
                       <td className="py-3 text-right">
-                        ${pkg.unitPrice.toLocaleString("es-AR", {
-                          minimumFractionDigits: 2,
+                        $
+                        {pkg.unitPrice.toLocaleString("es-AR", {
+                          minimumFractionDigits: 0,
                         })}
                       </td>
                       <td className="py-3 text-right font-medium">
-                        ${pkg.totalPrice.toLocaleString("es-AR", {
-                          minimumFractionDigits: 2,
+                        $
+                        {pkg.totalPrice.toLocaleString("es-AR", {
+                          minimumFractionDigits: 0,
                         })}
                       </td>
                       <td className="py-3 pl-4">
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                        <Badge variant={statusInfo.variant}>
+                          {statusInfo.label}
+                        </Badge>
                       </td>
                       <td className="py-3 text-muted-foreground">
                         {pkg.notes ?? "-"}

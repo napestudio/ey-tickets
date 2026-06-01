@@ -9,7 +9,7 @@ interface ProfitSummaryCardsProps {
 }
 
 function formatARS(value: number) {
-  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`;
+  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) {
