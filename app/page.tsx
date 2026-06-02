@@ -1,6 +1,7 @@
 import Hero from "@/components/website/Hero";
 import HowItWorksSection from "@/components/website/HotItWorksSection";
 import PricingSection from "@/components/website/PricingSection";
+import SalesSection from "@/components/website/SalesSection";
 import { Metadata } from "next/types";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default async function Home() {
       <Hero />
       <HowItWorksSection />
       <PricingSection />
+      <SalesSection />
     </>
   );
 }
