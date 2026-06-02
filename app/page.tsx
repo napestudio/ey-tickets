@@ -1,5 +1,6 @@
 import Hero from "@/components/website/Hero";
 import HowItWorksSection from "@/components/website/HotItWorksSection";
+import HowToUseItSection from "@/components/website/HowToUseIt";
 import PricingSection from "@/components/website/PricingSection";
 import SalesSection from "@/components/website/SalesSection";
 import { Metadata } from "next/types";
@@ -16,6 +17,7 @@ export default async function Home() {
       <HowItWorksSection />
       <PricingSection />
       <SalesSection />
+      <HowToUseItSection />
     </>
   );
 }
