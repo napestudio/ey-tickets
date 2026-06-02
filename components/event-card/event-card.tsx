@@ -7,10 +7,10 @@ import { Button } from "../ui/button";
 
 export default function EventCard({ evento }: { evento: Evento }) {
   const groupedDates = datesFormater(evento.dates as string);
-  console.log(evento);
+
   return (
     <Link
-      href={`eventos/${evento.id}`}
+      href={`eventos/${evento.slug}`}
       prefetch={true}
       className="overflow-hidden shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)] bg-[linear-gradient(175deg,#11111105,#99999924)]"
     >

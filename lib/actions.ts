@@ -88,7 +88,7 @@ export async function updateEvent(data: Partial<Evento>, eventId: string) {
     const result = await Eventos.updateEvent(eventId, data);
     revalidatePath(`/dashboard/evento/${result.id}/edit`);
     revalidatePath(`/dashboard/evento/${result.id}`);
-    revalidatePath(`/eventos/${result.id}`);
+    revalidatePath(`/eventos/${result.slug}`);
     revalidatePath(`/`);
   } catch (error) {
     throw new Error("Error editando el evento");
@@ -120,6 +120,11 @@ export async function deleteEvent(eventId: string) {
 // Para el sitio
 export async function getSingleEventById(eventId: string) {
   const result = await Eventos.getSingleEvent(eventId);
+  return result;
+}
+
+export async function getSingleEventBySlug(slug: string) {
+  const result = await Eventos.getSingleEventBySlug(slug);
   return result;
 }
 // Para el dashboard

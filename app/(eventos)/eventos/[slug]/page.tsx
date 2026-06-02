@@ -1,4 +1,4 @@
-import { getSingleEventById, getSoldTicketsByType } from "@/lib/actions";
+import { getSingleEventBySlug, getSoldTicketsByType } from "@/lib/actions";
 import { datesFormater } from "@/lib/utils";
 import TicketTypePicker from "@/components/ticket-type-picker/ticket-type-picker";
 import EventHeader from "@/components/event-header/event-header";
@@ -10,11 +10,11 @@ import { GetSingleEventResponse } from "@/lib/api/eventos";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 
 export async function generateMetadata(
-  { params }: { params: { id: string } },
+  { params }: { params: { slug: string } },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const param = await params;
-  const eventData = await getEventData(param.id);
+  const eventData = await getEventData(param.slug);
   if (!eventData) {
     return {
       title: "Evento no encontrado",
@@ -49,8 +49,8 @@ export async function generateMetadata(
   };
 }
 
-async function getEventData(id: string) {
-  const evento = await getSingleEventById(id);
+async function getEventData(slug: string) {
+  const evento = await getSingleEventBySlug(slug);
 
   if (!evento) return;
   const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
@@ -65,9 +65,9 @@ async function getEventData(id: string) {
   };
 }
 
-export default async function Evento({ params }: { params: { id: string } }) {
+export default async function Evento({ params }: { params: { slug: string } }) {
   const param = await params;
-  const eventData = await getEventData(param.id);
+  const eventData = await getEventData(param.slug);
   if (!eventData) {
     return <p>Evento no encontrado.</p>;
   }
@@ -83,7 +83,7 @@ export default async function Evento({ params }: { params: { id: string } }) {
         dates={groupedDates}
       />
 
-      <section className="w-200 max-w-[95vw] mx-auto py-6 md:py-12 mt-12">
+      <section className="w-200 max-w-[95vw] mx-auto py-6 md:py-12 mt-12 min-h-svh">
         {paymentMethod.length > 0 && (
           <>
             <h2 className="mb-14 mt-10 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-white text-stroke text-center">

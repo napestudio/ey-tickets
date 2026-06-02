@@ -36,9 +36,21 @@ export default function EventHeader({
           />
         )}
       </div>
-      <div className="w-[50rem] max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative bg-white text-black translate-y-24 border-4 border-black shadow-hard">
+      <div className="w-[50rem] max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative translate-y-24">
         <div className="gap-6 flex flex-col mx-auto">
-          <div className="flex md:flex-row flex-col items-start justify-between gap-4">
+          <div className="flex flex-col items-start justify-between gap-4">
+            {evento.image && (
+              <div
+                className={`relative aspect-video h-auto w-full overflow-hidden`}
+              >
+                <Image
+                  src={evento?.image || ""}
+                  alt={evento.title || ""}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
             <div className="flex flex-col space-y-4 flex-1">
               <div className="space-y-2 w-[20rem] md:w-auto">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -66,18 +78,6 @@ export default function EventHeader({
                 <p>{truncateDescription(evento?.description || "", 250)}</p>
               </div>
             </div>
-            {evento.image && (
-              <div
-                className={`relative m-auto aspect-square h-[${height}rem] w-[${width}rem] max-w-full overflow-hidden`}
-              >
-                <Image
-                  src={evento?.image || ""}
-                  alt={evento.title || ""}
-                  fill
-                  className="object-cover border-4 border-black"
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
