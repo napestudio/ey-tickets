@@ -134,13 +134,18 @@
       "Bash(ls -la \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\components\")",
       "Bash(xargs grep -l \"step\\\\|Step\\\\|wizard\\\\|Wizard\")",
       "Bash(pnpm prisma migrate dev --name add_venue_type_and_event_categories)",
-      "Bash(xargs grep -l \"superadmin\\\\|admin\")"
+      "Bash(xargs grep -l \"superadmin\\\\|admin\")",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(eventos\\\\\\)/eventos/)",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(eventos\\\\\\)/eventos/[id]/)",
+      "Bash(ls \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(eventos\\)/eventos/\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(dashboard)\\dashboard\\evento\\[id]\\edit",
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\tickets",
-      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\superadmin\\productoras"
+      "c:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\api\\superadmin\\productoras",
+      "C:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(eventos)\\eventos",
+      "C:\\dev\\ey-tickets-nextjs\\ey-tickets\\app\\(eventos)\\eventos\\[id]"
     ]
   }
 }

@@ -155,7 +155,10 @@ export default function CreateEventForm({
         : 0;
     setDateTimeSelections([
       ...dateTimeSelections,
-      { id: newId, date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}` },
+      {
+        id: newId,
+        date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}`,
+      },
     ]);
   };
 

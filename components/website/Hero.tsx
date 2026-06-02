@@ -4,10 +4,6 @@ import { Paragraph } from "./ui/Paragraph";
 import Image from "next/image";
 
 export default function WebsiteHero() {
-  const handleCL = () => {
-    console.log("Comenzar button clicked");
-  };
-
   return (
     <div className="h-svh pt-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
       <div className="bg-neutral-200 absolute w-full h-full inset-0">

@@ -8,7 +8,7 @@ export default function PreFooter() {
   if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard"))
     return;
   return (
-    <div className="pt-24 bg-linear-to-t from-ey-dark to-ey-turquoise-darker text-white">
+    <div className="pt-24 bg-black text-white">
       <div className="container flex flex-col gap-12  w-full md:justify-between items-center justify-center">
         <Logo />
       </div>

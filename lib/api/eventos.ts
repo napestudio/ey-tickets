@@ -114,6 +114,43 @@ export type GetSingleEventResponse = Prisma.PromiseReturnType<
   typeof getSingleEvent
 >;
 
+export const getSingleEventBySlug = cache(async (slug: string) => {
+  return prisma.event.findUnique({
+    where: { slug },
+    include: {
+      producer: {
+        select: {
+          configuration: {
+            select: { serviceCharge: true },
+          },
+        },
+      },
+      ticketTypes: {
+        where: { status: { not: "DELETED" } },
+      },
+      eventPayments: {
+        where: { paymentMethod: { type: "DIGITAL" } },
+        include: {
+          paymentMethod: {
+            select: { type: true, apiKey: true },
+          },
+        },
+      },
+      discountCode: {
+        where: { status: { not: "DELETED" } },
+      },
+      tickets: {
+        select: {
+          ticketType: {
+            select: { title: true, id: true },
+          },
+        },
+      },
+      validatorToken: true,
+    },
+  });
+});
+
 export const getEventById = cache(async (eventId: string) => {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
