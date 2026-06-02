@@ -19,7 +19,10 @@ const HOW_IT_WORKS_STEPS = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%">
+    <section
+      id="how-it-works"
+      className="py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
+    >
       <div className="container mx-auto">
         <div className="flex flex-col text-white ">
           <Title className="font-base-neue font-bold">Cómo funciona?</Title>
