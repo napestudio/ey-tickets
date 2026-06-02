@@ -7,12 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { DiscountCodeDialog } from "./discount-code-dialog";
 import { AddInvitationDialog } from "../add-invitation-dialog";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 interface AccionesTabProps {
@@ -65,27 +60,23 @@ export default function AccionesTab({
                 Vender entrada
               </Link>
             </Button>
-            {maxInvitesAmount > 0 && (
-              <AddInvitationDialog
-                evento={evento}
-                remainingInvites={remainingInvites}
-                soldTickets={soldTickets}
-                isEventOwner={isEventOwner}
+            {/* {maxInvitesAmount > 0 && ( */}
+            <AddInvitationDialog
+              evento={evento}
+              remainingInvites={remainingInvites}
+              soldTickets={soldTickets}
+              isEventOwner={isEventOwner}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={evento.status === "CANCELED" || isSeller}
               >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={
-                    evento.status === "CANCELED" ||
-                    remainingInvites <= 0 ||
-                    isSeller
-                  }
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Agregar invitado
-                </Button>
-              </AddInvitationDialog>
-            )}
+                <User className="mr-2 h-4 w-4" />
+                Agregar invitado
+              </Button>
+            </AddInvitationDialog>
+            {/* )} */}
           </div>
         </CardContent>
       </Card>
@@ -111,7 +102,11 @@ export default function AccionesTab({
                 <h5 className="text-sm font-medium mb-3">Códigos activos</h5>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {evento.discountCode.map((code) => (
-                    <DiscountCodeDialog key={code.id} evento={evento} code={code}>
+                    <DiscountCodeDialog
+                      key={code.id}
+                      evento={evento}
+                      code={code}
+                    >
                       <Button
                         variant="outline"
                         size="sm"
