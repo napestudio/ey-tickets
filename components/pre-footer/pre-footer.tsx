@@ -12,8 +12,8 @@ export default function PreFooter() {
         <div className="h-full flex flex-col justify-between items-center md:items-end gap-5">
           <div className="text-center md:text-right">
             <p>
-              Por consultas o reclamos escribir a{" "}
-              <span className="font-bold">consultas@eytickets.ar</span>
+              Por consultas escribir a{" "}
+              <span className="font-bold">hola@eytickets.ar</span>
             </p>
             <ul className="mt-4">
               <li>

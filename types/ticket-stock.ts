@@ -40,9 +40,11 @@ export type StockSummary = {
 };
 
 export type PackageCatalogItem = {
+  title: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  discountPrice?: number | null;
 };
 
 export type EventProfitRow = {
@@ -69,7 +71,12 @@ export type ProfitReport = {
   events: EventProfitRow[];
 };
 
-export type EventStatus = "DRAFT" | "ACTIVE" | "CONCLUDED" | "CANCELED" | "DELETED";
+export type EventStatus =
+  | "DRAFT"
+  | "ACTIVE"
+  | "CONCLUDED"
+  | "CANCELED"
+  | "DELETED";
 
 export type AllocationWithUsage = {
   id: string;
