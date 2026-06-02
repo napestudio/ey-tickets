@@ -1,29 +1,21 @@
-import { HomeCard } from "@/types/card";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import Link from "next/link";
-import { Button } from "../ui/button";
+import { datesFormater } from "@/lib/utils";
+import { Evento } from "@/types/event";
 import { TicketIcon } from "lucide-react";
 import Image from "next/image";
-import { datesFormater } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
-export default function EventCard({ evento }: { evento: HomeCard }) {
+export default function EventCard({ evento }: { evento: Evento }) {
   const groupedDates = datesFormater(evento.dates as string);
-
+  console.log(evento);
   return (
     <Link
       href={`eventos/${evento.id}`}
       prefetch={true}
-      className="overflow-hidden border-4 rounded-sm border-black shadow-hard bg-white"
+      className="overflow-hidden shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)] bg-[linear-gradient(175deg,#11111105,#99999924)]"
     >
-      <Card className="border-none rounded-none flex flex-col h-full">
-        <div className="relative border-b-4 border-black max-w-[95vw] h-75">
+      <div className="flex flex-col h-full">
+        <div className="relative max-w-[95vw] h-55">
           {evento.image ? (
             <Image
               src={evento.image}
@@ -33,27 +25,34 @@ export default function EventCard({ evento }: { evento: HomeCard }) {
               className="object-cover h-full w-full"
             />
           ) : (
-            <div className="h-full w-full bg-gray-100" />
+            <div className="h-full w-full bg-neutral-100" />
           )}
         </div>
-        <CardContent className="p-4 flex flex-col gap-1 grow">
+        <div className="p-4 flex flex-col gap-1 grow">
           <div className="flex gap-2 flex-wrap items-center">
-            <p className="text-sm font-medium text-gray-500">{groupedDates}</p>{" "}
-            |
-            <p className="text-sm uppercase font-bold tracking-wide text-gray-500 dark:text-gray-400">
-              {evento.location}
+            <p className="text-sm uppercase font-bold tracking-wide text-neutral-100 ">
+              {evento.venue}
             </p>
+            <p className="text-sm font-medium text-neutral-100">
+              {groupedDates}
+            </p>{" "}
           </div>
 
-          <CardTitle className="text-2xl">{evento.title}</CardTitle>
-        </CardContent>
-        <CardFooter className="flex justify-end gap-2 p-4 mt-auto">
-          <Button className="w-full bg-red hover:bg-red-light hover:bg-opacity-10 hover:shadow-none transition-all rounded-none py-8 text-2xl border-4 border-black shadow-hard">
+          <div className="text-2xl text-neutral-50 font-base-neue font-semibold">
+            {evento.title}
+          </div>
+
+          <p className="text-xs uppercase font-bold tracking-wide text-neutral-100 ">
+            {evento.city}, {evento.state}
+          </p>
+        </div>
+        <div className="flex justify-end gap-2 p-4 mt-auto">
+          <Button className="w-full">
             <TicketIcon className="mr-2" />
             Comprar entradas
           </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }
