@@ -14,6 +14,22 @@ export async function getTicketTypesById(ticketTypeId: string) {
     },
   });
 }
+
+export async function getTicketTypeWithSoldCount(ticketTypeId: string) {
+  const ticketType = await prisma.ticketType.findUnique({
+    where: { id: ticketTypeId },
+    include: {
+      orders: {
+        where: { status: "PAID", isInvitation: false },
+        select: { quantity: true },
+      },
+    },
+  });
+  if (!ticketType) return null;
+  const soldCount = ticketType.orders.reduce((acc, o) => acc + o.quantity, 0);
+  const { orders, ...ticketTypeData } = ticketType;
+  return { ...ticketTypeData, soldCount };
+}
 export async function getTicketTypesByEventId(eventId: string) {
   return await prisma.ticketType.findMany({
     where: {
@@ -75,11 +91,15 @@ export async function updateTicketTypeWithLimit(
     });
     const eventId = current.eventId;
 
-    const [eventAllocation, othersUsage] = await Promise.all([
+    const [eventAllocation, othersUsage, soldResult] = await Promise.all([
       getEventTicketAllocation(eventId),
       prisma.ticketType.aggregate({
         _sum: { quantity: true },
         where: { eventId, NOT: [{ status: "DELETED" }, { id: ticketId }] },
+      }),
+      prisma.order.aggregate({
+        _sum: { quantity: true },
+        where: { ticketTypeId: ticketId, status: "PAID", isInvitation: false },
       }),
     ]);
 
@@ -89,10 +109,17 @@ export async function updateTicketTypeWithLimit(
 
     const usedByOthers = othersUsage._sum.quantity ?? 0;
     const remaining = eventAllocation.quantity - usedByOthers;
+    const soldCount = soldResult._sum.quantity ?? 0;
 
     if (ticketData.quantity > remaining) {
       throw new Error(
         `No podés asignar ${ticketData.quantity} tickets. El límite del evento permite ${remaining} para este tipo.`,
+      );
+    }
+
+    if (ticketData.quantity < soldCount) {
+      throw new Error(
+        `No podés reducir la cantidad a ${ticketData.quantity}. Ya se vendieron ${soldCount} tickets de este tipo.`,
       );
     }
   }

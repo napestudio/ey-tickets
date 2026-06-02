@@ -152,9 +152,7 @@ export function AddInvitationDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild disabled={remainingInvites <= 0}>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>
           <form
@@ -278,13 +276,13 @@ export function AddInvitationDialog({
                               ?.filter(
                                 (ticket: Partial<TicketType>) =>
                                   ticket.status !== "DELETED" &&
-                                  ticket.status !== "INACTIVE"
+                                  ticket.status !== "INACTIVE",
                               )
                               .map((ticket, i) => {
                                 const soldTicketCount =
                                   ticket.quantity -
                                   (soldTickets
-                                    ? soldTickets[ticket.id!]?.count ?? 0
+                                    ? (soldTickets[ticket.id!]?.count ?? 0)
                                     : 0);
                                 const isSoldOut =
                                   soldTicketCount <= 0 ||

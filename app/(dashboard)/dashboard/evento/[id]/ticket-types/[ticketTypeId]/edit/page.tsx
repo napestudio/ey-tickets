@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   getEventById,
   getRemainingTicketsForEvent,
-  getTyicketTypeById,
+  getTicketTypeWithSoldCount,
 } from "@/lib/actions";
 import { isOrgAdmin } from "@/lib/permissions";
 import { getUserEventRole } from "@/lib/api/event-members";
@@ -42,7 +42,7 @@ export default async function EditTicketTypePage({
   }
 
   const [ticketType, remainingTickets] = await Promise.all([
-    getTyicketTypeById(ticketTypeId),
+    getTicketTypeWithSoldCount(ticketTypeId),
     getRemainingTicketsForEvent(evento.id, evento?.producerId || ""),
   ]);
 
@@ -73,6 +73,7 @@ export default async function EditTicketTypePage({
         } as unknown as TicketType}
         eventId={id}
         remainingTickets={remainingTickets}
+        soldCount={ticketType.soldCount}
       />
     </div>
   );

@@ -219,6 +219,16 @@ export async function getTyicketTypeById(ticketTypeId: string) {
   }
 }
 
+export async function getTicketTypeWithSoldCount(ticketTypeId: string) {
+  try {
+    return await TicketTypes.getTicketTypeWithSoldCount(ticketTypeId);
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "Error trayendo el tipo de ticket",
+    );
+  }
+}
+
 export async function getRemainingTicketsByProducer(producerId: string) {
   try {
     const result = await TicketTypes.getRemainingTicketsByProducer(producerId);
