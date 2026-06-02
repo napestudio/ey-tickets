@@ -106,13 +106,13 @@ export default function FAQS() {
             <strong>2. ¿Qué hago si no recibo mi ticket?</strong>
             <br />
             Revisa tu correo electrónico (incluida la carpeta de spam). Si
-            persiste el problema, contacta a soporte@EyTickets.
+            persiste el problema, contacta a soporte@eytickets.ar.
             <br />
             <br />
             <strong>3. ¿Cómo reporto un problema técnico?</strong>
             <br />
-            Envía un email a soporte@EyTickets con detalles del error (capturas
-            de pantalla, navegador usado, etc.).
+            Envía un email a soporte@eytickets.ar con detalles del error
+            (capturas de pantalla, navegador usado, etc.).
           </p>
         </div>
       </section>

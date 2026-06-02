@@ -1,5 +1,12 @@
 // components/features/ProductCard.tsx
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/Card";
 
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -29,9 +36,6 @@ export default function ProductCard({
         <CardDescription>
           Enter your email below to login to your account
         </CardDescription>
-        {/*<CardAction>
-          <Button href={"/signup"}>Sign Up</Button>
-        </CardAction>*/}
       </CardHeader>
       <CardContent>
         <form>

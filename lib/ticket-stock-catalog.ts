@@ -1,7 +1,17 @@
 import { PackageCatalogItem } from "@/types/ticket-stock";
 
 export const PACKAGE_CATALOG: PackageCatalogItem[] = [
-  { quantity: 100, unitPrice: 10.0, totalPrice: 1000.0 },
-  { quantity: 500, unitPrice: 8.0, totalPrice: 4000.0 },
-  { quantity: 1000, unitPrice: 6.0, totalPrice: 6000.0 },
+  {
+    title: "Eventos chicos",
+    quantity: 50,
+    unitPrice: 350.0,
+    totalPrice: 17500.0,
+  },
+  { title: "Más elegido", quantity: 300, unitPrice: 280, totalPrice: 8400.0 },
+  {
+    title: "Más conveniente",
+    quantity: 1200,
+    unitPrice: 198.0,
+    totalPrice: 237600.0,
+  },
 ];
