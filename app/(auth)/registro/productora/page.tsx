@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LocationSelect } from "@/components/location-select/location-select";
 import { EventCategory } from "@/types/event";
+import { Title } from "@/components/website/ui/Title";
 
 function generateSlug(name: string): string {
   return name
@@ -72,7 +73,9 @@ export default function ProducerRegistrationPage() {
     userPassword: "",
   });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
@@ -151,18 +154,20 @@ export default function ProducerRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>Registrá tu Productora</CardTitle>
-          <p className="text-sm text-muted-foreground">
+    <div className="min-h-screen flex items-center justify-center py-30 bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
+      <div className="w-full max-w-lg ">
+        <div>
+          <Title className="font-base-neue font-bold text-white">
+            Registrá tu Productora
+          </Title>
+          <p className="text-sm text-white">
             Paso {step} de 2 —{" "}
             {step === 1 ? "Datos de la productora" : "Tu cuenta"}
           </p>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="mt-8">
           {step === 1 && (
-            <form onSubmit={handleNextStep} className="space-y-5">
+            <form onSubmit={handleNextStep} className="space-y-8 text-white">
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="producerName">Nombre de la productora</Label>
@@ -198,7 +203,11 @@ export default function ProducerRegistrationPage() {
                   provinceValue={form.producerState}
                   cityValue={form.producerCity}
                   onProvinceChange={(value) =>
-                    setForm((prev) => ({ ...prev, producerState: value, producerCity: "" }))
+                    setForm((prev) => ({
+                      ...prev,
+                      producerState: value,
+                      producerCity: "",
+                    }))
                   }
                   onCityChange={(value) =>
                     setForm((prev) => ({ ...prev, producerCity: value }))
@@ -229,17 +238,19 @@ export default function ProducerRegistrationPage() {
                       (al menos uno)
                     </span>
                   </Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-wrap gap-2 mt-4">
                     {ALL_CATEGORIES.map((cat) => (
                       <div key={cat} className="flex items-center gap-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
                           id={`cat-${cat}`}
                           checked={form.producerEventCategories.includes(cat)}
-                          onCheckedChange={() => toggleCategory(cat)}
+                          onChange={() => toggleCategory(cat)}
                         />
                         <label
                           htmlFor={`cat-${cat}`}
-                          className="text-sm cursor-pointer"
+                          className="px-4 py-2 rounded-full text-sm cursor-pointer border-white border peer-checked:bg-white peer-checked:text-ey-dark"
                         >
                           {EVENT_CATEGORY_LABELS[cat]}
                         </label>
@@ -320,8 +331,8 @@ export default function ProducerRegistrationPage() {
               </div>
             </form>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
