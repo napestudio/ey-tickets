@@ -32,11 +32,11 @@ export default function EventHeader({
             alt="text"
             fill
             style={{ objectFit: "cover" }}
-            className="inset-0 w-full h-full z-[0] blur-sm scale-105"
+            className="inset-0 w-full h-full z-0 blur-sm scale-105"
           />
         )}
       </div>
-      <div className="w-[50rem] max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative translate-y-24">
+      <div className="w-200 max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative translate-y-24">
         <div className="gap-6 flex flex-col mx-auto">
           <div className="flex flex-col items-start justify-between gap-4">
             {evento.image && (
@@ -57,11 +57,11 @@ export default function EventHeader({
                   {evento?.title}
                 </h1>
                 <div className="flex items-center gap-2 ">
-                  <CalendarIcon className="w-4 h-4 flex-shrink-0" />
+                  <CalendarIcon className="w-4 h-4 shrink-0" />
                   <span className="text-sm font-medium">{dates}</span>
                 </div>
                 <div className="flex items-center gap-2 ">
-                  <MapPin className="w-4 h-4 flex-shrink-0 font-bold" />
+                  <MapPin className="w-4 h-4 shrink-0 font-bold" />
                   <div>
                     {evento?.venue && (
                       <span className="text-sm font-bold">
