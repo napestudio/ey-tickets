@@ -55,6 +55,24 @@ export interface Evento {
   ageRestriction?: number | null;
   website?: string | null;
 }
+export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
+  MUSIC: "Música",
+  THEATER: "Teatro",
+  CONFERENCE: "Conferencia",
+  SPORT: "Deporte",
+  ART: "Arte",
+  GASTRONOMY: "Gastronomía",
+  COMEDY: "Comedia",
+  DANCE: "Danza",
+  FESTIVAL: "Festival",
+  CINEMA: "Cine",
+  CORPORATE: "Corporativo",
+  EXHIBITION: "Exposición",
+  NIGHTLIFE: "Vida nocturna",
+  WORKSHOP: "Taller",
+  OTHER: "Otro",
+};
+
 export interface EventoWithTicketsType {
   id: string;
   title: string;

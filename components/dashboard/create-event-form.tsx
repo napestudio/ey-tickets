@@ -39,25 +39,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
 import { es } from "date-fns/locale";
 import { LocationSelect } from "@/components/location-select/location-select";
-import { EventCategory } from "@/types/event";
-
-const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
-  MUSIC: "Música",
-  THEATER: "Teatro",
-  CONFERENCE: "Conferencia",
-  SPORT: "Deporte",
-  ART: "Arte",
-  GASTRONOMY: "Gastronomía",
-  COMEDY: "Comedia",
-  DANCE: "Danza",
-  FESTIVAL: "Festival",
-  CINEMA: "Cine",
-  CORPORATE: "Corporativo",
-  EXHIBITION: "Exposición",
-  NIGHTLIFE: "Vida nocturna",
-  WORKSHOP: "Taller",
-  OTHER: "Otro",
-};
+import { EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 
 const formSchema = z.object({
   title: z.string().min(5, {

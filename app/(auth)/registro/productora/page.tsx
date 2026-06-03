@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LocationSelect } from "@/components/location-select/location-select";
-import { EventCategory } from "@/types/event";
+import { EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { Title } from "@/components/website/ui/Title";
 
 function generateSlug(name: string): string {
@@ -33,24 +33,6 @@ const VENUE_TYPE_OPTIONS = [
   { value: "ESPACIO_CULTURAL", label: "Espacio cultural" },
   { value: "OTRO", label: "Otro" },
 ] as const;
-
-const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
-  MUSIC: "Música",
-  THEATER: "Teatro",
-  CONFERENCE: "Conferencia",
-  SPORT: "Deporte",
-  ART: "Arte",
-  GASTRONOMY: "Gastronomía",
-  COMEDY: "Comedia",
-  DANCE: "Danza",
-  FESTIVAL: "Festival",
-  CINEMA: "Cine",
-  CORPORATE: "Corporativo",
-  EXHIBITION: "Exposición",
-  NIGHTLIFE: "Vida nocturna",
-  WORKSHOP: "Taller",
-  OTHER: "Otro",
-};
 
 const ALL_CATEGORIES = Object.keys(EVENT_CATEGORY_LABELS) as EventCategory[];
 
