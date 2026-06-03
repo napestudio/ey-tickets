@@ -20,7 +20,7 @@ import RichTextEditor from "@/components/dashboard/rich-text-editor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Evento, EventCategory } from "@/types/event";
+import { Evento, EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { cn, datesFormater } from "@/lib/utils";
 
 import { useToast } from "@/components/ui/use-toast";
@@ -45,24 +45,6 @@ import { Badge } from "../ui/badge";
 import { EventDescription } from "./event-description";
 
 type DateSelection = { id: number; date: string };
-
-const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
-  MUSIC: "Música",
-  THEATER: "Teatro",
-  CONFERENCE: "Conferencia",
-  SPORT: "Deporte",
-  ART: "Arte",
-  GASTRONOMY: "Gastronomía",
-  COMEDY: "Comedia",
-  DANCE: "Danza",
-  FESTIVAL: "Festival",
-  CINEMA: "Cine",
-  CORPORATE: "Corporativo",
-  EXHIBITION: "Exposición",
-  NIGHTLIFE: "Vida nocturna",
-  WORKSHOP: "Taller",
-  OTHER: "Otro",
-};
 
 const formSchema = z.object({
   title: z.string().min(5, {
