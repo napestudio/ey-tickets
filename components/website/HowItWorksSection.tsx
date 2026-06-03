@@ -43,7 +43,7 @@ export default function HowItWorksSection() {
               />
             ))}
           </div>
-          <div className="w-[600px] aspect-square bg-neutral-100"></div>
+          <div className="w-150 aspect-square bg-neutral-100"></div>
         </div>
       </div>
     </section>

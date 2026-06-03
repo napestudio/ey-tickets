@@ -1,5 +1,5 @@
 import Hero from "@/components/website/Hero";
-import HowItWorksSection from "@/components/website/HotItWorksSection";
+import HowItWorksSection from "@/components/website/HowItWorksSection";
 import HowToUseItSection from "@/components/website/HowToUseIt";
 import PricingSection from "@/components/website/PricingSection";
 import SalesSection from "@/components/website/SalesSection";

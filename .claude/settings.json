@@ -137,7 +137,9 @@
       "Bash(xargs grep -l \"superadmin\\\\|admin\")",
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(eventos\\\\\\)/eventos/)",
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(eventos\\\\\\)/eventos/[id]/)",
-      "Bash(ls \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(eventos\\)/eventos/\")"
+      "Bash(ls \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(eventos\\)/eventos/\")",
+      "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id\\\\\\)/)",
+      "Bash(grep -rn \"revalidate\\\\|ISR\\\\|generateStaticParams\" /c/dev/ey-tickets-nextjs/ey-tickets/app --include=\"*.tsx\" --include=\"*.ts\" ! -path \"*/.next/*\")"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

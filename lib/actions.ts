@@ -75,12 +75,14 @@ export async function createEvent(data: Evento) {
     producer: { connect: { id: producerId } },
   } as any);
   eventId = result.id;
+
+  revalidatePath("/dashboard");
+  revalidatePath("/eventos");
+  revalidatePath("/");
+
   if (eventId) {
     redirect(`/dashboard/evento/${eventId}`);
   }
-
-  revalidatePath("/dashboard");
-  revalidatePath("/");
 }
 
 export async function updateEvent(data: Partial<Evento>, eventId: string) {
@@ -89,6 +91,7 @@ export async function updateEvent(data: Partial<Evento>, eventId: string) {
     revalidatePath(`/dashboard/evento/${result.id}/edit`);
     revalidatePath(`/dashboard/evento/${result.id}`);
     revalidatePath(`/eventos/${result.slug}`);
+    revalidatePath("/eventos");
     revalidatePath(`/`);
   } catch (error) {
     throw new Error("Error editando el evento");
@@ -100,6 +103,8 @@ export async function cancelEvent(eventId: string) {
   try {
     const result = await Eventos.updateEvent(eventId, data as Evento);
     revalidatePath(`/dashboard/evento/${result.id}`);
+    revalidatePath(`/eventos/${result.slug}`);
+    revalidatePath("/eventos");
   } catch (error) {
     throw new Error("Error cancelando el evento");
   }
@@ -111,6 +116,7 @@ export async function deleteEvent(eventId: string) {
     const result = await Eventos.updateEvent(eventId, data as Evento);
 
     revalidatePath(`/dashboard`);
+    revalidatePath("/eventos");
     return result;
   } catch (error) {
     throw new Error("Error editando el evento");
