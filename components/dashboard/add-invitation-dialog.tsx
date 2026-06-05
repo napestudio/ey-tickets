@@ -69,7 +69,6 @@ type InvitationMethodForm = z.infer<typeof invitationMethodSchema>;
 interface AddInvitationMethodDialogProps {
   children: React.ReactNode;
   evento?: Evento;
-  //remainingInvites: number;
   soldTickets?: Record<
     string,
     {
@@ -84,7 +83,6 @@ interface AddInvitationMethodDialogProps {
 export function AddInvitationDialog({
   children,
   evento,
-  //remainingInvites,
   soldTickets,
   isEventOwner,
 }: AddInvitationMethodDialogProps) {
