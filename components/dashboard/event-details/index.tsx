@@ -116,9 +116,7 @@ export default async function EventDetails({
                   evento={evento as unknown as Evento}
                   isSeller={isSeller}
                   isEventOwner={isEventOwner}
-                  //remainingInvites={remainingInvites}
                   hasAllocation={!!eventAllocation}
-                  //maxInvitesAmount={maxInvitesAmount}
                   soldTickets={soldTickets}
                 />
               </TabsContent>
