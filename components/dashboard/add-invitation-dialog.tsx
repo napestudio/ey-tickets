@@ -69,7 +69,7 @@ type InvitationMethodForm = z.infer<typeof invitationMethodSchema>;
 interface AddInvitationMethodDialogProps {
   children: React.ReactNode;
   evento?: Evento;
-  remainingInvites: number;
+  //remainingInvites: number;
   soldTickets?: Record<
     string,
     {
@@ -84,7 +84,7 @@ interface AddInvitationMethodDialogProps {
 export function AddInvitationDialog({
   children,
   evento,
-  remainingInvites,
+  //remainingInvites,
   soldTickets,
   isEventOwner,
 }: AddInvitationMethodDialogProps) {
@@ -122,14 +122,6 @@ export function AddInvitationDialog({
         dni: data.dni,
         totalPrice: 0,
       };
-
-      if (remainingInvites < parseInt(data.quantity)) {
-        toast({
-          description: `Solo quedan ${remainingInvites} invitaciones disponibles`,
-          variant: "destructive",
-        });
-        return;
-      }
 
       await inviteUserToEvent(payload);
     } catch (error) {
