@@ -14,9 +14,7 @@ interface AccionesTabProps {
   evento: Evento;
   isSeller: boolean;
   isEventOwner: boolean;
-  remainingInvites: number;
   hasAllocation: boolean;
-  maxInvitesAmount: number;
   soldTickets: Record<
     string,
     {
@@ -31,9 +29,7 @@ export default function AccionesTab({
   evento,
   isSeller,
   isEventOwner,
-  remainingInvites,
   hasAllocation,
-  maxInvitesAmount,
   soldTickets,
 }: AccionesTabProps) {
   return (
@@ -60,10 +56,9 @@ export default function AccionesTab({
                 Vender entrada
               </Link>
             </Button>
-            {/* {maxInvitesAmount > 0 && ( */}
+
             <AddInvitationDialog
               evento={evento}
-              remainingInvites={remainingInvites}
               soldTickets={soldTickets}
               isEventOwner={isEventOwner}
             >

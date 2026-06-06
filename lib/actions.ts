@@ -34,6 +34,7 @@ import {
 } from "./api/reset-password-token";
 import { stat } from "fs";
 import { getPaidOrdersDataByEvent } from "@/lib/api/orders";
+import { substractTicketQuantity } from "@/lib/api/ticket-orders";
 import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
@@ -1126,6 +1127,10 @@ export async function inviteUserToEvent(data: InvitationMethodInput) {
         }
       });
       await createTicketOrder(ticketsData);
+
+      const newQuantity = ticketsData.length;
+      await substractTicketQuantity(result.ticketTypeId, newQuantity);
+
       revalidatePath(`/dashboard/evento/${result.eventId}/edit`);
     }
   } catch (error) {
