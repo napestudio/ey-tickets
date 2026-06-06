@@ -10,8 +10,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import {
   getSoldTicketsByType,
-  getUsedInvitesByProducer,
-  getMaxInvitesPerEvent,
 } from "@/lib/actions";
 import { getEventTicketAllocation } from "@/lib/api/ticket-stock";
 import TicketsTab from "./tickets-tab";
@@ -42,18 +40,12 @@ export default async function EventDetails({
   const isSeller = role === "SELLER";
 
   const [
-    maxInvitesAmount,
-    usedInvites,
     soldTickets,
     eventAllocation,
   ] = await Promise.all([
-    getMaxInvitesPerEvent(producerId ?? ""),
-    getUsedInvitesByProducer(producerId ?? ""),
     getSoldTicketsByType(evento.tickets || []),
     getEventTicketAllocation(evento.id),
   ]);
-
-  const remainingInvites = maxInvitesAmount - usedInvites;
 
   return (
     <>
@@ -124,9 +116,7 @@ export default async function EventDetails({
                   evento={evento as unknown as Evento}
                   isSeller={isSeller}
                   isEventOwner={isEventOwner}
-                  remainingInvites={remainingInvites}
                   hasAllocation={!!eventAllocation}
-                  maxInvitesAmount={maxInvitesAmount}
                   soldTickets={soldTickets}
                 />
               </TabsContent>

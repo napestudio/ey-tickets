@@ -1,4 +1,4 @@
-import {prisma} from "../prisma";
+import { prisma } from "../prisma";
 
 type TicketOrderType = {
   id?: string;
@@ -28,8 +28,8 @@ export async function createTicketOrder(data: TicketOrderType[]) {
             },
           },
         },
-      })
-    )
+      }),
+    ),
   );
   return createdOrders;
 }
@@ -126,7 +126,9 @@ export async function getTicketOrdersByEventId(eventId: string) {
   });
 }
 
-export async function getUsedInvitesByProducer(producerId: string): Promise<number> {
+export async function getUsedInvitesByProducer(
+  producerId: string,
+): Promise<number> {
   const events = await prisma.event.findMany({
     where: { producerId },
     select: {
@@ -147,7 +149,9 @@ export async function getUsedInvitesByProducer(producerId: string): Promise<numb
   return totalInvites;
 }
 
-export async function getMaxInvitesPerEvent(producerId: string): Promise<number> {
+export async function getMaxInvitesPerEvent(
+  producerId: string,
+): Promise<number> {
   const config = await prisma.producerConfiguration.findUnique({
     where: { producerId },
     select: { maxInvitesPerEvent: true },
@@ -179,4 +183,27 @@ export async function getTicketOrderById(id: string) {
       },
     },
   });
+}
+
+export async function substractTicketQuantity(
+  ticketTypeId: string,
+  quantity: number,
+) {
+  const ticketType = await prisma.ticketType.findUnique({
+    where: { id: ticketTypeId },
+    select: { quantity: true },
+  });
+  
+  if (!ticketType) {
+    throw new Error("Ticket type not found");
+  }
+  const newQuantity = ticketType.quantity - quantity;
+  if (newQuantity < 0) {
+    throw new Error("Not enough tickets available");
+  }
+  await prisma.ticketType.update({
+    where: { id: ticketTypeId },
+    data: { quantity: newQuantity },
+  });
+  return newQuantity;
 }
