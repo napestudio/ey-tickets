@@ -4,6 +4,7 @@ import { Order } from "@/types/order";
 import { TicketOrderType } from "@/types/tickets";
 import { TicketType } from "@/types/tickets";
 import { useEffect, useState } from "react";
+import { formatPrice } from "@/lib/utils";
 
 type props = {
   order?: Partial<Order>;
@@ -55,7 +56,7 @@ export default function OrderTotal({
         <span>TOTAL:</span>
         <span className="font-bold">
           {" "}
-          ${totalWithServiceCharge.toLocaleString("es-ar")}
+          {formatPrice(totalWithServiceCharge)}
         </span>
       </div>
     </div>

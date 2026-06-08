@@ -22,12 +22,7 @@ const ALL_NAV_ITEMS: Array<NavItem & { requires: Permission }> = [
     icon: "calendar",
     requires: "events:view",
   },
-  {
-    title: "Usuarios",
-    href: "/dashboard/usuarios",
-    icon: "users",
-    requires: "users:view",
-  },
+
   {
     title: "Stock de Tickets",
     href: "/dashboard/ticket-stock",
@@ -47,6 +42,12 @@ const ALL_NAV_ITEMS: Array<NavItem & { requires: Permission }> = [
     requires: "reports:view",
   },
   {
+    title: "Usuarios",
+    href: "/dashboard/usuarios",
+    icon: "users",
+    requires: "users:view",
+  },
+  {
     title: "Configuración",
     href: "/dashboard/configuracion",
     icon: "settings",
@@ -58,7 +59,7 @@ export function getSidebarNav(role: AppRole | null): NavItem[] {
   const user: JwtUser = { role };
   const permissions = getPermissions(user);
 
-  return ALL_NAV_ITEMS
-    .filter((item) => permissions.has(item.requires))
-    .map(({ requires: _requires, ...rest }) => rest);
+  return ALL_NAV_ITEMS.filter((item) => permissions.has(item.requires)).map(
+    ({ requires: _requires, ...rest }) => rest,
+  );
 }

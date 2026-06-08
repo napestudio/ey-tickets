@@ -11,15 +11,16 @@ export default function StockOverviewCards({
 }: StockOverviewCardsProps) {
   const cards = [
     {
-      title: "Total en pool",
-      value: summary.totalPool,
-      description: "Tickets adquiridos",
-      icon: Package,
+      title: "Disponibles",
+      value: summary.unallocated,
+      description: "Sin asignar",
+      icon: Ticket,
+      highlight: summary.unallocated <= 0,
     },
     {
-      title: "Asignado a eventos",
+      title: "Asignados",
       value: summary.allocatedToEvents,
-      description: "En uso por eventos activos",
+      description: "En uso en eventos activos",
       icon: Calendar,
     },
     // {
@@ -28,12 +29,12 @@ export default function StockOverviewCards({
     //   description: "Cupos de miembros",
     //   icon: Users,
     // },
+
     {
-      title: "Disponible",
-      value: summary.unallocated,
-      description: "Sin asignar",
-      icon: Ticket,
-      highlight: summary.unallocated <= 0,
+      title: "Total en pool",
+      value: summary.totalPool,
+      description: "Tickets adquiridos",
+      icon: Package,
     },
   ];
 
@@ -42,11 +43,11 @@ export default function StockOverviewCards({
       {cards.map((card) => (
         <Card
           key={card.title}
-          className={card.highlight ? "border-destructive" : ""}
+          className={`${card.highlight ? "border-destructive" : "first:bg-ey-turquoise nth-[2]:bg-amber-300 last:bg-neutral-900 last:text-white"}`}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <card.icon className="h-4 w-4 text-muted-foreground" />
+            <card.icon className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div
@@ -54,9 +55,7 @@ export default function StockOverviewCards({
             >
               {card.value.toLocaleString("es-AR")}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {card.description}
-            </p>
+            <p className="text-xs mt-1">{card.description}</p>
           </CardContent>
         </Card>
       ))}

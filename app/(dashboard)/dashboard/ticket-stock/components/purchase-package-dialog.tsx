@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { purchaseTicketPackageAction } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface PurchasePackageDialogProps {
   open: boolean;
@@ -71,12 +72,12 @@ export default function PurchasePackageDialog({
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Precio por ticket</span>
             <span className="font-medium">
-              ${unitPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+              {formatPrice(unitPrice)}
             </span>
           </div>
           <div className="flex justify-between text-sm font-semibold border-t pt-3">
             <span>Total</span>
-            <span>${totalPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })}</span>
+            <span>{formatPrice(totalPrice)}</span>
           </div>
         </div>
 

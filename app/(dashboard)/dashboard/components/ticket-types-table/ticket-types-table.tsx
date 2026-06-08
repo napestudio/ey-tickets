@@ -25,6 +25,7 @@ import { es } from "date-fns/locale";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { DatesType } from "@/types/tickets";
+import { formatPrice } from "@/lib/utils";
 
 type TicketRow = {
   id: string;
@@ -172,7 +173,7 @@ export default function TicketTypesTable({
                   <TableCell className="font-medium">
                     {ticket.isFree
                       ? "Gratis"
-                      : `$${Number(ticket.price).toLocaleString("es-ar")}`}
+                      : formatPrice(Number(ticket.price))}
                   </TableCell>
 
                   <TableCell className="text-sm">

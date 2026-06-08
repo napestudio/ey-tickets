@@ -3,13 +3,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { ProfitReport } from "@/types/ticket-stock";
 import { DollarSign, TrendingUp, TrendingDown, Package, Warehouse } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface ProfitSummaryCardsProps {
   report: ProfitReport;
-}
-
-function formatARS(value: number) {
-  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) {
@@ -42,7 +39,7 @@ export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) 
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatARS(wac)}</div>
+            <div className="text-2xl font-bold">{formatPrice(wac)}</div>
             <p className="text-xs text-muted-foreground mt-1">Costo promedio ponderado de compra</p>
           </CardContent>
         </Card>
@@ -53,7 +50,7 @@ export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) 
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatARS(totalRevenue)}</div>
+            <div className="text-2xl font-bold">{formatPrice(totalRevenue)}</div>
             <p className="text-xs text-muted-foreground mt-1">Suma de ventas PAID</p>
           </CardContent>
         </Card>
@@ -64,7 +61,7 @@ export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) 
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatARS(totalEstimatedCost)}</div>
+            <div className="text-2xl font-bold">{formatPrice(totalEstimatedCost)}</div>
             <p className="text-xs text-muted-foreground mt-1">Capital recuperado por ventas</p>
           </CardContent>
         </Card>
@@ -76,7 +73,7 @@ export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) 
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${isPositive ? "" : "text-destructive"}`}>
-              {formatARS(totalProfit)}
+              {formatPrice(totalProfit)}
             </div>
             {totalMargin !== null ? (
               <Badge
@@ -97,7 +94,7 @@ export default function ProfitSummaryCards({ report }: ProfitSummaryCardsProps) 
             <Warehouse className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatARS(inventoryValue)}</div>
+            <div className="text-2xl font-bold">{formatPrice(inventoryValue)}</div>
             <p className="text-xs text-muted-foreground mt-1">Capital inmovilizado en tickets sin vender</p>
           </CardContent>
         </Card>

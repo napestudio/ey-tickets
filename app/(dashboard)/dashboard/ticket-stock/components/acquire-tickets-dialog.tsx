@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
 import PurchasePackageDialog from "./purchase-package-dialog";
 
@@ -78,11 +79,11 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
                   </div>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>
-                      ${pkg.unitPrice.toFixed(2)}{" "}
+                      {formatPrice(pkg.unitPrice)}{" "}
                       <span className="text-xs">por ticket</span>
                     </p>
                     <p className="font-semibold text-foreground text-base">
-                      Total: ${pkg.totalPrice.toLocaleString("es-AR")}
+                      Total: {formatPrice(pkg.totalPrice)}
                     </p>
                   </div>
                   <Button
@@ -125,7 +126,7 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Precio por ticket: ${CUSTOM_UNIT_PRICE.toFixed(2)}
+                Precio por ticket: {formatPrice(CUSTOM_UNIT_PRICE)}
               </p>
             </div>
           </div>

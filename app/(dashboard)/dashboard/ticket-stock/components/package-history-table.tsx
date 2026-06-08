@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TicketPackageStatus } from "@/types/ticket-stock";
+import { formatPrice } from "@/lib/utils";
 
 interface PackageRow {
   id: string;
@@ -33,7 +34,7 @@ export default function PackageHistoryTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Historial de paquetes</CardTitle>
+        <CardTitle>Historial de compra</CardTitle>
       </CardHeader>
       <CardContent>
         {packages.length === 0 ? (
@@ -80,16 +81,10 @@ export default function PackageHistoryTable({
                         {pkg.quantity.toLocaleString("es-AR")}
                       </td>
                       <td className="py-3 text-right">
-                        $
-                        {pkg.unitPrice.toLocaleString("es-AR", {
-                          minimumFractionDigits: 0,
-                        })}
+                        {formatPrice(pkg.unitPrice)}
                       </td>
                       <td className="py-3 text-right font-medium">
-                        $
-                        {pkg.totalPrice.toLocaleString("es-AR", {
-                          minimumFractionDigits: 0,
-                        })}
+                        {formatPrice(pkg.totalPrice)}
                       </td>
                       <td className="py-3 pl-4">
                         <Badge variant={statusInfo.variant}>
