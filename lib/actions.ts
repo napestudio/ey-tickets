@@ -1138,6 +1138,19 @@ export async function inviteUserToEvent(data: InvitationMethodInput) {
   }
 }
 
+export async function updateInvitationTicketOrders(
+  tickets: Partial<TicketOrder>[],
+) {
+  try {
+    const result = await TicketOrders.updateInvitationTicketOrders(tickets);
+    return result;
+  } catch (error) {
+    throw new Error("Error actualizando las invitaciones");
+  } finally {
+    redirect("/dashboard/eventos");
+  }
+}
+
 export async function getTicketOrderById(ticketId: string) {
   try {
     const result = await TicketOrders.getTicketOrderById(ticketId);
