@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createOrder, CreateOrderType } from "@/lib/actions";
-import { datesFormater } from "@/lib/utils";
+import { datesFormater, formatPrice } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { DiscountCode } from "@/types/discount-code";
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -315,7 +315,7 @@ export default function TicketTypePicker({
                     <p>
                       SUBTOTAL:{" "}
                       <span className="font-bold">
-                        ${subtotal.toLocaleString("es-ar")}
+                        {formatPrice(subtotal)}
                       </span>
                     </p>
                   </div>
@@ -332,9 +332,9 @@ export default function TicketTypePicker({
                 </>
               ))}
             <p className="font-bold text-2xl text-right">
-              TOTAL: $
+              TOTAL:{" "}
               <span className="font-extrabold">
-                {total.toLocaleString("es-ar")}
+                {formatPrice(total)}
               </span>
             </p>
           </div>

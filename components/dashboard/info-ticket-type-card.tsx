@@ -25,7 +25,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getStats, updateTicketType } from "@/lib/actions";
 import UpdateTicketTypeStatus from "./uptdate-status-ticketType-alert";
 import { toast } from "../ui/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Progress } from "../ui/progress";
 import { TicketTypeStatus } from "@prisma/client";
 
@@ -112,7 +112,7 @@ export default function InfoTicketTypeCard({ ticket }: { ticket: TicketType }) {
                 <h3 className="font-medium">{ticket.title}</h3>
               </div>
               <p className="text-2xl font-bold">
-                ${ticket.price.toLocaleString("es-ar")}
+                {formatPrice(ticket.price)}
               </p>
             </div>
             <DropdownMenu modal={false}>
