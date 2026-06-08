@@ -31,6 +31,16 @@ export async function getOrderById(orderId: string) {
   });
 }
 
+export async function getOrderWithTickets(orderId: string) {
+  return await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      tickets: true,
+      event: true,
+    },
+  });
+}
+
 export async function getOrdersByEvent(eventId: string) {
   return await prisma.order.findMany({
     where: {
