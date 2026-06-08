@@ -103,7 +103,7 @@ export async function deleteUser(userId: string, userEmail: string) {
     where: { id: userId },
   });
 
-  revalidatePath("/dashboard/usuarios");
+  revalidatePath("/dashboard/configuracion/usuarios");
 
   return { success: true };
 }

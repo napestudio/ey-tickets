@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EventProfitRow } from "@/types/ticket-stock";
+import { formatPrice } from "@/lib/utils";
 
 interface EventProfitTableProps {
   events: EventProfitRow[];
@@ -16,18 +17,6 @@ const EVENT_STATUS_MAP: Record<
   CANCELED: { label: "Cancelado", variant: "destructive" },
 };
 
-function formatARS(value: number) {
-  return `$${value.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-}
-
-function formatCurrencyARS(value: number) {
-  return Number(value).toLocaleString("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-}
 
 export default function EventProfitTable({ events }: EventProfitTableProps) {
   const eventsWithSales = events.filter((e) => e.ticketsSold > 0);
@@ -90,15 +79,15 @@ export default function EventProfitTable({ events }: EventProfitTableProps) {
                         {row.ticketsSold.toLocaleString("es-AR")}
                       </td>
                       <td className="py-3 text-right">
-                        {formatARS(row.revenue)}
+                        {formatPrice(row.revenue)}
                       </td>
                       <td className="py-3 text-right text-muted-foreground">
-                        {formatARS(row.estimatedCost)}
+                        {formatPrice(row.estimatedCost)}
                       </td>
                       <td
                         className={`py-3 text-right font-medium ${isPositive ? "" : "text-destructive"}`}
                       >
-                        {formatCurrencyARS(row.profit)}
+                        {formatPrice(row.profit)}
                       </td>
                       <td className="py-3 text-right">
                         {row.margin !== null ? (

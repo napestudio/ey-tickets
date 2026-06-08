@@ -22,23 +22,12 @@ const ALL_NAV_ITEMS: Array<NavItem & { requires: Permission }> = [
     icon: "calendar",
     requires: "events:view",
   },
-  {
-    title: "Usuarios",
-    href: "/dashboard/usuarios",
-    icon: "users",
-    requires: "users:view",
-  },
+
   {
     title: "Stock de Tickets",
     href: "/dashboard/ticket-stock",
     icon: "ticket",
     requires: "ticket-stock:view",
-  },
-  {
-    title: "Métodos de pago",
-    href: "/dashboard/metodos-de-pago",
-    icon: "sales",
-    requires: "payment-methods:view",
   },
   {
     title: "Reportes",
@@ -58,7 +47,7 @@ export function getSidebarNav(role: AppRole | null): NavItem[] {
   const user: JwtUser = { role };
   const permissions = getPermissions(user);
 
-  return ALL_NAV_ITEMS
-    .filter((item) => permissions.has(item.requires))
-    .map(({ requires: _requires, ...rest }) => rest);
+  return ALL_NAV_ITEMS.filter((item) => permissions.has(item.requires)).map(
+    ({ requires: _requires, ...rest }) => rest,
+  );
 }

@@ -31,7 +31,7 @@ const EVENT_STATUS_LABELS: Record<string, string> = {
 };
 
 function statusVariant(
-  status: string
+  status: string,
 ): "default" | "secondary" | "outline" | "destructive" {
   if (status === "ACTIVE") return "default";
   if (status === "DRAFT") return "secondary";
@@ -47,7 +47,8 @@ export default function EventAllocationsTable({
 }: EventAllocationsTableProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
-  const [activeAllocation, setActiveAllocation] = useState<AllocationWithUsage | null>(null);
+  const [activeAllocation, setActiveAllocation] =
+    useState<AllocationWithUsage | null>(null);
 
   function handleAdd(allocation: AllocationWithUsage) {
     setActiveAllocation(allocation);
@@ -72,7 +73,11 @@ export default function EventAllocationsTable({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Asignación por evento</CardTitle>
-          <Button size="sm" onClick={handleNew} disabled={unassignedEvents.length === 0}>
+          <Button
+            size="sm"
+            onClick={handleNew}
+            disabled={unassignedEvents.length === 0}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Asignar
           </Button>
@@ -80,51 +85,61 @@ export default function EventAllocationsTable({
         <CardContent>
           {allocations.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No hay asignaciones por evento. Los eventos consumirán del pool general.
+              No hay asignaciones por evento. Los eventos consumirán del pool
+              general.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 font-medium text-muted-foreground">Evento</th>
-                    <th className="text-left py-2 font-medium text-muted-foreground">Estado</th>
-                    <th className="text-right py-2 font-medium text-muted-foreground">En uso</th>
-                    <th className="text-right py-2 font-medium text-muted-foreground">Vendidos</th>
-                    <th className="py-2 font-medium text-muted-foreground w-24">Utilización</th>
-                    <th className="text-right py-2 font-medium text-muted-foreground">Acciones</th>
+                    <th className="text-left py-2 font-medium text-muted-foreground">
+                      Evento
+                    </th>
+                    <th className="text-left py-2 font-medium text-muted-foreground">
+                      Estado
+                    </th>
+                    <th className="text-right py-2 font-medium text-muted-foreground">
+                      En uso
+                    </th>
+                    <th className="text-right py-2 font-medium text-muted-foreground">
+                      Vendidos
+                    </th>
+
+                    <th className="text-right py-2 font-medium text-muted-foreground">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {allocations.map((alloc) => {
-                    const removable = alloc.quantity - alloc.ticketTypesQuantity;
+                    const removable =
+                      alloc.quantity - alloc.ticketTypesQuantity;
                     return (
                       <tr key={alloc.id} className="border-b last:border-0">
-                        <td className="py-3 font-medium">{alloc.event.title}</td>
+                        <td className="py-3 font-medium">
+                          {alloc.event.title}
+                        </td>
                         <td className="py-3">
-                          <Badge variant={statusVariant(alloc.event.status)} className="text-xs">
-                            {EVENT_STATUS_LABELS[alloc.event.status] ?? alloc.event.status}
+                          <Badge
+                            variant={statusVariant(alloc.event.status)}
+                            className="text-xs"
+                          >
+                            {EVENT_STATUS_LABELS[alloc.event.status] ??
+                              alloc.event.status}
                           </Badge>
                         </td>
                         <td className="py-3 text-right font-mono text-sm">
                           {alloc.ticketTypesQuantity.toLocaleString("es-AR")}
                           <span className="text-muted-foreground">
-                            {" / "}{alloc.quantity.toLocaleString("es-AR")}
+                            {" / "}
+                            {alloc.quantity.toLocaleString("es-AR")}
                           </span>
                         </td>
                         <td className="py-3 text-right">
                           {alloc.ticketsSold.toLocaleString("es-AR")}
                         </td>
-                        <td className="py-3 w-24">
-                          <Progress
-                            value={
-                              alloc.quantity > 0
-                                ? Math.min(100, (alloc.ticketTypesQuantity / alloc.quantity) * 100)
-                                : 0
-                            }
-                            className="h-2"
-                          />
-                        </td>
+
                         <td className="py-3 text-right">
                           <div className="flex justify-end gap-1">
                             <Button
@@ -134,7 +149,9 @@ export default function EventAllocationsTable({
                               onClick={() => handleAdd(alloc)}
                               disabled={availableStock === 0}
                               title={
-                                availableStock === 0 ? "Sin stock disponible en el pool" : "Agregar tickets"
+                                availableStock === 0
+                                  ? "Sin stock disponible en el pool"
+                                  : "Agregar tickets"
                               }
                             >
                               Agregar

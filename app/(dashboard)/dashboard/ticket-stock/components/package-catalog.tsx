@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
 import PurchasePackageDialog from "./purchase-package-dialog";
+import { formatPrice } from "@/lib/utils";
 
 interface PackageCatalogProps {
   producerId: string;
@@ -56,11 +57,11 @@ export default function PackageCatalog({ producerId }: PackageCatalogProps) {
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
                   <p>
-                    ${pkg.unitPrice.toFixed(2)}{" "}
+                    {formatPrice(pkg.unitPrice)}{" "}
                     <span className="text-xs">por ticket</span>
                   </p>
                   <p className="font-semibold text-foreground text-base">
-                    Total: ${pkg.totalPrice.toLocaleString("es-AR")}
+                    Total: {formatPrice(pkg.totalPrice)}
                   </p>
                 </div>
                 <Button
@@ -99,7 +100,7 @@ export default function PackageCatalog({ producerId }: PackageCatalogProps) {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Precio por ticket: ${CUSTOM_UNIT_PRICE.toFixed(2)}
+              Precio por ticket: {formatPrice(CUSTOM_UNIT_PRICE)}
             </p>
           </div>
         </CardContent>

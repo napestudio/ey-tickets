@@ -2,7 +2,7 @@
 import { Evento } from "@/types/event";
 import { TableCell, TableRow } from "../ui/table";
 import Image from "next/image";
-import { datesFormater } from "@/lib/utils";
+import { datesFormater, formatPrice } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import {
   DropdownMenu,
@@ -86,7 +86,7 @@ export default function EventListItem({ evento }: { evento: Evento }) {
       <TableCell>
         <div className="w-25 space-y-1">
           <div className="text-xs font-bold">
-            $ {total?.toLocaleString("es-ar")}
+            {total !== undefined ? formatPrice(total) : "-"}
           </div>
           {/* <Progress value={soldPercentage} className="h-2" /> */}
         </div>
