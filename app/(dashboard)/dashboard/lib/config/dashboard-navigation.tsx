@@ -30,22 +30,10 @@ const ALL_NAV_ITEMS: Array<NavItem & { requires: Permission }> = [
     requires: "ticket-stock:view",
   },
   {
-    title: "Métodos de pago",
-    href: "/dashboard/metodos-de-pago",
-    icon: "sales",
-    requires: "payment-methods:view",
-  },
-  {
     title: "Reportes",
     href: "/dashboard/reportes",
     icon: "chart",
     requires: "reports:view",
-  },
-  {
-    title: "Usuarios",
-    href: "/dashboard/usuarios",
-    icon: "users",
-    requires: "users:view",
   },
   {
     title: "Configuración",

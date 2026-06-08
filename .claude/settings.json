@@ -148,7 +148,9 @@
       "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/perfil/)",
       "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/productora/)",
       "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/mercado-pago/)",
-      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/)"
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/metodos-de-pago\" -type f)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/usuarios\" -type f)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

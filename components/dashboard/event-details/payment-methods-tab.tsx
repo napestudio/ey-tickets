@@ -1,4 +1,4 @@
-import PaymentMethodsLoader from "@/app/(dashboard)/dashboard/metodos-de-pago/methods-loader";
+import PaymentMethodsLoader from "@/app/(dashboard)/dashboard/configuracion/metodos-de-pago/methods-loader";
 import { Evento } from "@/types/event";
 import PaymentMethodsList from "../payment-methods-list";
 import { Separator } from "@/components/ui/separator";
