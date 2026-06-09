@@ -347,12 +347,14 @@ model Order {
   ticketTypeId String
   eventId      String
   quantity     Int
-  isInvitation Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  ticketType   TicketType    @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
-  tickets      TicketOrder[]
+  isInvitation       Boolean   @default(false)
+  customizationToken String?   @unique
+  customizedAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketType         TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  tickets            TicketOrder[]
 
   @@map("orders")
 }
@@ -448,14 +450,15 @@ model PaymentMethod {
   name          String?
   producerId    String
   userId        String? // Solo se usa si es CASH
-  creatorId     String // Usuario que creó este método
+  creatorId     String  // Usuario que creó este método
   apiKey        String? // Solo para métodos tipo DIGITAL (ej: MP)
   cbu           String? // CBU/CVU para transferencias
   alias         String? // Alias CBU para transferencias
   transferEmail String? // Email para transferencias
-  enabled       Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  enabled              Boolean     @default(true)
+  commissionPercentage Float? // Comisión del método de pago (ej: MercadoPago)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
   producer Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
   user     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)

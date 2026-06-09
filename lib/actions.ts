@@ -28,6 +28,7 @@ import {
   type QrTicketEmailData,
 } from "@/emails/send";
 import { generatePasswordResetToken } from "./tokens";
+import { randomUUID } from "crypto";
 import {
   getPasswordResetTokenByToken,
   removePasswordResetTokenById,
@@ -476,6 +477,7 @@ type PaymentMethodInput = {
   transferEmail?: string | null;
   enabled?: boolean;
   creatorId?: string;
+  commissionPercentage?: number | null;
 };
 
 export async function createPaymentMethod(data: PaymentMethodInput) {
@@ -1098,11 +1100,32 @@ export type InvitationMethodInput = {
   lastName: string;
   dni: string;
   totalPrice: number;
+  isCustomizable?: boolean;
 };
 
-export async function inviteUserToEvent(data: InvitationMethodInput) {
+export async function inviteUserToEvent(
+  data: InvitationMethodInput,
+): Promise<{ customizationToken?: string }> {
   try {
-    const result = await Orders.createInvitationOrder(data);
+    const customizationToken = data.isCustomizable
+      ? randomUUID()
+      : undefined;
+
+    const orderPayload = {
+      quantity: data.quantity,
+      email: data.isCustomizable ? null : data.email,
+      name: data.isCustomizable ? null : data.name,
+      lastName: data.isCustomizable ? null : data.lastName,
+      dni: data.isCustomizable ? null : data.dni,
+      ticketTypeId: data.ticketTypeId,
+      isInvitation: true,
+      status: data.status,
+      eventId: data.eventId,
+      totalPrice: data.totalPrice,
+      customizationToken: customizationToken ?? null,
+    };
+
+    const result = await Orders.createInvitationOrder(orderPayload);
     if (result) {
       const dates = JSON.parse(result.ticketType.dates!);
       const is2x1 = result.ticketType.buyGet === 2;
@@ -1112,10 +1135,10 @@ export async function inviteUserToEvent(data: InvitationMethodInput) {
       dates.forEach((dateObj: DatesType) => {
         for (let i = 0; i < result.quantity; i++) {
           ticketsData.push({
-            name: result.name!,
-            lastName: result.lastName!,
-            dni: result.dni!,
-            email: result.email!,
+            name: data.isCustomizable ? "" : result.name!,
+            lastName: data.isCustomizable ? "" : result.lastName!,
+            dni: data.isCustomizable ? "" : result.dni!,
+            email: data.isCustomizable ? "" : result.email!,
             base64Qr: "code",
             date: new Date(dateObj.date),
             orderId: result.id,
@@ -1126,15 +1149,62 @@ export async function inviteUserToEvent(data: InvitationMethodInput) {
           });
         }
       });
-      await createTicketOrder(ticketsData);
+      await TicketOrders.createTicketOrder(ticketsData);
 
       const newQuantity = ticketsData.length;
       await substractTicketQuantity(result.ticketTypeId, newQuantity);
 
       revalidatePath(`/dashboard/evento/${result.eventId}/edit`);
+
+      return { customizationToken };
     }
+    return {};
   } catch (error) {
-    throw new Error("Error creando la invitacion");
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Error creando la invitacion: ${message}`);
+  }
+}
+
+export async function submitCustomizationForm(
+  token: string,
+  tickets: Array<{
+    id: string;
+    name: string;
+    lastName: string;
+    dni: string;
+    email: string;
+  }>,
+) {
+  const order = await Orders.getOrderByCustomizationToken(token);
+
+  if (!order) throw new Error("Invitación no encontrada");
+  if (order.customizedAt) throw new Error("Esta invitación ya fue completada");
+
+  await TicketOrders.updateInvitationTicketOrders(tickets);
+
+  const firstTicket = tickets[0];
+  await Orders.markOrderAsCustomized(order.id, {
+    name: firstTicket.name,
+    lastName: firstTicket.lastName,
+    dni: firstTicket.dni,
+    email: firstTicket.email,
+  });
+}
+
+export async function getInvitationByToken(token: string) {
+  return await Orders.getOrderByCustomizationToken(token);
+}
+
+export async function updateInvitationTicketOrders(
+  tickets: Partial<TicketOrder>[],
+) {
+  try {
+    const result = await TicketOrders.updateInvitationTicketOrders(tickets);
+    return result;
+  } catch (error) {
+    throw new Error("Error actualizando las invitaciones");
+  } finally {
+    redirect("/dashboard/eventos");
   }
 }
 

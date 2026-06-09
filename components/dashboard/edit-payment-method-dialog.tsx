@@ -64,6 +64,11 @@ const paymentMethodSchema = z.object({
     .or(z.literal("")),
   enabled: z.boolean().default(true),
   seller: z.string(),
+  commissionPercentage: z.coerce
+    .number()
+    .min(0, "El valor mínimo es 0")
+    .max(100, "El valor máximo es 100")
+    .optional(),
 });
 
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
@@ -96,6 +101,9 @@ export function EditPaymentMethodDialog({
           .transferEmail || "",
       enabled: paymentMethod.enabled,
       seller: paymentMethod.userId || "",
+      commissionPercentage:
+        (paymentMethod as PaymentMethod & { commissionPercentage?: number })
+          .commissionPercentage ?? undefined,
     },
   });
 
@@ -117,6 +125,7 @@ export function EditPaymentMethodDialog({
           data.type === "TRANSFER" ? data.transferEmail || null : null,
         enabled: data.enabled,
         creatorId: paymentMethod.creatorId,
+        commissionPercentage: data.commissionPercentage ?? null,
       };
 
       await updatePaymentMethod(payload, paymentMethod.id);
@@ -297,6 +306,43 @@ export function EditPaymentMethodDialog({
                         />
                       </>
                     )}
+
+                    <FormField
+                      control={form.control}
+                      name="commissionPercentage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Comisión (%) - Opcional</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              placeholder="Ej: 5.99"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value === ""
+                                    ? undefined
+                                    : e.target.valueAsNumber,
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Porcentaje que cobra tu método de pago por
+                            transacción.
+                            <span className="block text-xs text-neutral-500">
+                              Dato no público. No afecta el valor de las
+                              entradas. Se usa solo para éstadisticas.
+                            </span>
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}

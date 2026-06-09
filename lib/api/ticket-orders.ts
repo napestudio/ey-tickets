@@ -1,3 +1,4 @@
+import { TicketOrder } from "@prisma/client";
 import { prisma } from "../prisma";
 
 type TicketOrderType = {
@@ -32,6 +33,25 @@ export async function createTicketOrder(data: TicketOrderType[]) {
     ),
   );
   return createdOrders;
+}
+
+export async function updateInvitationTicketOrders(
+  tickets: Partial<TicketOrder>[]
+): Promise<{ id: string }[]> {
+  return await prisma.$transaction(
+    tickets.map((t) =>
+      prisma.ticketOrder.update({
+        where: { id: t.id, isInvitation: true },
+        data: {
+          name: t.name,
+          lastName: t.lastName,
+          dni: t.dni,
+          email: t.email,
+        },
+        select: { id: true },
+      })
+    )
+  );
 }
 
 export async function getOrderTicketsByEvent(eventId: string) {
