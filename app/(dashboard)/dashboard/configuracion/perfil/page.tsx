@@ -42,10 +42,6 @@ export default async function Perfil() {
 
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={image ?? undefined} alt={name ?? "Usuario"} />
-            <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-          </Avatar>
           <div>
             <div className="flex items-center gap-2">
               <p className="font-semibold text-base">{name ?? "—"} </p>{" "}

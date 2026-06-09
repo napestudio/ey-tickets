@@ -86,9 +86,9 @@ export const DASHBOARD_ROUTE_RULES: RouteRule[] = [
   // Listado de eventos
   { pattern: /^\/dashboard\/eventos(\/.*)?$/, requires: "events:view" },
   // Secciones de gestión
-  { pattern: /^\/dashboard\/usuarios(\/.*)?$/, requires: "users:view" },
+  { pattern: /^\/dashboard\/configuracion\/usuarios(\/.*)?$/, requires: "users:view" },
   { pattern: /^\/dashboard\/ticket-stock(\/.*)?$/, requires: "ticket-stock:view" },
-  { pattern: /^\/dashboard\/metodos-de-pago(\/.*)?$/, requires: "payment-methods:view" },
+  { pattern: /^\/dashboard\/configuracion\/metodos-de-pago(\/.*)?$/, requires: "payment-methods:view" },
   { pattern: /^\/dashboard\/reportes(\/.*)?$/, requires: "reports:view" },
   { pattern: /^\/dashboard\/codigos(\/.*)?$/, requires: "discount-codes:view" },
   { pattern: /^\/dashboard\/nuevo-codigo(\/.*)?$/, requires: "discount-codes:view" },

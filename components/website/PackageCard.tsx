@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -45,12 +45,12 @@ export default function PricePackageCard({
             <div className="text-xl">
               ARS{" "}
               <span className="text-4xl font-bold">
-                ${unitPrice.toLocaleString("es-AR")}
+                {formatPrice(unitPrice)}
               </span>{" "}
               por ticket
             </div>
             <div className="text-lg font-semibold">
-              Total: ARS {totalPrice.toLocaleString("es-AR")}
+              Total: {formatPrice(totalPrice)}
             </div>
           </div>
         </CardContent>

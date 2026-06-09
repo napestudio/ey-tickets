@@ -42,7 +42,7 @@ export default async function TicketStockPage() {
       <div className="flex items-start justify-between gap-4">
         <DashboardHeader
           title="Stock de Tickets"
-          subtitle="Administrá tu inventario de entradas"
+          subtitle="Podés comprar por paquete o la cantidad que necesites y asignarlos a tus eventos."
         />
         <div className="pt-1 shrink-0">
           <AcquireTicketsDialog producerId={pid} />

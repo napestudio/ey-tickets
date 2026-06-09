@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createCashOrder, CreateOrderType } from "@/lib/actions";
-import { datesFormater } from "@/lib/utils";
+import { datesFormater, formatPrice } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { DiscountCode } from "@/types/discount-code";
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -480,7 +480,7 @@ export default function BuyTicketForm({
                     <p>
                       SUBTOTAL:{" "}
                       <span className="">
-                        ${subtotal.toLocaleString("es-ar")}
+                        {formatPrice(subtotal)}
                       </span>
                     </p>
                   </div>
@@ -497,7 +497,7 @@ export default function BuyTicketForm({
                 </>
               ))}
             <p className="">
-              TOTAL: $<span className="">{total.toLocaleString("es-ar")}</span>
+              TOTAL: <span className="">{formatPrice(total)}</span>
             </p>
           </div>
 

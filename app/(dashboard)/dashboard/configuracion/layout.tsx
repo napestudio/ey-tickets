@@ -12,6 +12,8 @@ const BASE_ITEMS = [
 const ADMIN_ITEMS = [
   { title: "Productora", href: "/dashboard/configuracion/productora" },
   // { title: "Mercado Pago", href: "/dashboard/configuracion/mercado-pago" },
+  { title: "Usuarios", href: "/dashboard/configuracion/usuarios" },
+  { title: "Métodos de pago", href: "/dashboard/configuracion/metodos-de-pago" },
 ];
 
 export default async function ConfiguracionLayout({

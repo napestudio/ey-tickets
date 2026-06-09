@@ -50,3 +50,10 @@ export function slugify(text: string): string {
     .trim() // remueve espacios al principio y al final
     .replace(/\s+/g, "-"); // reemplaza espacios por guiones
 }
+
+export function formatPrice(value: number): string {
+  return `$${value.toLocaleString("es-AR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}

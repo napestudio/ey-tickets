@@ -141,6 +141,17 @@
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id\\\\\\)/)",
       "Bash(grep -rn \"revalidate\\\\|ISR\\\\|generateStaticParams\" /c/dev/ey-tickets-nextjs/ey-tickets/app --include=\"*.tsx\" --include=\"*.ts\" ! -path \"*/.next/*\")",
       "Bash(pnpm prisma migrate dev --name add_commission_percentage_to_payment_method)"
+      "Bash(find \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\" -type d -name \"*usuario*\" -o -type d -name \"*pago*\" -o -type d -name \"*configuracion*\")",
+      "Bash(ls -la \"c:\\\\dev\\\\ey-tickets-nextjs\\\\ey-tickets\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\usuarios\"\")",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/usuarios/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/metodos-de-pago/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/perfil/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/productora/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/configuracion/mercado-pago/)",
+      "Bash(ls -la c:/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/metodos-de-pago\" -type f)",
+      "Bash(find \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(dashboard\\)/dashboard/usuarios\" -type f)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

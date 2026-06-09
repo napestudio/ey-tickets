@@ -1,4 +1,5 @@
 import { getStats } from "@/lib/api/eventos";
+import { formatPrice } from "@/lib/utils";
 
 export default async function MinimalEventSalesStats({
   eventId,
@@ -11,7 +12,7 @@ export default async function MinimalEventSalesStats({
     <div>
       <h4 className="text-sm font-medium mb-2">Recaudación</h4>
       <p className="text-2xl font-bold">
-        $ {stats.totalRevenue.toLocaleString("es-ar")}
+        {formatPrice(stats.totalRevenue)}
       </p>
     </div>
   );

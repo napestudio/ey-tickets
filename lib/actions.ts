@@ -438,7 +438,7 @@ export async function updateUser(data: any, userEmail: string) {
 export async function updateUserById(data: Partial<User>, userId: string) {
   try {
     const result = await Users.updateUserById(data, userId);
-    revalidatePath(`/dashboard/usuarios/`);
+    revalidatePath(`/dashboard/configuracion/usuarios/`);
     return result;
   } catch (error) {
     throw new Error("Error editando el usuario");
@@ -448,7 +448,7 @@ export async function updateUserById(data: Partial<User>, userId: string) {
 export async function updateUserRole(userId: string, role: OrganizationRole) {
   try {
     await Users.updateUserRole(userId, role);
-    revalidatePath(`/dashboard/usuarios/`);
+    revalidatePath(`/dashboard/configuracion/usuarios/`);
   } catch (error) {
     throw new Error("Error actualizando rol del usuario");
   }
@@ -458,7 +458,7 @@ export async function deleteUser(userId: string, userEmail: string) {
   try {
     const result = await Users.deleteUser(userId, userEmail);
 
-    revalidatePath(`/dashboard/usuarios`);
+    revalidatePath(`/dashboard/configuracion/usuarios`);
     return result;
   } catch (error) {
     throw new Error("Error eliminando el usuario");
@@ -482,7 +482,7 @@ type PaymentMethodInput = {
 export async function createPaymentMethod(data: PaymentMethodInput) {
   try {
     const method = await PaymentMethod.createPaymentMethod(data);
-    revalidatePath("/dashboard/metodos-de-pago");
+    revalidatePath("/dashboard/configuracion/metodos-de-pago");
     return method;
   } catch (error) {
     throw new Error(`Error creando Metodo de Pago: ${error}`);
@@ -512,7 +512,7 @@ export async function updatePaymentMethod(data: PaymentMethodInput, paymentMetho
       data,
       paymentMethodId
     );
-    revalidatePath("/dashboard/metodos-de-pago");
+    revalidatePath("/dashboard/configuracion/metodos-de-pago");
     revalidatePath("/dashboard/punto-de-venta");
     return method;
   } catch (error) {
@@ -526,7 +526,7 @@ export async function deletePaymentMethod(paymentMethodId: string) {
       paymentMethodId
     );
 
-    revalidatePath(`/dashboard/metodos-de-pago`);
+    revalidatePath(`/dashboard/configuracion/metodos-de-pago`);
     return result;
   } catch (error) {
     throw new Error("Error eliminando metodo de pago");
@@ -892,7 +892,7 @@ export async function deleteTokenById(tokenId: string) {
 export async function createUserInvitation(data: InvitationType) {
   try {
     const result = await UserInvitation.createUserInvitation(data);
-    revalidatePath("/dashboard/usuarios");
+    revalidatePath("/dashboard/configuracion/usuarios");
     return result;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Error creando la invitación");
@@ -907,7 +907,7 @@ export async function updateUserInvitationById(
       data,
       invitationId
     );
-    revalidatePath("/dashboard/usuarios");
+    revalidatePath("/dashboard/configuracion/usuarios");
     return result;
   } catch (error) {
     throw new Error("Error creando la invitación");
@@ -917,7 +917,7 @@ export async function updateUserInvitationById(
 export async function removeInvitationById(invitadionId: string) {
   try {
     const result = await UserInvitation.removeInvitationById(invitadionId);
-    revalidatePath("/dashboard/usuarios");
+    revalidatePath("/dashboard/configuracion/usuarios");
     return result;
   } catch (error) {
     throw new Error("Error eliminando la invitación");

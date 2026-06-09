@@ -209,14 +209,14 @@ export default function UsersTable({
                             Editar Rol
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => {
                             handleEditSettings(account);
                           }}
                         >
                           <UserPlus className="mr-2 h-4 w-4" />
                           Editar limites
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem
