@@ -4,7 +4,6 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { updateEvent } from "@/lib/actions";
-import { uploadImage, deleteImage } from "@/lib/image-actions";
 import { useState } from "react";
 
 import {
@@ -24,7 +23,6 @@ import { Evento, EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { cn, datesFormater } from "@/lib/utils";
 
 import { useToast } from "@/components/ui/use-toast";
-import { FileUploader } from "@/app/(dashboard)/dashboard/components/file-uploader/file-uploader";
 import { CalendarIcon, Loader2, Pencil, X } from "lucide-react";
 
 import Box from "./box";
@@ -56,7 +54,6 @@ const formSchema = z.object({
   address: z.string(),
   image: z.string(),
   imagePublicId: z.string().nullish(),
-  file: z.any(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
   endDate: z.date({
     required_error: "La fecha de finalización es obligatoria",
@@ -119,12 +116,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     useState<DateSelection[]>(parsedDates);
   const [savedDateTimeSelections, setSavedDateTimeSelections] =
     useState<DateSelection[]>(parsedDates);
-  const [files, setFiles] = useState<File[]>([]);
-  const [imagePublicId, setImagePublicId] = useState<string | null>(
-    evento.imagePublicId ?? null,
-  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [fileUpdated, setFileUpdated] = useState<boolean>(false);
   const [restrictions, setRestrictions] = useState<string[]>(
     evento.restrictions ?? [],
   );
@@ -144,7 +136,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
       address: evento.address,
       image: evento.image || "",
       imagePublicId: evento.imagePublicId ?? null,
-      file: evento.image || "",
       status: evento.status,
       endDate: new Date(evento.endDate || ""),
       category: evento.category ?? null,
@@ -158,7 +149,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   const [
     title,
     description,
-    image,
     city,
     state,
     address,
@@ -172,7 +162,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   ] = form.watch([
     "title",
     "description",
-    "image",
     "city",
     "state",
     "address",
@@ -236,28 +225,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   const handleSave = async (section: string) => {
     setIsLoading(true);
 
-    if (section === "imagen" && fileUpdated && files.length > 0) {
-      try {
-        if (imagePublicId) {
-          await deleteImage(imagePublicId);
-        }
-        const formData = new FormData();
-        formData.append("file", files[0]);
-        const res = await uploadImage(formData, "events");
-        if (!res || "ok" in res) {
-          throw new Error("Error subiendo la imagen");
-        }
-        form.setValue("image", res.url);
-        form.setValue("imagePublicId", res.publicId);
-        setImagePublicId(res.publicId);
-        setFileUpdated(false);
-      } catch {
-        toast({ variant: "destructive", title: "Error subiendo la imagen" });
-        setIsLoading(false);
-        return;
-      }
-    }
-
     try {
       const values = form.getValues();
       const filteredRestrictions = restrictions.filter((r) => r.trim() !== "");
@@ -269,7 +236,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
           city: values.city,
           address: values.address,
           image: values.image || null,
-          imagePublicId: values.imagePublicId ?? imagePublicId,
+          imagePublicId: values.imagePublicId ?? null,
           dates: JSON.stringify(dateTimeSelections),
           endDate: new Date(values.endDate).toISOString(),
           status: values.status,
@@ -297,10 +264,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   const handleCancel = (section: string) => {
     form.reset();
     setDateTimeSelections([...savedDateTimeSelections]);
-    if (section === "imagen") {
-      setFiles([]);
-      setFileUpdated(false);
-    }
     if (section === "restrictions") {
       setRestrictions([...savedRestrictions]);
     }
@@ -354,57 +317,6 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
   return (
     <Form {...form}>
       <form className="space-y-5 w-full">
-        {/* IMAGEN */}
-        <Box>
-          {renderSectionHeader("imagen", "Imagen del evento")}
-          {activeSection === "imagen" ? (
-            <>
-              <FormField
-                control={form.control}
-                name="file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <FileUploader
-                        onFieldChange={field.onChange}
-                        imageUrl={field.value}
-                        setFiles={setFiles}
-                        setFileUpdated={setFileUpdated}
-                        onDelete={async (_url: string) => {
-                          if (imagePublicId) {
-                            await deleteImage(imagePublicId);
-                          }
-                          setImagePublicId(null);
-                          form.setValue("image", "");
-                          form.setValue("imagePublicId", null);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {renderSectionActions("imagen")}
-            </>
-          ) : (
-            <>
-              {image ? (
-                <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted">
-                  <img
-                    src={image}
-                    alt={evento.title}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-video rounded-md bg-muted flex items-center justify-center text-sm text-muted-foreground">
-                  Sin imagen
-                </div>
-              )}
-            </>
-          )}
-        </Box>
-
         {/* DATOS DEL EVENTO */}
         <Box>
           {renderSectionHeader("datos", "Datos del evento")}

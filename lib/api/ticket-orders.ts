@@ -205,6 +205,113 @@ export async function getTicketOrderById(id: string) {
   });
 }
 
+export async function getSoldTicketCountsByType(eventId: string) {
+  const grouped = await prisma.ticketOrder.groupBy({
+    by: ["ticketTypeId"],
+    where: { eventId },
+    _count: { id: true },
+  });
+
+  if (grouped.length === 0) return {};
+
+  const ticketTypes = await prisma.ticketType.findMany({
+    where: { id: { in: grouped.map((g) => g.ticketTypeId) } },
+    select: { id: true, title: true },
+  });
+
+  const titleMap = Object.fromEntries(ticketTypes.map((tt) => [tt.id, tt.title]));
+
+  return Object.fromEntries(
+    grouped.map((g) => [
+      g.ticketTypeId,
+      { id: g.ticketTypeId, title: titleMap[g.ticketTypeId] as string | undefined, count: g._count.id },
+    ]),
+  );
+}
+
+export async function getSoldTicketsPaginated(
+  eventId: string,
+  options: {
+    page: number;
+    pageSize: number;
+    search?: string;
+    onlyInvitations?: boolean;
+    excludeInvitations?: boolean;
+  },
+) {
+  const { page, pageSize, search, onlyInvitations, excludeInvitations } = options;
+  const skip = (page - 1) * pageSize;
+
+  const where = {
+    eventId,
+    ...(onlyInvitations ? { isInvitation: true } : {}),
+    ...(excludeInvitations ? { isInvitation: false } : {}),
+    ...(search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { lastName: { contains: search, mode: "insensitive" as const } },
+            { email: { contains: search, mode: "insensitive" as const } },
+            {
+              order: {
+                ticketType: { title: { contains: search, mode: "insensitive" as const } },
+              },
+            },
+          ],
+        }
+      : {}),
+  };
+
+  const [tickets, total] = await Promise.all([
+    prisma.ticketOrder.findMany({
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        lastName: true,
+        dni: true,
+        email: true,
+        date: true,
+        code: true,
+        isInvitation: true,
+        createdAt: true,
+        ticketType: { select: { title: true, dates: true } },
+        order: {
+          select: {
+            customizationToken: true,
+            customizedAt: true,
+            event: { select: { title: true, venue: true, address: true } },
+            ticketType: { select: { title: true } },
+          },
+        },
+      },
+    }),
+    prisma.ticketOrder.count({ where }),
+  ]);
+
+  return { tickets, total };
+}
+
+export async function getAllTicketsForExport(eventId: string) {
+  return prisma.ticketOrder.findMany({
+    where: { eventId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      lastName: true,
+      dni: true,
+      email: true,
+      createdAt: true,
+      isInvitation: true,
+      ticketType: { select: { title: true } },
+    },
+  });
+}
+
 export async function substractTicketQuantity(
   ticketTypeId: string,
   quantity: number,

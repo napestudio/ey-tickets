@@ -209,7 +209,7 @@ export function AddInvitationDialog({
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         {generatedLink ? (
           <>
             <DialogHeader className="text-left">
@@ -222,7 +222,9 @@ export function AddInvitationDialog({
             <div className="py-4 space-y-4">
               <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
                 <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm break-all flex-1">{generatedLink}</span>
+                <span className="text-sm break-all flex-1">
+                  {generatedLink}
+                </span>
               </div>
               <Button className="w-full" onClick={copyLink} variant="outline">
                 {copied ? (
@@ -243,7 +245,7 @@ export function AddInvitationDialog({
               </p>
             </div>
 
-            <DialogFooter className="flex-shrink-0 pt-2">
+            <DialogFooter className="shrink-0 pt-2">
               <Button onClick={handleClose}>Cerrar</Button>
             </DialogFooter>
           </>
@@ -364,13 +366,22 @@ export function AddInvitationDialog({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(
-                                (v) => (
-                                  <SelectItem key={v} value={v}>
-                                    {v}
-                                  </SelectItem>
-                                ),
-                              )}
+                              {[
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                              ].map((v) => (
+                                <SelectItem key={v} value={v}>
+                                  {v}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -437,7 +448,7 @@ export function AddInvitationDialog({
                 </Card>
               </div>
 
-              <DialogFooter className="flex-shrink-0 pt-2">
+              <DialogFooter className="shrink-0 pt-2">
                 <Button type="button" variant="outline" onClick={handleClose}>
                   Cancelar
                 </Button>

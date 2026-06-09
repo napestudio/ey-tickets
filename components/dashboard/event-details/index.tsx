@@ -1,17 +1,14 @@
 import { Evento, EventoWithTicketsType } from "@/types/event";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
+import { TabsContent } from "../../ui/tabs";
 
-import DashboardHeader from "../dashboard-header";
 import { can } from "@/lib/permissions";
 
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import {
-  getSoldTicketsByType,
-} from "@/lib/actions";
-import { getEventTicketAllocation } from "@/lib/api/ticket-stock";
+import { getSoldTicketCountsByTypeAction } from "@/lib/actions";
+import { getEventStockDetails } from "@/lib/api/ticket-stock";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
 import DetailsTab from "./details-tab";
@@ -21,11 +18,42 @@ import SoldTicketsTab from "./sold-tickets-tab";
 import PaymentMethodsTab from "./payment-methods-tab";
 import MinimalEventSalesStats from "../mininimal-event-sales-stats";
 import AccionesTab from "./acciones-tab";
+import InvitadosTab from "./invitados-tab";
+import EventTabsClient from "./event-tabs-client";
+
+const VALID_TABS = [
+  "overview",
+  "tickets",
+  "validators",
+  "soldList",
+  "invitados",
+  "paymentMethods",
+  "acciones",
+] as const;
+
+type TabValue = (typeof VALID_TABS)[number];
+
+const OWNER_ONLY_TABS: TabValue[] = [
+  "tickets",
+  "validators",
+  "soldList",
+  "invitados",
+  "paymentMethods",
+  "acciones",
+];
+
+function resolveTab(tab: string | undefined, isEventOwner: boolean): TabValue {
+  if (!tab || !(VALID_TABS as readonly string[]).includes(tab)) return "overview";
+  if (!isEventOwner && OWNER_ONLY_TABS.includes(tab as TabValue)) return "overview";
+  return tab as TabValue;
+}
 
 export default async function EventDetails({
   evento,
+  tab,
 }: {
   evento: EventoWithTicketsType;
+  tab?: string;
 }) {
   const session = await getServerSession(authOptions);
   if (!session) return;
@@ -34,102 +62,67 @@ export default async function EventDetails({
     redirect("/dashboard");
   }
 
-  const { role, producerId } = session.user;
-
   const isEventOwner = can(session.user, "events:edit");
-  const isSeller = role === "SELLER";
+  const activeTab = resolveTab(tab, isEventOwner);
 
-  const [
-    soldTickets,
-    eventAllocation,
-  ] = await Promise.all([
-    getSoldTicketsByType(evento.tickets || []),
-    getEventTicketAllocation(evento.id),
+  const [soldTickets, eventStock] = await Promise.all([
+    getSoldTicketCountsByTypeAction(evento.id),
+    getEventStockDetails(evento.id),
   ]);
 
   return (
-    <>
-      <div className="space-y-6">
-        <DashboardHeader
-          title={evento.title}
-          subtitle="Administra los datos de este evento"
-        />
-        <Navigation
-          evento={evento}
-          isEventOwner={isEventOwner}
-          isSeller={isSeller}
-        />
-        <div className="grid gap-6 md:grid-cols-7">
-          <div className="md:col-span-5 space-y-6">
-            <Tabs defaultValue="overview" className="w-full">
-              <div className="overflow-x-auto max-w-[90vw] w-full">
-                <TabsList>
-                  <TabsTrigger value="overview">Detalles</TabsTrigger>
-                  <TabsTrigger
-                    value="tickets"
-                    disabled={isSeller || !isEventOwner}
-                  >
-                    Tickets
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="validators"
-                    disabled={isSeller || !isEventOwner}
-                  >
-                    Validadores
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="soldList"
-                    disabled={isSeller || !isEventOwner}
-                  >
-                    Entradas Vendidas
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="paymentMethods"
-                    disabled={isSeller || !isEventOwner}
-                  >
-                    Métodos de pago
-                  </TabsTrigger>
-                  <TabsTrigger value="acciones">Acciones</TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="overview" className="space-y-6">
-                <DetailsTab
-                  isEventOwner={isEventOwner}
-                  isSeller={isSeller}
-                  evento={evento as unknown as Evento}
-                />
-              </TabsContent>
-              <TabsContent value="tickets" className="space-y-6">
-                <TicketsTab evento={evento} />
-              </TabsContent>
-              <TabsContent value="validators" className="space-y-6">
-                <ValidatorsTab evento={evento} />
-              </TabsContent>
-              <TabsContent value="soldList" className="space-y-6">
-                <SoldTicketsTab evento={evento} />
-              </TabsContent>
-              <TabsContent value="paymentMethods" className="space-y-6">
-                <PaymentMethodsTab evento={evento} session={session} />
-              </TabsContent>
-              <TabsContent value="acciones" className="space-y-6">
-                <AccionesTab
-                  evento={evento as unknown as Evento}
-                  isSeller={isSeller}
-                  isEventOwner={isEventOwner}
-                  hasAllocation={!!eventAllocation}
-                  soldTickets={soldTickets}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-          <div className="md:col-span-2 space-y-6">
-            <SideBar
-              salesStats={<MinimalEventSalesStats eventId={evento.id} />}
-              eventStockCap={eventAllocation?.quantity ?? null}
-            />
-          </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-5xl">
+          {evento.title}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Administra los datos de este evento
+        </p>
+      </div>
+
+      <Navigation evento={evento} isEventOwner={isEventOwner} />
+
+      <div className="grid gap-6 md:grid-cols-7">
+        <div className="md:col-span-5 space-y-6">
+          <EventTabsClient activeTab={activeTab} isEventOwner={isEventOwner}>
+            <TabsContent value="overview" className="space-y-6">
+              <DetailsTab
+                isEventOwner={isEventOwner}
+                evento={evento as unknown as Evento}
+              />
+            </TabsContent>
+            <TabsContent value="tickets" className="space-y-6">
+              <TicketsTab evento={evento} />
+            </TabsContent>
+            <TabsContent value="validators" className="space-y-6">
+              <ValidatorsTab evento={evento} />
+            </TabsContent>
+            <TabsContent value="soldList" className="space-y-6">
+              <SoldTicketsTab evento={evento} hasAllocation={!!eventStock} />
+            </TabsContent>
+            <TabsContent value="invitados" className="space-y-6">
+              <InvitadosTab
+                evento={evento}
+                isEventOwner={isEventOwner}
+                soldTickets={soldTickets}
+              />
+            </TabsContent>
+            <TabsContent value="paymentMethods" className="space-y-6">
+              <PaymentMethodsTab evento={evento} session={session} />
+            </TabsContent>
+            <TabsContent value="acciones" className="space-y-6">
+              <AccionesTab evento={evento as unknown as Evento} />
+            </TabsContent>
+          </EventTabsClient>
+        </div>
+        <div className="md:col-span-2 space-y-6">
+          <SideBar
+            salesStats={<MinimalEventSalesStats eventId={evento.id} />}
+            eventStock={eventStock}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 }
