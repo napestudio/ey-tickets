@@ -165,32 +165,6 @@ export const getEventById = cache(async (eventId: string) => {
       discountCode: {
         where: { status: { not: "DELETED" } },
       },
-      tickets: {
-        select: {
-          name: true,
-          lastName: true,
-          dni: true,
-          id: true,
-          date: true,
-          code: true,
-          isInvitation: true,
-          email: true,
-          createdAt: true,
-          ticketType: {
-            select: { title: true, dates: true },
-          },
-          order: {
-            select: {
-              event: {
-                select: { title: true, venue: true, address: true },
-              },
-              ticketType: {
-                select: { title: true },
-              },
-            },
-          },
-        },
-      },
       validatorToken: true,
     },
   });

@@ -13,16 +13,15 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { datesFormater } from "@/lib/utils";
 import EditEventForm from "@/components/dashboard/edit-event-form";
+import EventImageSection from "./event-image-section";
 
 interface DetailsTabProps {
   evento: Evento;
-  isSeller: boolean;
   isEventOwner: boolean;
 }
 
 export default function DetailsTab({
   evento,
-  isSeller,
   isEventOwner,
 }: DetailsTabProps) {
   const groupedDates = datesFormater(evento.dates as string);
@@ -55,9 +54,15 @@ export default function DetailsTab({
     );
   };
 
-  if (isEventOwner && !isSeller) {
+  if (isEventOwner) {
     return (
       <div className="space-y-8">
+        <EventImageSection
+          eventId={evento.id}
+          eventImage={evento.image ?? null}
+          eventImagePublicId={evento.imagePublicId ?? null}
+          eventTitle={evento.title}
+        />
         <EditEventForm evento={evento} />
         <div className="pt-12">
           <Separator />
@@ -80,6 +85,15 @@ export default function DetailsTab({
 
   return (
     <>
+      {evento.image && (
+        <div className="w-full aspect-video rounded-md overflow-hidden bg-muted">
+          <img
+            src={evento.image}
+            alt={evento.title}
+            className="object-cover w-full h-full"
+          />
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Descripción del evento</CardTitle>

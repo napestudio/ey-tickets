@@ -1154,7 +1154,7 @@ export async function inviteUserToEvent(
       const newQuantity = ticketsData.length;
       await substractTicketQuantity(result.ticketTypeId, newQuantity);
 
-      revalidatePath(`/dashboard/evento/${result.eventId}/edit`);
+      revalidatePath(`/dashboard/evento/${result.eventId}`);
 
       return { customizationToken };
     }
@@ -1326,6 +1326,31 @@ export async function removeEventAllocationAction(eventId: string) {
   revalidatePath("/dashboard/ticket-stock");
   revalidatePath(`/dashboard/evento/${eventId}`);
   revalidatePath(`/dashboard/evento/ticket-types/${eventId}`);
+}
+
+export async function getSoldTicketCountsByTypeAction(eventId: string) {
+  return TicketOrders.getSoldTicketCountsByType(eventId);
+}
+
+export async function getSoldTicketsPaginatedAction(
+  eventId: string,
+  page: number,
+  pageSize: number,
+  search?: string,
+  onlyInvitations?: boolean,
+  excludeInvitations?: boolean,
+) {
+  return TicketOrders.getSoldTicketsPaginated(eventId, {
+    page,
+    pageSize,
+    search,
+    onlyInvitations,
+    excludeInvitations,
+  });
+}
+
+export async function getAllTicketsForExportAction(eventId: string) {
+  return TicketOrders.getAllTicketsForExport(eventId);
 }
 
 export async function removeMemberAllocationAction(userId: string) {
