@@ -1,5 +1,6 @@
 "use client";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Copy, Check } from "lucide-react";
+import { Badge } from "../ui/badge";
 
 import {
   Table,
@@ -58,6 +59,14 @@ export default function SoldTicketsTable({
   const [showOnlyInvitations, setShowOnlyInvitations] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
+
+  const copyCustomizationLink = async (token: string) => {
+    const link = `${window.location.origin}/invitaciones/${token}`;
+    await navigator.clipboard.writeText(link);
+    setCopiedToken(token);
+    setTimeout(() => setCopiedToken(null), 2000);
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -164,11 +173,26 @@ export default function SoldTicketsTable({
                 {currentItems.map((ticket) => (
                   <TableRow key={ticket.id}>
                     <TableCell>
-                      <div className="flex items-start flex-col ">
+                      <div className="flex items-start flex-col gap-1">
                         <div className="font-bold">
                           {ticket.name} {ticket.lastName}
                         </div>
                         <div className="text-xs">{ticket.email}</div>
+                        {ticket.isInvitation &&
+                          ticket.order?.customizationToken && (
+                            <Badge
+                              variant={
+                                ticket.order.customizedAt
+                                  ? "default"
+                                  : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {ticket.order.customizedAt
+                                ? "Personalizada"
+                                : "Pendiente"}
+                            </Badge>
+                          )}
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{ticket.dni}</TableCell>
@@ -190,6 +214,33 @@ export default function SoldTicketsTable({
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                           <DropdownMenuSeparator />
+                          {ticket.isInvitation &&
+                            ticket.order?.customizationToken &&
+                            !ticket.order.customizedAt && (
+                              <DropdownMenuItem asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full inline-flex gap-1 items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md cursor-pointer"
+                                  onClick={() =>
+                                    copyCustomizationLink(
+                                      ticket.order!.customizationToken!,
+                                    )
+                                  }
+                                >
+                                  {copiedToken ===
+                                  ticket.order.customizationToken ? (
+                                    <Check className="h-4 w-4" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                  {copiedToken ===
+                                  ticket.order.customizationToken
+                                    ? "Copiado"
+                                    : "Copiar link"}
+                                </Button>
+                              </DropdownMenuItem>
+                            )}
                           <DropdownMenuItem asChild>
                             <Button
                               variant="ghost"

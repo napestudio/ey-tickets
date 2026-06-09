@@ -94,3 +94,35 @@ export async function createInvitationOrder(data: any) {
     },
   });
 }
+
+export async function getOrderByCustomizationToken(token: string) {
+  return await prisma.order.findUnique({
+    where: { customizationToken: token },
+    include: {
+      tickets: true,
+      event: true,
+      ticketType: true,
+    },
+  });
+}
+
+export async function markOrderAsCustomized(
+  orderId: string,
+  guestData: {
+    name: string;
+    lastName: string;
+    dni: string;
+    email: string;
+  },
+) {
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      name: guestData.name,
+      lastName: guestData.lastName,
+      dni: guestData.dni,
+      email: guestData.email,
+      customizedAt: new Date(),
+    },
+  });
+}
