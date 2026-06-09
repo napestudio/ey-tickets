@@ -347,12 +347,14 @@ model Order {
   ticketTypeId String
   eventId      String
   quantity     Int
-  isInvitation Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  ticketType   TicketType    @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
-  tickets      TicketOrder[]
+  isInvitation       Boolean   @default(false)
+  customizationToken String?   @unique
+  customizedAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketType         TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  tickets            TicketOrder[]
 
   @@map("orders")
 }

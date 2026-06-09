@@ -15,4 +15,6 @@ export interface Order {
   ticketType?: TicketType;
   quantity?: number;
   discountCode?: string;
+  customizationToken?: string | null;
+  customizedAt?: Date | null;
 }
