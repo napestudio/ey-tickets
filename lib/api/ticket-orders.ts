@@ -214,18 +214,24 @@ export async function getSoldTicketCountsByType(eventId: string) {
 
   if (grouped.length === 0) return {};
 
+  const ticketTypeIds = grouped
+    .map((g) => g.ticketTypeId)
+    .filter((id): id is string => id !== null);
+
   const ticketTypes = await prisma.ticketType.findMany({
-    where: { id: { in: grouped.map((g) => g.ticketTypeId) } },
+    where: { id: { in: ticketTypeIds } },
     select: { id: true, title: true },
   });
 
   const titleMap = Object.fromEntries(ticketTypes.map((tt) => [tt.id, tt.title]));
 
   return Object.fromEntries(
-    grouped.map((g) => [
-      g.ticketTypeId,
-      { id: g.ticketTypeId, title: titleMap[g.ticketTypeId] as string | undefined, count: g._count.id },
-    ]),
+    grouped
+      .filter((g): g is typeof g & { ticketTypeId: string } => g.ticketTypeId !== null)
+      .map((g) => [
+        g.ticketTypeId,
+        { id: g.ticketTypeId, title: titleMap[g.ticketTypeId] as string | undefined, count: g._count.id },
+      ]),
   );
 }
 
