@@ -72,6 +72,32 @@ export async function getEventTicketAllocation(eventId: string) {
   return prisma.eventTicketAllocation.findUnique({ where: { eventId } });
 }
 
+export async function getEventStockDetails(eventId: string) {
+  const allocation = await prisma.eventTicketAllocation.findUnique({ where: { eventId } });
+  if (!allocation) return null;
+
+  const [ticketTypesResult, soldResult] = await Promise.all([
+    prisma.ticketType.aggregate({
+      _sum: { quantity: true },
+      where: { eventId, NOT: { status: "DELETED" } },
+    }),
+    prisma.order.aggregate({
+      _sum: { quantity: true },
+      where: { eventId, status: "PAID", isInvitation: false },
+    }),
+  ]);
+
+  const assignedToTypes = ticketTypesResult._sum.quantity ?? 0;
+  const sold = soldResult._sum.quantity ?? 0;
+
+  return {
+    quantity: allocation.quantity,
+    assignedToTypes,
+    available: Math.max(0, allocation.quantity - assignedToTypes),
+    sold,
+  };
+}
+
 export async function getEventAllocationsByProducer(
   producerId: string
 ): Promise<AllocationWithUsage[]> {

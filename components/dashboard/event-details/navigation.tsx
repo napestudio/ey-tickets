@@ -1,21 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
-import { ArrowLeft, Globe } from "lucide-react";
+import { ArrowLeft, Eye, Globe } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 import { SITE_URL } from "@/lib/constants";
 
 interface NavigationProps {
   evento: Evento;
-  isSeller: boolean;
   isEventOwner: boolean;
 }
 
-export default function Navigation({
-  evento,
-  isSeller,
-  isEventOwner,
-}: NavigationProps) {
+export default function Navigation({ evento, isEventOwner }: NavigationProps) {
   return (
     <>
       <div className="flex items-start md:items-center flex-wrap  gap-2">
@@ -33,12 +28,12 @@ export default function Navigation({
                 href={`${SITE_URL}/eventos/${evento.id}`}
                 className="flex items-center"
               >
-                <Globe className="mr-2 h-4 w-4" />
+                <Eye className="mr-2 h-4 w-4" />
                 Ver en la web
               </Link>
             </Button>
           )}
-          {!isSeller && isEventOwner && (
+          {isEventOwner && (
             <>
               {evento.status !== "CANCELED" && (
                 <CancelEventButton id={evento.id} />

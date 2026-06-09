@@ -83,6 +83,7 @@ export interface EventoWithTicketsType {
   city?: string | null;
   producerId: string;
   image: string;
+  imagePublicId?: string | null;
   dates: string;
   status?: EventStatus;
   discountCode?: DiscountCode[] | undefined;
