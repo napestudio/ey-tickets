@@ -139,7 +139,8 @@
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(eventos\\\\\\)/eventos/[id]/)",
       "Bash(ls \"/c/dev/ey-tickets-nextjs/ey-tickets/app/\\(eventos\\)/eventos/\")",
       "Bash(ls -la /c/dev/ey-tickets-nextjs/ey-tickets/app/\\\\\\(dashboard\\\\\\)/dashboard/evento/[id\\\\\\)/)",
-      "Bash(grep -rn \"revalidate\\\\|ISR\\\\|generateStaticParams\" /c/dev/ey-tickets-nextjs/ey-tickets/app --include=\"*.tsx\" --include=\"*.ts\" ! -path \"*/.next/*\")"
+      "Bash(grep -rn \"revalidate\\\\|ISR\\\\|generateStaticParams\" /c/dev/ey-tickets-nextjs/ey-tickets/app --include=\"*.tsx\" --include=\"*.ts\" ! -path \"*/.next/*\")",
+      "Bash(pnpm prisma migrate dev --name add_commission_percentage_to_payment_method)"
     ],
     "additionalDirectories": [
       "c:\\dev\\ey-tickets-nextjs\\ey-tickets",

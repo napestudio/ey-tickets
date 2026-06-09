@@ -476,6 +476,7 @@ type PaymentMethodInput = {
   transferEmail?: string | null;
   enabled?: boolean;
   creatorId?: string;
+  commissionPercentage?: number | null;
 };
 
 export async function createPaymentMethod(data: PaymentMethodInput) {
