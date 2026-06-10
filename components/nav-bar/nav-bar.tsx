@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
@@ -81,20 +80,20 @@ export default function NavBar() {
     <>
       <header className="fixed h-20 w-full bg-ey-dark text-white top-0 z-50">
         <div className="container flex items-center h-full">
-          <Link className="mr-6 w-30" href="/">
+          <Button className="mr-6 w-40" href="/">
             <Logo />
-          </Link>
+          </Button>
 
           {/* Desktop nav + botón agrupados a la derecha */}
           <nav className="ml-auto hidden md:flex items-center gap-6">
             {NAV_LINKS.map(({ href, label }) => (
-              <Link
+              <Button
                 key={href}
                 className="text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise transition-colors"
                 href={href}
               >
                 {label}
-              </Link>
+              </Button>
             ))}
             <Button
               href="/contactos"
@@ -126,19 +125,19 @@ export default function NavBar() {
       >
         <div ref={linksRef} className="container flex flex-col py-8 gap-6">
           {NAV_LINKS.map(({ href, label }) => (
-            <Link
+            <Button
               key={href}
               className="text-2xl font-medium hover:text-ey-turquoise transition-colors"
               href={href}
               onClick={() => setIsOpen(false)}
             >
               {label}
-            </Link>
+            </Button>
           ))}
           <Button
             href="/contactos"
             variant="primary"
-            className="text-ey-dark uppercase rounded-2xl w-full mt-2"
+            className="text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl w-full mt-2"
             onClick={() => setIsOpen(false)}
           >
             Contactos
