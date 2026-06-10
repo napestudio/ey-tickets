@@ -89,7 +89,7 @@ export default function NavBar() {
             {NAV_LINKS.map(({ href, label }) => (
               <Button
                 key={href}
-                className="text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise transition-colors"
+                className="text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
                 href={href}
               >
                 {label}
