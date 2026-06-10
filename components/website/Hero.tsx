@@ -21,21 +21,34 @@ export default function WebsiteHero() {
             <Paragraph className="letter-spacing-wide text-ey-gray font-semibold">
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
-            <h1 className="text-8xl text-white font-base-neue font-bold">
+            <h1 className="text-8xl text-white font-nebulica font-bold">
               VENDE ENTRADAS
               <span className="block text-transparent [text-stroke:2px_white] [-webkit-text-stroke:2px_#fff]">
                 SIN COMISIONES
               </span>
             </h1>
-            <Paragraph size="sm" className="etter-spacing-wide">
-              Vendé entradas QR online.{" "}
-              <span className="text-ey-turquoise">Sin cargo por venta.</span>
+            <Paragraph size="sm" className="letter-spacing-wide">
+              Vendé entradas online de forma simple, rápida y sin
+              intermediarios.
+              <br />
+              <span className="text-ey-turquoise">
+                Con EyTickets cobras vos, controlas vos.
+              </span>
             </Paragraph>
             <div className="flex gap-4 items-center py-6">
-              <Button className="border-2 border-ey-turquoise-dark">
+              <Button
+                className="border-2 border-ey-turquoise-dark uppercase"
+                href="/dashboard"
+              >
                 Creá tu evento
               </Button>
-              <Button href="#how-it-works">Cómo funciona</Button>
+              <Button
+                href="#how-it-works"
+                variant="primary"
+                className="bg-ey-turquoise-dark uppercase"
+              >
+                Cómo funciona
+              </Button>
             </div>
           </div>
         </div>

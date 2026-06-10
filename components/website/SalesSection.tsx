@@ -8,7 +8,7 @@ export default function SalesSection() {
       <div className="container mx-auto">
         <div className="flex items-center gap-12">
           <div>
-            <Title className="font-base-neue font-bold text-white mb-4">
+            <Title className="font-nebulica font-bold text-white mb-4">
               COBRA AL INSTANTE
             </Title>
             <Paragraph className="text-white">

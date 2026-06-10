@@ -7,7 +7,7 @@ import {
   textSizeTokens,
 } from "@/components/website/ui/lib/design-system/tokens";
 
-const paragraphVariants = cva("font-base-neue", {
+const paragraphVariants = cva("font-nebulica", {
   variants: {
     size:   textSizeTokens,  // xs | sm | md
   },

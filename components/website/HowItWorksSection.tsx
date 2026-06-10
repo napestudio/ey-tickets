@@ -5,11 +5,11 @@ import { Title } from "./ui/Title";
 const HOW_IT_WORKS_STEPS = [
   {
     title: "Creás tu cuenta",
-    text: "Creás tu cuenta en segundos.",
+    text: "Creás tu cuenta en segundos y de manera sencilla.",
   },
   {
     title: "Comprás los tickets",
-    text: "Comprás los tickets que necesites, los asignas a tus eventos y no tienen fecha de vencimiento.",
+    text: "Comprás los tickets que necesitas, los asignas a tus eventos y no tienen fecha de vencimiento.",
   },
   {
     title: "Creás tu evento",
@@ -25,7 +25,7 @@ export default function HowItWorksSection() {
     >
       <div className="container mx-auto">
         <div className="flex flex-col text-white ">
-          <Title className="font-base-neue font-bold">Cómo funciona?</Title>
+          <Title className="font-nebulica font-bold uppercase">Cómo <span className="text-ey-turquoise">funciona?</span></Title>
           <Paragraph>
             Pagás un costo fijo por ticket. Sin costos ocultos, sin comisiones
             por venta.

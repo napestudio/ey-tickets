@@ -10,7 +10,7 @@ import PreFooter from "@/components/pre-footer/pre-footer";
 import localFont from "next/font/local";
 
 
-const baseNeue = localFont({
+const nebulica = localFont({
   src: [
     {
       path: "../public/fonts/Nebulica-Thin.woff2",
@@ -58,7 +58,7 @@ const baseNeue = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-base-neue",
+  variable: "--font-nebulica",
 });
 
 export const metadata: Metadata = {
@@ -75,7 +75,7 @@ export default async function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${baseNeue.variable} bg-background text-foreground`}
+        className={`${nebulica.variable} bg-background text-foreground`}
       >
         <NavBar />
         <main className="flex flex-col">{children}</main>

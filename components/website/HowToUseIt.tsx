@@ -5,15 +5,15 @@ import { Title } from "./ui/Title";
 const HOW_TO_USE_IT_STEPS = [
   {
     title: "Registrate gratis",
-    text: "Registra tu productora o venue en instantes.",
+    text: "Crea tu cuenta en segundos y de manera sencilla.",
   },
   {
-    title: "Vende entradas dese el link de tu evento",
+    title: "Vende entradas con tu link",
     text: "Todos los eventos que publiques tienen un link para vender entradas online. Compartilo en tus redes, en tu sitio web o por mail y comenzá a vender.",
   },
   {
-    title: "Valida las entradas desde tu celular",
-    text: "El día del evento podes validar las entradas directamente desde tu celular a través de nuestra plataforma de validación. Podeés tener tantos validadores como necesites, sin costos adicionales.",
+    title: "Valida con tu celular",
+    text: "El día del evento podes validar las entradas directamente desde tu celular a través de nuestra plataforma de validación. Podés tener tantos validadores como necesites y sin costos adicionales.",
   },
 ];
 
@@ -22,7 +22,7 @@ export default function HowToUseItSection() {
     <section className="py-24 bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
         <div className="flex flex-col text-white ">
-          <Title className="font-base-neue font-bold">Cómo se usa?</Title>
+          <Title className="font-nebulica font-bold">Cómo se usa?</Title>
           <Paragraph>
             Usar EyTickets un super simple. Registrate gratis, vende entradas
             online y valida los tickets desde tu celular el día del evento.

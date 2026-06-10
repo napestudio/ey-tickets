@@ -38,7 +38,7 @@ export default function EventCard({ evento }: { evento: Evento }) {
             </p>{" "}
           </div>
 
-          <div className="text-2xl text-neutral-50 font-base-neue font-semibold">
+          <div className="text-2xl text-neutral-50 font-nebulica font-semibold">
             {evento.title}
           </div>
 
