@@ -57,9 +57,9 @@ export const colorTokens = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const buttonVariantTokens = {
-  primary:   "bg-black text-white hover:bg-white/10 hover:text-black",
-  secondary: "bg-transparent border border-white text-black hover:bg-white/10",
-  outline:   "bg-transparent border border-black text-black hover:bg-white/10",
+  primary:   "bg-black text-white",
+  secondary: "bg-transparent border border-white text-black",
+  outline:   "bg-transparent border border-black text-black",
   link:      "bg-transparent text-black underline-offset-4 hover:underline",
 } as const;
 
