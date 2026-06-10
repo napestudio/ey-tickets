@@ -28,8 +28,8 @@ export default function PricePackageCard({
   return (
     <Card
       className={cn(
-        "rounded-2xl py-6 bg-ey-turquoise text-center shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)]! backdrop-blur-md border-none",
-        featured && "bg-ey-orange ",
+        "rounded-4xl py-6 bg-ey-turquoise text-center shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)]! backdrop-blur-md border-none",
+        featured && "bg-ey-orange w-full",
         featured === 2 && "bg-white",
       )}
     >
