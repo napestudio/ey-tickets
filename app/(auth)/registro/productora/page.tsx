@@ -139,7 +139,7 @@ export default function ProducerRegistrationPage() {
     <div className="min-h-screen flex items-center justify-center py-30 bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
       <div className="w-full max-w-lg ">
         <div>
-          <Title className="font-nebulica font-bold text-white">
+          <Title className="font-bold text-white">
             Registrá tu Productora
           </Title>
           <p className="text-sm text-white">

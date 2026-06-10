@@ -21,7 +21,7 @@ export default function WebsiteHero() {
             <Paragraph className="letter-spacing-wide text-ey-gray font-semibold">
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
-            <h1 className="text-8xl text-white font-nebulica font-bold">
+            <h1 className="text-8xl text-white font-bold">
               VENDE ENTRADAS
               <span className="block text-transparent [text-stroke:2px_white] [-webkit-text-stroke:2px_#fff]">
                 SIN COMISIONES

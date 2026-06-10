@@ -25,7 +25,7 @@ export default function HowItWorksSection() {
     >
       <div className="container mx-auto">
         <div className="flex flex-col text-white ">
-          <Title className="font-nebulica font-bold uppercase">Cómo <span className="text-ey-turquoise">funciona?</span></Title>
+          <Title className="font-bold uppercase">Cómo <span className="text-ey-turquoise">funciona?</span></Title>
           <Paragraph>
             Pagás un costo fijo por ticket. Sin costos ocultos, sin comisiones
             por venta.

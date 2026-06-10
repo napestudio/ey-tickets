@@ -13,7 +13,7 @@ export default function HowItWorksCard({
 }: HowItWorksCardProps) {
   return (
     <div className="flex items-end text-center gap-4 p-6 text-white">
-      <div className="text-8xl leading-none font-bold font-nebulica text-transparent [text-stroke:2px_white] [-webkit-text-stroke:2px_#fff]">
+      <div className="text-8xl leading-none font-bold text-transparent [text-stroke:2px_white] [-webkit-text-stroke:2px_#fff]">
         <span>{number}</span>
         <span className="font-thin text-9xl">.</span>
       </div>

@@ -13,7 +13,7 @@ import type { ButtonVariant, ButtonSize } from "@/components/website/ui/lib/desi
 // ─── Variantes ────────────────────────────────────────────────────────────────
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-xl font-nebulica font-bold transition-colors cursor-pointer",
+  "inline-flex items-center justify-center rounded-xl font-bold transition-colors cursor-pointer",
   {
     variants: {
       variant: buttonVariantTokens,

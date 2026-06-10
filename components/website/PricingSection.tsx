@@ -7,7 +7,7 @@ export default function PricingSection() {
   return (
     <section className="py-24 bg-linear-to-b to-ey-dark from-ey-turquoise-darker ">
       <div className="container mx-auto">
-        <Title className="font-nebulica font-bold text-white mb-4 uppercase text-center">
+        <Title className="font-bold text-white mb-4 uppercase text-center">
           Planes a tu medida
         </Title>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-end pt-4">

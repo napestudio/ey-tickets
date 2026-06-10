@@ -22,7 +22,7 @@ export default function HowToUseItSection() {
     <section className="py-24 bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
         <div className="flex flex-col text-white ">
-          <Title className="font-nebulica font-bold">Cómo se usa?</Title>
+          <Title className="font-bold">Cómo se usa?</Title>
           <Paragraph>
             Usar EyTickets un super simple. Registrate gratis, vende entradas
             online y valida los tickets desde tu celular el día del evento.
