@@ -1,43 +1,42 @@
-import { Button } from "./ui/Button";
-import { Card } from "./ui/Card";
-import { Paragraph } from "./ui/Paragraph";
 import Image from "next/image";
+
+import { Button } from "./ui/Button";
+import { Title } from "./ui/Title";
+import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="h-svh pt-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
-      <div className="bg-neutral-200 absolute w-full h-full inset-0">
+    <div className="min-h-screen pt-28 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
+      <div className="bg-ey-dark absolute w-full h-full inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
-          width="1500"
-          height="1000"
-          className="w-full h-full object-cover object-bottom"
+          width="1400"
+          height="933"
+          className="w-full h-full object-cover object-bottom grayscale opacity-80"
           alt=""
         />
       </div>
-      <div className="container mx-auto text-white h-full relative">
+      <div className="container mx-auto text-white h-full relative lg:px-24">
         <div className="h-full flex items-center justify-start pb-12">
           <div>
-            <Paragraph className="letter-spacing-wide text-ey-gray font-semibold">
+            <Paragraph size="md" className="letter-spacing-wide text-ey-turquoise font-semibold mb-2">
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
-            <h1 className="text-8xl text-white font-bold">
+            <Title as="h1" className="text-8xl text-white font-bold">
               VENDE ENTRADAS
-              <span className="block text-transparent [text-stroke:2px_white] [-webkit-text-stroke:2px_#fff]">
+              <span className="block bg-ey-turquoise-dark text-ey-dark px-0 py-1 mt-2">
                 SIN COMISIONES
               </span>
-            </h1>
-            <Paragraph size="sm" className="letter-spacing-wide">
+            </Title>
+            <Paragraph size="md" className="letter-spacing-wide py-4">
               Vendé entradas online de forma simple, rápida y sin
               intermediarios.
               <br />
-              <span className="text-ey-turquoise">
                 Con EyTickets cobras vos, controlas vos.
-              </span>
             </Paragraph>
             <div className="flex gap-4 items-center py-6">
               <Button
-                className="border-2 border-ey-turquoise-dark uppercase"
+                className="border-2 text-ey-turquoise border-ey-turquoise uppercase rounded-2xl hover:bg-ey-turquoise hover:text-ey-dark transition-colors"
                 href="/dashboard"
               >
                 Creá tu evento
@@ -45,7 +44,7 @@ export default function WebsiteHero() {
               <Button
                 href="#how-it-works"
                 variant="primary"
-                className="bg-ey-turquoise-dark uppercase"
+                className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark hover:bg-ey-turquoise-dark transition-colors"
               >
                 Cómo funciona
               </Button>
