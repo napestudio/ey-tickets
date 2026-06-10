@@ -80,7 +80,7 @@ export default function NavBar() {
     <>
       <header className="fixed h-20 w-full bg-ey-dark text-white top-0 z-50">
         <div className="container flex items-center h-full">
-          <Button className="mr-6 w-40" href="/">
+          <Button className="mr-6 w-60" href="/">
             <Logo />
           </Button>
 
