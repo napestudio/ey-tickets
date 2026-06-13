@@ -28,7 +28,7 @@ export default function NavBar() {
     const links = linksRef.current?.children;
     if (!menu || !links) return;
 
-    gsap.set(menu, { yPercent: -100, opacity: 0 });
+    gsap.set(menu, { yPercent: -100, opacity: 0, visibility: "visible" });
     gsap.set(links, { opacity: 0, y: 20 });
 
     tlRef.current = gsap
@@ -121,7 +121,7 @@ export default function NavBar() {
       {/* Mobile menu panel */}
       <div
         ref={menuRef}
-        className="fixed top-20 left-0 w-full bg-ey-dark text-white z-40 md:hidden border-t border-white/10"
+        className="fixed top-20 left-0 w-full bg-ey-dark text-white z-40 md:hidden border-t border-white/10 invisible"
       >
         <div ref={linksRef} className="container flex flex-col py-8 gap-6">
           {NAV_LINKS.map(({ href, label }) => (

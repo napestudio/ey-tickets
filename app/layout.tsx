@@ -78,7 +78,7 @@ export default async function RootLayout({
         className={`${nebulica.variable} bg-background text-foreground font-nebulica`}
       >
         <NavBar />
-        <main className="flex flex-col overflow-auto">{children}</main>
+        <main className="flex flex-col ">{children}</main>
         <PreFooter />
         <Footer />
         <Toaster />
