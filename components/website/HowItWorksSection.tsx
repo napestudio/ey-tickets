@@ -1,4 +1,7 @@
+import Image from "next/image";
+
 import HowItWorksCard from "./HowItWorksCard";
+import { ShapeMask } from "./ShapeMask";
 import { Paragraph } from "./ui/Paragraph";
 import { Title } from "./ui/Title";
 
@@ -20,16 +23,16 @@ const HOW_IT_WORKS_STEPS = [
 const HOW_IT_WORKS_DESCRIPTION = {
   title: "Cómo funciona?",
   text: "Pagás un costo fijo por ticket. Sin costos ocultos, sin comisiones por venta.",
-}
+};
 
 export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="px-4 py-10 lg:p-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
+      className="min-h-screen px-4 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row gap-12 items-start overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-12 items-start ">
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white mb-5">
               <Title className="font-bold uppercase text-6xl">
@@ -43,16 +46,48 @@ export default function HowItWorksSection() {
             <div className="relative py-8 px-4 flex flex-col items-start">
               {HOW_IT_WORKS_STEPS.map((step, index) => (
                 <HowItWorksCard
-                key={index}
-                number={index + 1}
-                title={step.title}
-                text={step.text}
-                isLast={index === HOW_IT_WORKS_STEPS.length - 1}
+                  key={index}
+                  number={index + 1}
+                  title={step.title}
+                  text={step.text}
+                  isLast={index === HOW_IT_WORKS_STEPS.length - 1}
                 />
               ))}
             </div>
           </div>
-          <div className="w-full md:w-2/5 aspect-[9/10] bg-ey-dark rounded-4xl border-ey-turquoise border-3"></div>
+          <div className="relative w-full md:w-2/5">
+            <ShapeMask
+              orientation="vertical"
+              borderColor="#3ADDBE"
+              borderWidth={3}
+              className="h-full aspect-[10/11]"
+            >
+              <Image
+                src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                width="933"
+                height="1440"
+                className="w-full h-full object-cover object-bottom grayscale opacity-80"
+                alt=""
+              />
+            </ShapeMask>
+            <Image
+              src="/images/star.svg"
+              width={40}
+              height={40}
+              alt=""
+              className="absolute h-19 w-19 -top-5 -right-5"
+            />
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center px-10 pb-10">
+              <Paragraph className="text-white">HACÉ QUE PASE.</Paragraph>
+              <Image
+                src="/images/ey.svg"
+                width={30}
+                height={30}
+                alt=""
+                className="h-15 w-15"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>

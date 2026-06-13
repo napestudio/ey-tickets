@@ -5,7 +5,7 @@ import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="min-h-screen pt-28 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
+    <div className="min-h-screen pt-50 pb-10 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
       <div className="bg-ey-dark absolute w-full h-full inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -33,10 +33,7 @@ export default function WebsiteHero() {
                 SIN COMISIONES
               </span>
             </Title>
-            <Paragraph
-              size="md"
-              className="letter-spacing-wide py-4"
-            >
+            <Paragraph size="md" className="letter-spacing-wide py-4">
               Vendé entradas online de forma simple, rápida y sin
               intermediarios.
               <br className="hidden sm:block" />
@@ -60,6 +57,11 @@ export default function WebsiteHero() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="absolute top-30 right-25 flex gap-4">
+        <Image src="/images/tkt-red.svg" width={70} height={40} alt="" />
+        <Image src="/images/cross.svg" width={50} height={40} alt="" />
+        <Image src="/images/red-hot.svg" width={50} height={40} alt="" />
       </div>
     </div>
   );
