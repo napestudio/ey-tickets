@@ -28,21 +28,29 @@ export default function PricePackageCard({
   return (
     <Card
       className={cn(
-        "rounded-4xl py-6 bg-ey-turquoise text-center shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)]! backdrop-blur-md border-none",
-        featured && "bg-ey-orange w-full",
-        featured === 2 && "bg-white",
+        "bg-transparent border-none ",
       )}
     >
       <div className="h-full flex flex-col justify-between text-ey-dark">
-        <CardHeader>
+        <CardHeader
+          className={cn(
+            "rounded-4xl text-center overflow-hidden bg-ey-turquoise border-none",
+            featured && "bg-ey-orange w-full",
+            featured === 2 && "bg-white",
+          )}
+        >
           <CardTitle className="font-bold">{title}</CardTitle>
           <CardDescription className="text-xl text-ey-dark font-thin">
             {quantity} entradas
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className={cn(
+            "rounded-4xl text-center bg-ey-turquoise p-6",
+            featured && "bg-ey-orange w-full",
+            featured === 2 && "bg-white",
+          )}>
           <div className="space-y-2">
-            <div className="text-2xl font-bold border-b pb-2 border-ey-dark">
+            <div className="text-2xl font-bold border-b pb-4 border-ey-dark">
               ARS <span className="text-6xl ">{formatPrice(unitPrice)}</span>{" "}
               <br />
               por ticket
