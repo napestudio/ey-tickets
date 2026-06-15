@@ -5,8 +5,8 @@ import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="min-h-screen pt-50 pb-10 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
-      <div className="bg-ey-dark absolute w-full h-full inset-0">
+    <div className="min-h-screen pt-50 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
+      <div className="bg-ey-dark absolute inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
           width="1400"
@@ -19,21 +19,20 @@ export default function WebsiteHero() {
         <div className="h-full flex items-center justify-start pb-12">
           <div className="w-full max-w-4xl">
             <Paragraph
-              size="md"
               className="letter-spacing-wide text-ey-turquoise font-semibold mb-2"
             >
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
             <Title
               as="h1"
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white font-bold"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white font-bold leading-[1]"
             >
               VENDE ENTRADAS
               <span className="block bg-ey-turquoise-dark text-ey-dark px-0 py-1 mt-2">
                 SIN COMISIONES
               </span>
             </Title>
-            <Paragraph size="md" className="letter-spacing-wide py-4">
+            <Paragraph className="leading-[1.2] lg:text-xl letter-spacing-wide py-4">
               Vendé entradas online de forma simple, rápida y sin
               intermediarios.
               <br className="hidden sm:block" />
@@ -58,7 +57,7 @@ export default function WebsiteHero() {
           </div>
         </div>
       </div>
-      <div className="absolute top-30 right-25 flex gap-4">
+      <div className="absolute top-30 right-25 w-1/10 flex gap-4">
         <Image src="/images/tkt-red.svg" width={70} height={40} alt="" />
         <Image src="/images/cross.svg" width={50} height={40} alt="" />
         <Image src="/images/red-hot.svg" width={50} height={40} alt="" />

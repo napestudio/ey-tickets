@@ -7,16 +7,16 @@ import { ShapeMask } from "./ShapeMask";
 import LogoVertical from "../ui/LogoVertical";
 export default function SalesSection() {
   return (
-    <section className="relative min-h-screen lg:py-24 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark ">
+    <section className="relative py-24 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark ">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-cover bg-center opacity-50 z-0" />
       <div className="relative container mx-auto lg:px-24">
         {/*<ShapeMask borderColor="#060808">*/}
         <div className="flex items-stretch w-full z-20 ">
-          <div className="w-1/5 bg-ey-dark border-ey-turquoise border-3 flex items-center justify-center px-4 lg:px-0 py-12 rounded-4xl border-r-0">
+          <div className="w-1/5 bg-ey-dark border-ey-turquoise border-0 flex items-center justify-center px-4 lg:px-0 py-12 rounded-4xl border-r-0">
             <LogoVertical className="h-48 lg:h-80" />
           </div>
-          <div className="w-4/5 flex flex-col bg-ey-dark gap-10 items-start justify-center p-8 lg:p-16 border-ey-turquoise border-3 rounded-4xl border-l-0">
-            <Title className="font-bold text-white mb-4 text-4xl lg:text-7xl text-balance lg:mt-2 mb-0">
+          <div className="w-4/5 flex flex-col bg-ey-dark gap-4 lg:gap-10 items-start justify-center p-8 lg:p-16 border-ey-turquoise border-0 rounded-4xl border-l-0">
+            <Title className="font-bold text-white mb-4 text-[clamp(2.5rem,8vw,4.5rem)] leading-[1] text-balance lg:mt-2 mb-0">
               <span className="text-ey-turquoise">COBRÁ</span>
               <br />
               AL INSTANTE
@@ -32,12 +32,12 @@ export default function SalesSection() {
                     className="h-full w-auto object-contain"
                   />
                 </div>
-                <div className="h-10 w-max flex items-center font-bold gap-2 text-white text-xs lg:text-lg">
+                <div className="h-10 w-max flex items-center gap-2 text-white text-xs lg:text-lg">
                   <LandmarkIcon className="text-white" width={24} />{" "}
                   Transferencias
                 </div>
               </div>
-              <div className="text-pretty font-bold">
+              <div className="text-pretty">
                 <Paragraph  className="text-white text-xs md:text-lg mb-2">
                   No esperes a que finalice el evento para cobrar tus ventas.
                 </Paragraph>

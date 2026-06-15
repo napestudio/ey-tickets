@@ -29,21 +29,22 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="min-h-screen px-4 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
+      className="min-h-screen p-10 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row gap-12 items-start ">
+        <div className="flex flex-col md:flex-row gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white mb-5">
-              <Title className="font-bold uppercase text-6xl">
-                Cómo <span className="text-ey-turquoise">funciona?</span>
+              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1]">
+                Cómo
+                <br /> <span className="text-ey-turquoise">funciona?</span>
               </Title>
-              <Paragraph size="sm" className="mt-4 text-white ">
+              <Paragraph className="mt-4 text-white lg:text-xl">
                 Pagás un costo fijo por ticket. Sin costos ocultos, sin
                 comisiones por venta.
               </Paragraph>
             </div>
-            <div className="relative py-8 px-4 flex flex-col items-start">
+            <div className="relative py-8 lg:px-4 flex flex-col items-start">
               {HOW_IT_WORKS_STEPS.map((step, index) => (
                 <HowItWorksCard
                   key={index}
@@ -77,14 +78,16 @@ export default function HowItWorksSection() {
               alt=""
               className="absolute h-19 w-19 -top-5 -right-5"
             />
-            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center px-10 pb-10">
-              <Paragraph className="text-white">HACÉ QUE PASE.</Paragraph>
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center p-4 lg:p-10">
+              <Paragraph className="text-white text-sm">
+                HACÉ QUE PASE
+              </Paragraph>
               <Image
                 src="/images/ey.svg"
                 width={30}
                 height={30}
                 alt=""
-                className="h-15 w-15"
+                className="h-12 w-12 lg:h-15 lg:w-15"
               />
             </div>
           </div>

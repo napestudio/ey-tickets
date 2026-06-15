@@ -6,11 +6,11 @@ import { ShapeMask } from "./ShapeMask";
 
 export default function PricingSection() {
   return (
-    <section className="relative min-h-screen py-12 px-4 px-24 bg-linear-to-b from-ey-turquoise-darker to-ey-dark">
+    <section className="relative min-h-screen py-12 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-top bg-cover opacity-50 z-0" />
       <div className="relative container mx-auto">
-        <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] text-white text-center pb-10 sm:pb-20">
-          <span className="text-ey-turquoise">Planes</span> a tu medida
+        <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1] text-white text-center pb-10 sm:pb-20">
+          <span className="text-ey-turquoise">Planes<br/></span> a tu medida
         </Title>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10 items-end pt-4">
           {/* Card 0 - izquierda */}
