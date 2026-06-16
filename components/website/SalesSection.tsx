@@ -15,14 +15,14 @@ export default function SalesSection() {
           <div className="w-1/5 bg-ey-dark border-ey-turquoise border-0 flex items-center justify-center px-4 lg:px-0 py-12 rounded-4xl border-r-0">
             <LogoVertical className="h-48 lg:h-80" />
           </div>
-          <div className="w-4/5 flex flex-col bg-ey-dark gap-4 lg:gap-10 items-start justify-center p-8 lg:p-16 border-ey-turquoise border-0 rounded-4xl border-l-0">
-            <Title className="font-bold text-white mb-4 text-[clamp(2rem,8vw,4rem)] leading-[1] text-balance lg:mt-2 mb-0">
+          <div className="w-4/5 flex flex-col bg-ey-dark gap-4 lg:gap-6 items-start justify-center p-8 lg:p-20 border-ey-turquoise border-0 rounded-4xl border-l-0">
+            <Title className="font-bold text-white mb-4 text-[clamp(2rem,8vw,4rem)] leading-[1] text-balance mb-0">
               <span className="text-ey-turquoise">COBRÁ</span>
               <br />
               AL INSTANTE
             </Title>
-            <div className="flex flex-col lg:flex-row  lg:gap-20 lg:items-end">
-              <div className="lg:flex-col items-start lg:w-max lg:mt-4">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-10 lg:items-center">
+              <div className="order-2 md:order-1 flex lg:flex-col items-start ">
                 <div className="h-10 lg:h-15 w-max">
                   <Image
                     src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780431352/MP_RGB_HANDSHAKE_pluma_horizontal_zlex65.svg"
@@ -37,11 +37,11 @@ export default function SalesSection() {
                   Transferencias
                 </div>
               </div>
-              <div className="text-pretty">
-                <Paragraph  className="text-white text-xs md:text-lg mb-2">
+              <div className="order-1 md:order-2 ">
+                <Paragraph  className="text-white text-xs md:text-lg mb-2 leading-[1.1] text-pretty">
                   No esperes a que finalice el evento para cobrar tus ventas.
                 </Paragraph>
-                <Paragraph className="text-white text-xs md:text-lg">
+                <Paragraph className="text-white text-xs md:text-lg leading-[1.1] text-pretty">
                   El dinero de tus ventas se acredita al instante en tu cuenta.
                   Sin esperas, sin bloqueos, sin comisiones por venta.
                 </Paragraph>
