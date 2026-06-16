@@ -22,15 +22,15 @@ const HOW_TO_USE_IT_STEPS = [
 
 export default function HowToUseItSection() {
   return (
-    <section className="min-h-screen py-20 px-10 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
+    <section className="min-h-screen pt-34 px-4 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center">
-          <div className="relative w-full md:w-2/5">
+          <div className="order-2 md:order-1 relative w-full md:w-2/5">
             <ShapeMask
               orientation="vertical"
               borderColor="#3ADDBE"
               borderWidth={3}
-              className="h-full aspect-[10/11]"
+              className="h-full aspect-[3/4]"
             >
               <Image
                 src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -47,23 +47,29 @@ export default function HowToUseItSection() {
               alt=""
               className="absolute h-19 w-19 -top-5 -right-5"
             />
-            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center p-4 lg:p-10">
-              <Paragraph className="text-white text-sm">HACÉ QUE PASE</Paragraph>
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-end px-4 pb-6 lg:px-6">
+              <Paragraph className="text-white text-xs">
+                HACÉ QUE PASE
+              </Paragraph>
               <Image
                 src="/images/ey.svg"
                 width={30}
                 height={30}
                 alt=""
-                className="h-12 w-12 lg:h-15 lg:w-15"
+                className="h-auto w-12 lg:w-15"
               />
             </div>
           </div>
-          <div className="w-full md:w-3/5 flex flex-col">
+          <div className="order-1 md:order-2 w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
-              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1]">
-                Cómo<br/> <span className="text-ey-turquoise">se usa?</span>
+              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
+                Cómo
+                <br /> <span className="text-ey-turquoise">se usa?</span>
               </Title>
-              <Paragraph size="sm" className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2]">
+              <Paragraph
+                size="sm"
+                className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2] text-pretty"
+              >
                 Usar EyTickets un super simple. Registrate gratis, vende
                 entradas online y valida los tickets desde tu celular el día del
                 evento.

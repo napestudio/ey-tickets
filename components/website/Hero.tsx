@@ -5,7 +5,7 @@ import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="min-h-screen pt-50 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
+    <div className="min-h-screen pt-22 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
       <div className="bg-ey-dark absolute inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -16,30 +16,30 @@ export default function WebsiteHero() {
         />
       </div>
       <div className="container mx-auto text-white h-full relative lg:px-24">
-        <div className="h-full flex items-center justify-start pb-12">
-          <div className="w-full max-w-4xl">
+        <div className="h-full flex items-center justify-start">
+          <div className="w-full max-w-2xl flex flex-col gap-4 md:gap-8">
             <Paragraph
-              className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold mb-2"
+              className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold"
             >
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
             <Title
               as="h1"
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white font-bold leading-[1]"
+              className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]"
             >
               VENDE ENTRADAS
-              <span className="block bg-ey-turquoise-dark text-ey-dark px-0 py-1 mt-2">
+              <span className="block bg-ey-turquoise-dark text-ey-dark p-0 w-fit">
                 SIN COMISIONES
               </span>
             </Title>
-            <Paragraph className="leading-[1.2] font-semibold lg:text-2xl letter-spacing-wide py-4">
+            <Paragraph className="leading-[1.2] font-semibold lg:text-2xl letter-spacing-wide">
               Vendé entradas online de forma simple, rápida y sin
               intermediarios.
               <br className="hidden sm:block" />
               <span className="sm:hidden"> </span>
               Con EyTickets cobras vos, controlas vos.
             </Paragraph>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center py-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center">
               <Button
                 className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
                 href="/dashboard"
