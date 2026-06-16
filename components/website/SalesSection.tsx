@@ -16,13 +16,13 @@ export default function SalesSection() {
             <LogoVertical className="h-48 lg:h-80" />
           </div>
           <div className="w-4/5 flex flex-col bg-ey-dark gap-4 lg:gap-10 items-start justify-center p-8 lg:p-16 border-ey-turquoise border-0 rounded-4xl border-l-0">
-            <Title className="font-bold text-white mb-4 text-[clamp(2.5rem,8vw,4.5rem)] leading-[1] text-balance lg:mt-2 mb-0">
+            <Title className="font-bold text-white mb-4 text-[clamp(2rem,8vw,4rem)] leading-[1] text-balance lg:mt-2 mb-0">
               <span className="text-ey-turquoise">COBRÁ</span>
               <br />
               AL INSTANTE
             </Title>
             <div className="flex flex-col lg:flex-row  lg:gap-20 lg:items-end">
-              <div className="flex lg:flex-col items-start lg:w-max lg:mt-4">
+              <div className="lg:flex-col items-start lg:w-max lg:mt-4">
                 <div className="h-10 lg:h-15 w-max">
                   <Image
                     src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780431352/MP_RGB_HANDSHAKE_pluma_horizontal_zlex65.svg"

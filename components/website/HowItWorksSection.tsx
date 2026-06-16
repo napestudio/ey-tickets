@@ -34,12 +34,12 @@ export default function HowItWorksSection() {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
-            <div className="flex flex-col text-white mb-5">
-              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1]">
-                Cómo
+            <div className="flex flex-col text-white">
+              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
+                ¿Cómo
                 <br /> <span className="text-ey-turquoise">funciona?</span>
               </Title>
-              <Paragraph className="mt-4 text-white lg:text-xl">
+              <Paragraph className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2]">
                 Pagás un costo fijo por ticket. Sin costos ocultos, sin
                 comisiones por venta.
               </Paragraph>
@@ -61,7 +61,7 @@ export default function HowItWorksSection() {
               orientation="vertical"
               borderColor="#3ADDBE"
               borderWidth={3}
-              className="h-full aspect-[10/11]"
+              className="h-full aspect-[3/4]"
             >
               <Image
                 src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -78,8 +78,8 @@ export default function HowItWorksSection() {
               alt=""
               className="absolute h-19 w-19 -top-5 -right-5"
             />
-            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center p-4 lg:p-10">
-              <Paragraph className="text-white text-sm">
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-end px-4 pb-6 lg:px-6">
+              <Paragraph className="text-white text-xs">
                 HACÉ QUE PASE
               </Paragraph>
               <Image
@@ -87,7 +87,7 @@ export default function HowItWorksSection() {
                 width={30}
                 height={30}
                 alt=""
-                className="h-12 w-12 lg:h-15 lg:w-15"
+                className="h-auto w-12 lg:w-15"
               />
             </div>
           </div>

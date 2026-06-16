@@ -40,7 +40,7 @@ export default function PricePackageCard({
           )}
         >
           <CardTitle className="font-bold">{title}</CardTitle>
-          <CardDescription className="text-xl text-ey-dark font-thin">
+          <CardDescription className="text-xl text-ey-dark">
             {quantity} entradas
           </CardDescription>
         </CardHeader>
@@ -55,7 +55,7 @@ export default function PricePackageCard({
               <br />
               por ticket
             </div>
-            <div className="text-lg font-thin">
+            <div className="text-lg ">
               Total: ARS {formatPrice(totalPrice)}
             </div>
           </div>
