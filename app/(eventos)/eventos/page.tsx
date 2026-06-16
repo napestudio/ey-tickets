@@ -26,7 +26,7 @@ export default async function EventosPage() {
     <>
       <section className="min-h-svh py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%">
         <div className="container mx-auto">
-          <Title className="font-base-neue text-8xl font-bold text-white mb-6">
+          <Title className="text-8xl font-bold text-white mb-6">
             Próximos Eventos
           </Title>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">

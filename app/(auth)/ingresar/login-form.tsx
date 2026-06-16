@@ -90,7 +90,7 @@ export default function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => onSubmit(values))}
-        className="space-y-8 w-full font-base-neue"
+        className="space-y-8 w-full"
       >
         <FormField
           control={form.control}

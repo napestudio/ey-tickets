@@ -14,7 +14,7 @@ interface PricingCardPackage {
   unitPrice: number;
   totalPrice: number;
   discountPrice?: number | null;
-  featured?: boolean;
+  featured?: number | boolean;
 }
 
 export default function PricePackageCard({
@@ -28,29 +28,35 @@ export default function PricePackageCard({
   return (
     <Card
       className={cn(
-        "shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)] bg-[linear-gradient(175deg,#11111105,#99999924)]! backdrop-blur-md border-none",
-        featured &&
-          "bg-[linear-gradient(175deg,#11111150,#3addbe50)]! h-[110%]",
+        "bg-transparent border-none ",
       )}
     >
-      <div className="h-full flex flex-col justify-between">
-        <CardHeader>
-          <CardTitle className="text-white font-bold">{title}</CardTitle>
-          <CardDescription className="text-white text-xl">
+      <div className="h-full flex flex-col justify-between text-ey-dark">
+        <CardHeader
+          className={cn(
+            "rounded-4xl text-center overflow-hidden bg-ey-turquoise border-none",
+            featured && "bg-ey-orange w-full",
+            featured === 2 && "bg-white",
+          )}
+        >
+          <CardTitle className="font-bold">{title}</CardTitle>
+          <CardDescription className="text-xl text-ey-dark font-thin">
             {quantity} entradas
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-white">
-            <div className="text-xl">
-              ARS{" "}
-              <span className="text-4xl font-bold">
-                {formatPrice(unitPrice)}
-              </span>{" "}
+        <CardContent className={cn(
+            "rounded-4xl text-center bg-ey-turquoise p-6",
+            featured && "bg-ey-orange w-full",
+            featured === 2 && "bg-white",
+          )}>
+          <div className="space-y-2">
+            <div className="text-2xl font-bold border-b pb-4 border-ey-dark">
+              ARS <span className="text-6xl ">{formatPrice(unitPrice)}</span>{" "}
+              <br />
               por ticket
             </div>
-            <div className="text-lg font-semibold">
-              Total: {formatPrice(totalPrice)}
+            <div className="text-lg font-thin">
+              Total: ARS {formatPrice(totalPrice)}
             </div>
           </div>
         </CardContent>

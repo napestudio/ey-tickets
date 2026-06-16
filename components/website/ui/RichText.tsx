@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { textSizeTokens, colorTokens, weightTokens } from "@/components/website/ui/lib/design-system/tokens";
 import { InlineTag } from "./lib/design-system/types"; 
 
-const textVariants = cva("font-base-neue", {
+const textVariants = cva("font-nebulica", {
   variants: {
     size:   textSizeTokens,   // solo xs | sm | md
     color:  colorTokens,
