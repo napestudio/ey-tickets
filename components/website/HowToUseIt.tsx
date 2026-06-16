@@ -36,7 +36,7 @@ export default function HowToUseItSection() {
                 src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
                 width="1400"
                 height="933"
-                className="w-full h-full object-cover object-bottom grayscale opacity-80"
+                className="w-full h-full object-cover bg-bottom grayscale opacity-80"
                 alt=""
               />
             </ShapeMask>
@@ -59,11 +59,11 @@ export default function HowToUseItSection() {
             </div>
           </div>
           <div className="w-full md:w-3/5 flex flex-col">
-            <div className="flex flex-col text-white mb-5">
+            <div className="flex flex-col text-white">
               <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1]">
                 Cómo<br/> <span className="text-ey-turquoise">se usa?</span>
               </Title>
-              <Paragraph size="sm" className="mt-4 text-white ">
+              <Paragraph size="sm" className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2]">
                 Usar EyTickets un super simple. Registrate gratis, vende
                 entradas online y valida los tickets desde tu celular el día del
                 evento.

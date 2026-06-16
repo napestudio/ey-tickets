@@ -34,12 +34,12 @@ export default function HowItWorksSection() {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
-            <div className="flex flex-col text-white mb-5">
+            <div className="flex flex-col text-white">
               <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4.5rem)] leading-[1]">
                 Cómo
                 <br /> <span className="text-ey-turquoise">funciona?</span>
               </Title>
-              <Paragraph className="mt-4 text-white lg:text-xl">
+              <Paragraph className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2]">
                 Pagás un costo fijo por ticket. Sin costos ocultos, sin
                 comisiones por venta.
               </Paragraph>

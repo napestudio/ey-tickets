@@ -19,7 +19,7 @@ export default function WebsiteHero() {
         <div className="h-full flex items-center justify-start pb-12">
           <div className="w-full max-w-4xl">
             <Paragraph
-              className="letter-spacing-wide text-ey-turquoise font-semibold mb-2"
+              className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold mb-2"
             >
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
@@ -32,24 +32,25 @@ export default function WebsiteHero() {
                 SIN COMISIONES
               </span>
             </Title>
-            <Paragraph className="leading-[1.2] lg:text-xl letter-spacing-wide py-4">
+            <Paragraph className="leading-[1.2] font-semibold lg:text-2xl letter-spacing-wide py-4">
               Vendé entradas online de forma simple, rápida y sin
               intermediarios.
               <br className="hidden sm:block" />
               <span className="sm:hidden"> </span>
               Con EyTickets cobras vos, controlas vos.
             </Paragraph>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center py-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center py-6">
               <Button
-                className="border-2 text-ey-turquoise font-medium border-ey-turquoise uppercase rounded-2xl hover:bg-ey-turquoise hover:text-ey-dark transition-colors text-center"
+                className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
                 href="/dashboard"
+                variant="primary"
               >
                 Creá tu evento
               </Button>
               <Button
                 href="#how-it-works"
-                variant="primary"
-                className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
+                variant="outline"
+                className="border-2 text-ey-turquoise font-medium border-ey-turquoise uppercase rounded-2xl hover:bg-ey-turquoise hover:text-ey-dark transition-colors text-center"
               >
                 Cómo funciona
               </Button>

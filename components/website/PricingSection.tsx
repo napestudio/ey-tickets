@@ -32,7 +32,7 @@ export default function PricingSection() {
             </div>
             <Paragraph
               size="md"
-              className="text-white font-thin text-center text-balance mt-4"
+              className="text-white text-center text-balance mt-4"
             >
               También podés comprar otras cantidades y el precio se ajusta
               automáticamente.
