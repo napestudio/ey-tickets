@@ -36,7 +36,7 @@ export default function HowItWorksSection() {
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
               <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
-                Cómo
+                ¿Cómo
                 <br /> <span className="text-ey-turquoise">funciona?</span>
               </Title>
               <Paragraph className="mt-4 text-white font-semibold lg:text-2xl leading-[1.2]">

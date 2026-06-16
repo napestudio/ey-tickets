@@ -62,8 +62,8 @@ export default function HowToUseItSection() {
           </div>
           <div className="order-1 md:order-2 w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
-              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
-                Cómo
+              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1.1]">
+                ¿Cómo
                 <br /> <span className="text-ey-turquoise">se usa?</span>
               </Title>
               <Paragraph
