@@ -22,7 +22,7 @@ const HOW_TO_USE_IT_STEPS = [
 
 export default function HowToUseItSection() {
   return (
-    <section className="min-h-screen pt-34 px-4 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
+    <section className="pt-24 md:pt-32 px-4 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center">
           <div className="order-2 md:order-1 relative w-full md:w-2/5">
@@ -63,8 +63,7 @@ export default function HowToUseItSection() {
           <div className="order-1 md:order-2 w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
               <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1.1]">
-                ¿Cómo
-                <br /> <span className="text-ey-turquoise">se usa?</span>
+                ¿Cómo <span className="text-ey-turquoise">se usa?</span>
               </Title>
               <Paragraph
                 size="sm"

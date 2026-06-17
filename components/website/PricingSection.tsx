@@ -6,7 +6,7 @@ import { ShapeMask } from "./ShapeMask";
 
 export default function PricingSection() {
   return (
-    <section className="relative min-h-screen py-12 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark">
+    <section className="relative pt-20 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-top bg-cover opacity-50 z-0" />
       <div className="relative container mx-auto">
         <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1] text-white text-center pb-10">

@@ -7,7 +7,7 @@ import { ShapeMask } from "./ShapeMask";
 import LogoVertical from "../ui/LogoVertical";
 export default function SalesSection() {
   return (
-    <section className="relative py-24 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark ">
+    <section className="relative pt-24 pb-24 md:pb-32 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark ">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-cover bg-center opacity-50 z-0" />
       <div className="relative container mx-auto lg:px-24">
         {/*<ShapeMask borderColor="#060808">*/}
@@ -38,7 +38,7 @@ export default function SalesSection() {
                 </div>
               </div>
               <div className="order-1 md:order-2 ">
-                <Paragraph  className="text-white text-xs md:text-lg mb-2 leading-[1.1] text-pretty">
+                <Paragraph className="text-white text-xs md:text-lg mb-2 leading-[1.1] text-pretty">
                   No esperes a que finalice el evento para cobrar tus ventas.
                 </Paragraph>
                 <Paragraph className="text-white text-xs md:text-lg leading-[1.1] text-pretty">
@@ -50,8 +50,16 @@ export default function SalesSection() {
           </div>
         </div>
         {/*</ShapeMask>*/}
+
+        <div className="absolute top-12 right-36">
+          <Image
+            src="/images/red-hot-red.svg"
+            width={70}
+            height={70}
+            alt="VENDE ENTRADAS SIN COMISIONES"
+          />
+        </div>
       </div>
-      
     </section>
   );
 }
