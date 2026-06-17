@@ -29,7 +29,7 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="min-h-screen p-10 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
+      className="py-20 px-10 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center ">

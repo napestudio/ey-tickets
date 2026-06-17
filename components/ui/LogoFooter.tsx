@@ -8,7 +8,7 @@ export default function Logo() {
         x="0px"
         y="0px"
         viewBox="0 0 1154.5 145.1"
-        className="w-full h-auto"
+        className="w-[110%] h-auto -ml-6 -mb-4"
       >
         <g>
           <path

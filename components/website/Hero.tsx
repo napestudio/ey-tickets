@@ -5,7 +5,7 @@ import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="min-h-screen pt-22 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative">
+    <div className="min-h-screen pt-22 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative flex items-center">
       <div className="bg-ey-dark absolute inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -15,12 +15,10 @@ export default function WebsiteHero() {
           alt=""
         />
       </div>
-      <div className="container mx-auto text-white h-full relative lg:px-24">
+      <div className="container relative mx-auto text-white h-full lg:px-24">
         <div className="h-full flex items-center justify-start">
-          <div className="w-full max-w-2xl flex flex-col gap-4 md:gap-8">
-            <Paragraph
-              className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold"
-            >
+          <div className="w-full max-w-2xl flex flex-col gap-8">
+            <Paragraph className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold">
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
             <Title
@@ -57,11 +55,26 @@ export default function WebsiteHero() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="absolute top-30 right-25 w-1/10 flex gap-4">
-        <Image src="/images/tkt-red.svg" width={70} height={40} alt="" />
-        <Image src="/images/cross.svg" width={50} height={40} alt="" />
-        <Image src="/images/red-hot.svg" width={50} height={40} alt="" />
+        <div className="absolute top-0 right-32 w-1/8 flex gap-4">
+          <Image
+            src="/images/cross.svg"
+            width={50}
+            height={40}
+            alt="VENDE ENTRADAS SIN COMISIONES"
+          />
+          <Image
+            src="/images/tkt-red.svg"
+            width={100}
+            height={45}
+            alt="VENDE ENTRADAS SIN COMISIONES"
+          />
+          <Image
+            src="/images/red-hot.svg"
+            width={50}
+            height={40}
+            alt="VENDE ENTRADAS SIN COMISIONES"
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Faqs from "@/components/website/Faqs";
 import Hero from "@/components/website/Hero";
 import HowItWorksSection from "@/components/website/HowItWorksSection";
 import HowToUseItSection from "@/components/website/HowToUseIt";
