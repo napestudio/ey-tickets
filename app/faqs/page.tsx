@@ -1,3 +1,4 @@
+import { Paragraph } from "@/components/website/ui/Paragraph";
 import { Title } from "@/components/website/ui/Title";
 import { Metadata } from "next/types";
 
@@ -12,14 +13,14 @@ export default function FAQS() {
       <section className="py-22 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
         <div className="container text-white py-10 flex flex-col gap-10">
           <Title as="h1" className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
-            Preguntas Frecuentes
+            Preguntas <span className="text-ey-turquoise">Frecuentes</span>
           </Title>
 
           <div className="mb-6">
-            <h2 className="text-2xl text-white font-semibold mb-4">
+            <Title className="text-2xl text-white font-semibold mb-4">
               PARA COMPRADORES
-            </h2>
-            <p className="text-xl text-white mb-6">
+            </Title>
+            <Paragraph className="text-xl text-white mb-6">
               <strong>1. ¿Cómo compro un ticket?</strong>
               <br />
               Selecciona el evento en la plataforma, haz clic en {"Comprar"} y
@@ -53,14 +54,14 @@ export default function FAQS() {
               <br />
               Al llegar al evento, presenta: El QR recibido por email (válido
               solo con el DNI registrado).
-            </p>
+            </Paragraph>
           </div>
 
           <div className="mb-6">
-            <h2 className="text-2xl text-white font-semibold mb-4">
+            <Title className="text-2xl text-white font-semibold mb-4">
               PARA ORGANIZADORES
-            </h2>
-            <p className="text-xl text-white mb-6">
+            </Title>
+            <Paragraph className="text-xl text-white  mb-6">
               <strong>1. ¿Cómo vendo tickets en EyTickets?</strong>
               <br />
               Regístrate como Organizador, configura tu evento (fecha, precio,
@@ -91,14 +92,14 @@ export default function FAQS() {
               <br />
               Solo los necesarios para el evento: nombre, DNI y email. Estos
               datos son privados y no pueden ser compartidos con terceros.
-            </p>
+            </Paragraph>
           </div>
 
           <div className="mb-6">
-            <h2 className="text-2xl text-white font-semibold mb-4">
+            <Title className="text-2xl text-white font-semibold mb-4">
               SEGURIDAD Y SOPORTE
-            </h2>
-            <p className="text-xl text-white mb-6">
+            </Title>
+            <Paragraph className="text-xl text-white mb-6">
               <strong>1. ¿Es seguro pagar con Mercado Pago?</strong>
               <br />
               Sí, Mercado Pago cumple con los estándares de seguridad
@@ -115,7 +116,7 @@ export default function FAQS() {
               <br />
               Envía un email a soporte@eytickets.ar con detalles del error
               (capturas de pantalla, navegador usado, etc.).
-            </p>
+            </Paragraph>
           </div>
         </div>
       </section>
