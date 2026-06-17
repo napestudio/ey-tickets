@@ -21,8 +21,17 @@ export default function SalesSection() {
               <br />
               AL INSTANTE
             </Title>
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-10 lg:items-center">
-              <div className="order-2 md:order-1 flex lg:flex-col items-start ">
+            <div className="flex flex-col gap-4">
+              <div className="">
+                <Paragraph className="text-white text-xs md:text-lg mb-2 leading-[1.1] text-pretty">
+                  No esperes a que finalice el evento para cobrar tus ventas.
+                </Paragraph>
+                <Paragraph className="text-white text-xs md:text-lg leading-[1.1] text-pretty">
+                  El dinero de tus ventas se acredita al instante en tu cuenta.
+                  Sin esperas, sin bloqueos, sin comisiones por venta.
+                </Paragraph>
+              </div>
+              <div className="flex items-center md:gap-10">
                 <div className="h-10 lg:h-15 w-max">
                   <Image
                     src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780431352/MP_RGB_HANDSHAKE_pluma_horizontal_zlex65.svg"
@@ -37,26 +46,18 @@ export default function SalesSection() {
                   Transferencias
                 </div>
               </div>
-              <div className="order-1 md:order-2 ">
-                <Paragraph className="text-white text-xs md:text-lg mb-2 leading-[1.1] text-pretty">
-                  No esperes a que finalice el evento para cobrar tus ventas.
-                </Paragraph>
-                <Paragraph className="text-white text-xs md:text-lg leading-[1.1] text-pretty">
-                  El dinero de tus ventas se acredita al instante en tu cuenta.
-                  Sin esperas, sin bloqueos, sin comisiones por venta.
-                </Paragraph>
-              </div>
             </div>
           </div>
         </div>
         {/*</ShapeMask>*/}
 
-        <div className="absolute top-12 right-36">
+        <div className="absolute top-4 md:top-10 right-12 md:right-15 lg:right-36">
           <Image
             src="/images/red-hot-red.svg"
             width={70}
             height={70}
             alt="VENDE ENTRADAS SIN COMISIONES"
+            className="h-auto w-10 md:w-16 lg:w-20"
           />
         </div>
       </div>
