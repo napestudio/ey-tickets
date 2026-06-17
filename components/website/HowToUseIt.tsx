@@ -47,16 +47,20 @@ export default function HowToUseItSection() {
               alt=""
               className="absolute h-19 w-19 -top-5 -right-5"
             />
-            <div className="absolute h-15 w-full bottom-0 flex justify-between items-end px-4 pb-6 lg:px-6">
-              <Paragraph className="text-white text-xs">
-                HACÉ QUE PASE
-              </Paragraph>
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center px-4 pb-6 lg:px-6 overflow-hidden">
+              <Image
+                src="/images/arrow-down-left.svg"
+                width={24}
+                height={24}
+                alt="Mercado Pago Logo svg"
+                className="h-12 w-12 lg:w-15"
+              />
               <Image
                 src="/images/ey.svg"
-                width={30}
-                height={30}
+                width={24}
+                height={24}
                 alt=""
-                className="h-auto w-12 lg:w-15"
+                className="h-6 w-auto lg:w-15 pr-2"
               />
             </div>
           </div>
