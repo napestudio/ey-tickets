@@ -7,7 +7,7 @@ export const PACKAGE_CATALOG: PackageCatalogItem[] = [
     unitPrice: 350.0,
     totalPrice: 17500.0,
   },
-  { title: "Más elegido", quantity: 300, unitPrice: 280, totalPrice: 8400.0 },
+  { title: "Más elegido", quantity: 300, unitPrice: 280, totalPrice: 84000.0 },
   {
     title: "Más conveniente",
     quantity: 1200,

@@ -1,29 +1,61 @@
 import { Title } from "./ui/Title";
-import ProductCard from "./ProductCard";
 import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
 import PricePackageCard from "./PackageCard";
 import { Paragraph } from "./ui/Paragraph";
+import { ShapeMask } from "./ShapeMask";
+
 export default function PricingSection() {
   return (
-    <section className="py-24 bg-linear-to-b to-ey-dark from-ey-turquoise-darker ">
-      <div className="container mx-auto">
-        <Title className="font-base-neue font-bold text-white mb-4">
-          PRECIOS
+    <section className="relative min-h-screen py-12 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark">
+      <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-top bg-cover opacity-50 z-0" />
+      <div className="relative container mx-auto">
+        <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1] text-white text-center pb-10">
+          <span className="text-ey-turquoise">Planes<br/></span> a tu medida
         </Title>
-        <Paragraph className="text-white mb-12">
-          Pagás un costo fijo por ticket. Sin costos ocultos, sin comisiones por
-          venta, sin fecha de vencimiento.
-        </Paragraph>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10 items-end pt-4">
+          {/* Card 0 - izquierda */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-end pt-4">
-          {PACKAGE_CATALOG.map((p, index) => (
-            <PricePackageCard key={p.title} {...p} featured={index == 1} />
-          ))}
+          <PricePackageCard
+            key={PACKAGE_CATALOG[0].title}
+            {...PACKAGE_CATALOG[0]}
+            featured={0}
+          />
+
+          {/* Card 1 - centro: levantada con texto abajo */}
+          <div className="flex flex-col items-center gap-2 lg:gap-0 sm:col-start-2">
+            <div className="w-full">
+              <PricePackageCard
+                key={PACKAGE_CATALOG[1].title}
+                {...PACKAGE_CATALOG[1]}
+                featured={1}
+              />
+            </div>
+            <Paragraph
+              size="md"
+              className="text-white text-center text-balance mt-4 hidden lg:block"
+            >
+              También podés comprar otras cantidades y el precio se ajusta
+              automáticamente.
+            </Paragraph>
+          </div>
+
+          {/* Card 2 - derecha */}
+
+          <PricePackageCard
+            key={PACKAGE_CATALOG[2].title}
+            {...PACKAGE_CATALOG[2]}
+            featured={2}
+          />
+          <Paragraph
+              size="md"
+              className="text-white text-center text-balance mt-4 block lg:hidden"
+            >
+              También podés comprar otras cantidades y el precio se ajusta
+              automáticamente.
+            </Paragraph>
         </div>
-        <Paragraph className="text-white mt-12">
-          Podés comprar otras contidades y el precio se ajusta automaticamente.
-        </Paragraph>
       </div>
+      
     </section>
   );
 }
