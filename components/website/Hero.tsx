@@ -5,7 +5,7 @@ import { Paragraph } from "./ui/Paragraph";
 
 export default function WebsiteHero() {
   return (
-    <div className="min-h-screen pt-22 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative flex items-center">
+    <div className="min-h-screen pt-24 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative flex items-center">
       <div className="bg-ey-dark absolute inset-0">
         <Image
           src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
@@ -17,7 +17,7 @@ export default function WebsiteHero() {
       </div>
       <div className="container relative mx-auto text-white h-full lg:px-24">
         <div className="h-full flex items-center justify-start">
-          <div className="w-full max-w-2xl flex flex-col gap-8">
+          <div className="w-full max-w-2xl flex flex-col gap-6">
             <Paragraph className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold">
               CREA TU EVENTO EN MINUTOS
             </Paragraph>
@@ -55,7 +55,7 @@ export default function WebsiteHero() {
             </div>
           </div>
         </div>
-        <div className="absolute top-0 right-32 w-1/8 flex gap-4">
+        <div className="absolute top-10 md:top-0 right-30 w-1/12 md:w-1/8 flex gap-4">
           <Image
             src="/images/cross.svg"
             width={50}
