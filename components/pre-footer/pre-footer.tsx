@@ -16,11 +16,11 @@ export default function PreFooter() {
   return (
     <div className="pt-24 text-white bg-linear-to-b to-black from-ey-turquoise-darker to-80% overflow-hidden">
       <div className="container flex flex-col gap-12 w-full md:justify-between items-center justify-center">
-        <nav className="mx-auto flex items-center gap-6 py-10">
+        <nav className="mx-auto flex items-center gap-0 md:gap-6 py-10">
           {NAV_LINKS.map(({ href, label }) => (
             <Button
               key={href}
-              className="bg-transparent uppercase text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
+              className="text-xs bg-transparent uppercase md:text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
               href={href}
             >
               {label}
@@ -29,7 +29,7 @@ export default function PreFooter() {
           <Button
             href="/contactos"
             variant="primary"
-            className="bg-transparent uppercase text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
+            className="text-xs bg-transparent uppercase md:text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
           >
             Contactos
           </Button>

@@ -45,9 +45,7 @@ export default function FAQS() {
               <br />
               <strong>4. ¿Hay cargos adicionales?</strong>
               <br />
-              El precio final incluye: Costo del ticket (fijado por el
-              Organizador). Comisión del 3% por uso de la plataforma (asumida
-              por el Organizador).
+              No, no hay cargos adicionales.
               <br />
               <br />
               <strong>5. ¿Cómo uso mi ticket?</strong>

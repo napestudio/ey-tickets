@@ -29,7 +29,7 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="py-20 px-10 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
+      className="lg:py-20 px-4 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center ">
@@ -78,16 +78,17 @@ export default function HowItWorksSection() {
               alt=""
               className="absolute h-19 w-19 -top-5 -right-5"
             />
-            <div className="absolute h-15 w-full bottom-0 flex justify-between items-end px-4 pb-6 lg:px-6">
-              <Paragraph className="text-white text-xs">
+            <div className="absolute h-15 w-full bottom-0 flex justify-between items-center px-4 pb-6 lg:px-6 overflow-hidden">
+              <Paragraph className="text-white text-xs pl-2">
                 HACÉ QUE PASE
               </Paragraph>
+
               <Image
                 src="/images/ey.svg"
-                width={30}
-                height={30}
+                width={24}
+                height={24}
                 alt=""
-                className="h-auto w-12 lg:w-15"
+                className="h-6 w-auto lg:w-15 pr-2"
               />
             </div>
           </div>
