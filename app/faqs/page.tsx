@@ -69,8 +69,7 @@ export default function FAQS() {
               <br />
               <strong>2. ¿Qué comisión cobra EyTickets?</strong>
               <br />
-              Un 3% del valor de cada ticket vendido, abonable post-evento
-              mediante transferencia bancaria o efectivo.
+              EyTickets no cobra comisiones, ni cargos adicionales.
               <br />
               <br />
               <strong>3. ¿Puedo cancelar o modificar un evento?</strong>
