@@ -15,7 +15,7 @@ export default function WebsiteHero() {
           alt=""
         />
       </div>
-      <div className="container relative mx-auto text-white h-full lg:px-24">
+      <div className="container relative mx-auto text-white h-full lg:px-24 font-nebulica">
         <div className="h-full flex items-center justify-start">
           <div className="w-full max-w-2xl flex flex-col gap-6">
             <Paragraph className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold">
