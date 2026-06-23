@@ -33,7 +33,7 @@ export default function HowToUseItSection() {
               className="h-full aspect-[3/4]"
             >
               <Image
-                src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                src="/images/qr-scanning.webp"
                 width="1400"
                 height="933"
                 className="w-full h-full object-cover bg-bottom grayscale opacity-80"

@@ -64,7 +64,8 @@ export default function HowItWorksSection() {
               className="h-full aspect-[3/4]"
             >
               <Image
-                src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                //src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                src="/images/credit-card.webp"
                 width="933"
                 height="1440"
                 className="w-full h-full object-cover object-bottom grayscale opacity-80"
