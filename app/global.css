@@ -12,6 +12,7 @@
   --color-ey-gray: #ededed;
   --color-ey-gray-dark: #ededed;
   --font-nebulica: var(--font-nebulica);
+  --font-baseNeue: var(--font-baseNeue);
 }
 
 @theme inline {
