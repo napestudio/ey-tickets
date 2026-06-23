@@ -15,7 +15,7 @@ export default function WebsiteHero() {
           alt=""
         />
       </div>
-      <div className="container relative mx-auto text-white h-full lg:px-24">
+      <div className="container relative mx-auto text-white h-full lg:px-24 font-nebulica">
         <div className="h-full flex items-center justify-start">
           <div className="w-full max-w-2xl flex flex-col gap-6">
             <Paragraph className="letter-spacing-wide lg:text-2xl text-ey-turquoise font-semibold">
@@ -23,7 +23,7 @@ export default function WebsiteHero() {
             </Paragraph>
             <Title
               as="h1"
-              className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]"
+              className="font-bold uppercase text-[clamp(1.8rem,8vw,4rem)] leading-[1]"
             >
               VENDE ENTRADAS
               <span className="block bg-ey-turquoise-dark text-ey-dark p-0 w-fit">
@@ -55,7 +55,7 @@ export default function WebsiteHero() {
             </div>
           </div>
         </div>
-        <div className="absolute top-10 md:top-0 right-30 w-1/12 md:w-1/8 flex gap-4">
+        <div className="hidden absolute top-10 md:top-0 right-30 w-1/12 md:w-1/8 md:flex gap-4">
           <Image
             src="/images/cross.svg"
             width={50}

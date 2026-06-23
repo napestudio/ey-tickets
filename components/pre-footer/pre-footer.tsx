@@ -14,7 +14,7 @@ export default function PreFooter() {
   if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard"))
     return;
   return (
-    <div className="pt-24 text-white bg-linear-to-b to-black from-ey-turquoise-darker to-80% overflow-hidden">
+    <div className="pt-24 text-white bg-linear-to-b to-black from-ey-turquoise-darker to-80% overflow-hidden font-nebulica">
       <div className="container flex flex-col gap-12 w-full md:justify-between items-center justify-center">
         <nav className="mx-auto flex items-center gap-0 md:gap-6 py-10">
           {NAV_LINKS.map(({ href, label }) => (

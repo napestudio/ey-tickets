@@ -7,7 +7,7 @@ import { ShapeMask } from "./ShapeMask";
 import LogoVertical from "../ui/LogoVertical";
 export default function SalesSection() {
   return (
-    <section className="relative pt-24 pb-24 md:pb-32 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark ">
+    <section className="relative pt-24 pb-24 md:pb-32 lg:px-18 bg-linear-to-b to-ey-turquoise-darker from-ey-dark font-nebulica">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-cover bg-center opacity-50 z-0 " />
       <div className="relative container mx-auto lg:px-24 ">
         <div className="flex items-stretch w-full z-20 ">

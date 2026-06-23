@@ -22,7 +22,7 @@ const HOW_TO_USE_IT_STEPS = [
 
 export default function HowToUseItSection() {
   return (
-    <section className="pt-24 md:pt-32 px-4 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
+    <section className="pt-24 md:pt-32 px-4 lg:px-20 bg-linear-to-b from-black to-ey-turquoise-darker to-80% font-nebulica">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center">
           <div className="order-2 md:order-1 relative w-full md:w-2/5">
@@ -33,7 +33,7 @@ export default function HowToUseItSection() {
               className="h-full aspect-[3/4]"
             >
               <Image
-                src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                src="/images/qr-scanning.webp"
                 width="1400"
                 height="933"
                 className="w-full h-full object-cover bg-bottom grayscale opacity-80"

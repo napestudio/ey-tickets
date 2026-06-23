@@ -31,7 +31,7 @@ export default function HowItWorksSection() {
       id="how-it-works"
       className="lg:py-20 px-4 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto font-nebulica">
         <div className="flex flex-col md:flex-row gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
@@ -64,7 +64,8 @@ export default function HowItWorksSection() {
               className="h-full aspect-[3/4]"
             >
               <Image
-                src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                //src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+                src="/images/credit-card.webp"
                 width="933"
                 height="1440"
                 className="w-full h-full object-cover object-bottom grayscale opacity-80"

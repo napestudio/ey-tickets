@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function FAQS() {
   return (
     <>
-      <section className="py-22 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
+      <section className="py-22 bg-linear-to-b from-black to-ey-turquoise-darker to-80% font-nebulica">
         <div className="container text-white py-10 flex flex-col gap-10">
           <Title as="h1" className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
             Preguntas <span className="text-ey-turquoise">Frecuentes</span>
@@ -23,7 +23,7 @@ export default function FAQS() {
             <Paragraph className="text-xl text-white mb-6">
               <strong>1. ¿Cómo compro un ticket?</strong>
               <br />
-              Selecciona el evento en la plataforma, haz clic en {"Comprar"} y
+              Selecciona el evento en la plataforma, hacé clic en Comprar y
               completa tus datos (nombre, DNI y email). El pago se realiza a
               través de Mercado Pago.
               <br />
