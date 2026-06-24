@@ -64,8 +64,8 @@ export default function WebsiteHero() {
           />
           <Image
             src="/images/tkt-red.svg"
-            width={100}
             height={45}
+            width={100}
             alt="VENDE ENTRADAS SIN COMISIONES"
           />
           <Image
