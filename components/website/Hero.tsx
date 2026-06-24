@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Button } from "./ui/Button";
 import { Title } from "./ui/Title";
 import { Paragraph } from "./ui/Paragraph";
+import ScrollToButton from "./ScrollToButton";
 
 export default function WebsiteHero() {
   return (
@@ -45,13 +46,12 @@ export default function WebsiteHero() {
               >
                 Creá tu evento
               </Button>
-              <Button
-                href="#how-it-works"
-                variant="outline"
+              <ScrollToButton
+                target="#how-it-works"
                 className="border-2 text-ey-turquoise font-medium border-ey-turquoise uppercase rounded-2xl hover:bg-ey-turquoise hover:text-ey-dark transition-colors text-center"
               >
                 Cómo funciona
-              </Button>
+              </ScrollToButton>
             </div>
           </div>
         </div>
