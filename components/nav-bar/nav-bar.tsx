@@ -5,11 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Logo from "../ui/Logo";
 import { Button } from "../website/ui/Button";
-
-const NAV_LINKS = [
-  { href: "/eventos", label: "EVENTOS" },
-  { href: "/faqs", label: "FAQS" },
-];
+import { NAV_LINKS } from "@/lib/data/nav-links";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -37,7 +33,7 @@ export default function NavBar() {
       .to(
         links,
         { opacity: 1, y: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" },
-        "-=0.15"
+        "-=0.15",
       );
 
     return () => {
@@ -74,7 +70,8 @@ export default function NavBar() {
     setIsOpen(false);
   }, [pathname]);
 
-  if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard")) return null;
+  if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard"))
+    return null;
 
   return (
     <>
@@ -111,9 +108,18 @@ export default function NavBar() {
             aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={isOpen}
           >
-            <span ref={line1Ref} className="block h-[2px] w-6 bg-white rounded-full origin-center" />
-            <span ref={line2Ref} className="block h-[2px] w-6 bg-white rounded-full origin-center" />
-            <span ref={line3Ref} className="block h-[2px] w-6 bg-white rounded-full origin-center" />
+            <span
+              ref={line1Ref}
+              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+            />
+            <span
+              ref={line2Ref}
+              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+            />
+            <span
+              ref={line3Ref}
+              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+            />
           </button>
         </div>
       </header>
