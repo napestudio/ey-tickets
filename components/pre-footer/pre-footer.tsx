@@ -27,7 +27,7 @@ export default function PreFooter() {
             </Button>
           ))}
           <Button
-            href="/contactos"
+            href="/contacto"
             variant="primary"
             className="text-xs bg-transparent uppercase md:text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
           >
