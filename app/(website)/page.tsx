@@ -15,13 +15,11 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
     <>
-      <SmoothScrollProvider>
-        <Hero />
-        <HowItWorksSection />
-        <PricingSection />
-        <SalesSection />
-        <HowToUseItSection />
-      </SmoothScrollProvider>
+      <Hero />
+      <HowItWorksSection />
+      <PricingSection />
+      <SalesSection />
+      <HowToUseItSection />
     </>
   );
 }

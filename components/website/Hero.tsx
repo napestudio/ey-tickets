@@ -24,7 +24,7 @@ export default function WebsiteHero() {
             </Paragraph>
             <Title
               as="h1"
-              className="font-bold uppercase text-[clamp(1.8rem,8vw,4rem)] leading-[1]"
+              className="font-bold uppercase text-[clamp(1.8rem,8vw,4rem)] leading-none"
             >
               VENDE ENTRADAS
               <span className="block bg-ey-turquoise-dark text-ey-dark p-0 w-fit">
