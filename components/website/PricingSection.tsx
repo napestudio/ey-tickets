@@ -9,8 +9,12 @@ export default function PricingSection() {
     <section className="relative pt-20 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark font-nebulica">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-top bg-cover opacity-50 z-0" />
       <div className="relative container mx-auto">
-        <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1] text-white text-center pb-10">
-          <span className="text-ey-turquoise">Planes<br/></span> a tu medida
+        <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-none text-white text-center pb-10">
+          <span className="text-ey-turquoise">
+            Planes
+            <br />
+          </span>{" "}
+          a tu medida
         </Title>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10 items-end pt-4">
           {/* Card 0 - izquierda */}
@@ -47,15 +51,14 @@ export default function PricingSection() {
             featured={2}
           />
           <Paragraph
-              size="md"
-              className="text-white text-center text-balance mt-4 block lg:hidden"
-            >
-              También podés comprar otras cantidades y el precio se ajusta
-              automáticamente.
-            </Paragraph>
+            size="md"
+            className="text-white text-center text-balance mt-4 block lg:hidden"
+          >
+            También podés comprar otras cantidades y el precio se ajusta
+            automáticamente.
+          </Paragraph>
         </div>
       </div>
-      
     </section>
   );
 }

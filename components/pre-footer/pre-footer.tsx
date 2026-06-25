@@ -3,11 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoFooter from "../ui/LogoFooter";
 import { Button } from "../website/ui/Button";
-
-const NAV_LINKS = [
-  { href: "/eventos", label: "Eventos" },
-  { href: "/faqs", label: "Faqs" },
-];
+import { NAV_LINKS } from "@/lib/data/nav-links";
 
 export default function PreFooter() {
   const pathname = usePathname();

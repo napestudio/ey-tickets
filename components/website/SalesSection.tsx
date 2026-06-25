@@ -15,7 +15,7 @@ export default function SalesSection() {
             <LogoVertical className="h-48 lg:h-80" />
           </div>
           <div className="overflow-hidden w-4/5 flex flex-col bg-ey-dark gap-4 lg:gap-6 items-start justify-center p-6 lg:p-20 border-ey-turquoise border-0 rounded-4xl border-l-0">
-            <Title className="font-bold text-white mb-4 text-[clamp(2rem,8vw,4rem)] leading-[1] text-balance mb-0">
+            <Title className="font-bold text-white mb-4 text-[clamp(2rem,8vw,4rem)] leading-none text-balance mb-0">
               <span className="text-ey-turquoise">COBRÁ</span>
               <br />
               AL INSTANTE
@@ -41,8 +41,7 @@ export default function SalesSection() {
                   />
                 </div>
                 <div className="h-10 flex items-center gap-2 text-white text-xs lg:text-lg">
-                  <LandmarkIcon className="text-white"/>{" "}
-                  Transferencias
+                  <LandmarkIcon className="text-white" /> Transferencias
                 </div>
               </div>
             </div>

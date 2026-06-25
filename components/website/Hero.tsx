@@ -24,7 +24,7 @@ export default function WebsiteHero() {
             </Paragraph>
             <Title
               as="h1"
-              className="font-bold uppercase text-[clamp(1.8rem,8vw,4rem)] leading-[1]"
+              className="font-bold uppercase text-[clamp(1.8rem,8vw,4rem)] leading-none"
             >
               VENDE ENTRADAS
               <span className="block bg-ey-turquoise-dark text-ey-dark p-0 w-fit">
@@ -41,7 +41,7 @@ export default function WebsiteHero() {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center">
               <Button
                 className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
-                href="/dashboard"
+                href="/ingresar"
                 variant="primary"
               >
                 Creá tu evento

@@ -29,7 +29,7 @@ export default async function EventosPage() {
           <Title className="text-8xl font-bold text-white mb-6">
             Próximos Eventos
           </Title>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {eventos &&
               eventos.map((evento) => (
                 <EventCard evento={evento as Evento} key={evento.id} />

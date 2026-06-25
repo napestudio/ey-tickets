@@ -35,7 +35,7 @@ export default function HowItWorksSection() {
         <div className="flex flex-col md:flex-row gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
-              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-[1]">
+              <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-none">
                 ¿Cómo
                 <br /> <span className="text-ey-turquoise">funciona?</span>
               </Title>
