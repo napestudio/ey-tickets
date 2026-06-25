@@ -41,7 +41,7 @@ export default function WebsiteHero() {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center">
               <Button
                 className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
-                href="/dashboard"
+                href="/ingresar"
                 variant="primary"
               >
                 Creá tu evento
