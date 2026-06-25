@@ -100,7 +100,7 @@ export default function NavBar() {
               variant="primary"
               className="text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl"
             >
-              Contactos
+              Contacto
             </Button>
           </nav>
 
@@ -140,7 +140,7 @@ export default function NavBar() {
             className="text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl w-full mt-2"
             onClick={() => setIsOpen(false)}
           >
-            Contactos
+            Contacto
           </Button>
         </div>
       </div>
