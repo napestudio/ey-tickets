@@ -31,7 +31,7 @@ export default function PreFooter() {
             variant="primary"
             className="text-xs bg-transparent uppercase md:text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
           >
-            Contactos
+            Contacto
           </Button>
         </nav>
       </div>
