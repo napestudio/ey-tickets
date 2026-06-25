@@ -3,6 +3,7 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
 
 import { getSingleEventById, getSoldTicketsByType } from "@/lib/actions";
+import { getCashPaymentMethodIdByEvent } from "@/lib/api/payment-methods";
 import { DiscountCode } from "@/types/discount-code";
 import { ArrowLeft, Ticket } from "lucide-react";
 import Link from "next/link";
@@ -13,11 +14,15 @@ async function getEventData(id: string) {
   if (!evento) return;
   const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
 
-  const soldTickets = await getSoldTicketsByType(evento.tickets);
+  const [soldTickets, cashPaymentMethodId] = await Promise.all([
+    getSoldTicketsByType(evento.tickets),
+    getCashPaymentMethodIdByEvent(id),
+  ]);
   return {
     evento,
     serviceCharge,
     soldTickets,
+    cashPaymentMethodId,
   };
 }
 
@@ -31,7 +36,7 @@ export default async function NewCashTicketPage({
   if (!eventData) {
     return <p>Evento no encontrado.</p>;
   }
-  const { evento, serviceCharge, soldTickets } = eventData;
+  const { evento, serviceCharge, soldTickets, cashPaymentMethodId } = eventData;
   return (
     <>
       <div className="space-y-6 pb-8">
@@ -68,6 +73,7 @@ export default async function NewCashTicketPage({
                 : undefined
             }
             serviceCharge={serviceCharge || undefined}
+            cashPaymentMethodId={cashPaymentMethodId ?? undefined}
           />
         </div>
       </div>

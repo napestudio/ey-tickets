@@ -350,10 +350,12 @@ model Order {
   isInvitation       Boolean   @default(false)
   customizationToken String?   @unique
   customizedAt       DateTime?
+  paymentMethodId    String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   ticketType         TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  paymentMethod      PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
   tickets            TicketOrder[]
 
   @@map("orders")
@@ -464,6 +466,7 @@ model PaymentMethod {
   user     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   creator  User           @relation("CreatedPaymentMethods", fields: [creatorId], references: [id])
   events   EventPayment[]
+  orders   Order[]
 
   @@map("payment_methods")
 }

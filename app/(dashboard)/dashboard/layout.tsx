@@ -43,7 +43,7 @@ export default async function DashboardLayout({
               producerName={producer?.name ?? null}
             />
           </div>
-          <div className="flex flex-col md:ml-50 lg:ml-60 flex-1 pb-12 pl-10 min-w-0">
+          <div className="flex flex-col md:ml-50 lg:ml-60 flex-1 pb-12 md:pl-10 min-w-0">
             {children}
           </div>
         </div>

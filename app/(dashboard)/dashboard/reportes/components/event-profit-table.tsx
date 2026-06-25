@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EventProfitRow } from "@/types/ticket-stock";
 import { formatPrice } from "@/lib/utils";
+import { BarChart2 } from "lucide-react";
 
 interface EventProfitTableProps {
   events: EventProfitRow[];
@@ -57,6 +60,9 @@ export default function EventProfitTable({ events }: EventProfitTableProps) {
                   <th className="text-right py-2 font-medium text-muted-foreground">
                     Margen
                   </th>
+                  <th className="text-right py-2 font-medium text-muted-foreground">
+                    Detalle
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -99,6 +105,14 @@ export default function EventProfitTable({ events }: EventProfitTableProps) {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
+                      </td>
+                      <td className="py-3 text-right">
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/dashboard/reportes/${row.eventId}`}>
+                            <BarChart2 className="h-4 w-4 mr-1" />
+                            Ver detalle
+                          </Link>
+                        </Button>
                       </td>
                     </tr>
                   );
