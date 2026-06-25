@@ -83,8 +83,8 @@ export default async function EventDetails({
 
       <Navigation evento={evento} isEventOwner={isEventOwner} />
 
-      <div className="grid gap-6 md:grid-cols-7">
-        <div className="md:col-span-5 space-y-6">
+      <div className="grid gap-6 lg:grid-cols-7">
+        <div className="lg:col-span-5 space-y-6">
           <EventTabsClient activeTab={activeTab} isEventOwner={isEventOwner}>
             <TabsContent value="overview" className="space-y-6">
               <DetailsTab
@@ -116,7 +116,7 @@ export default async function EventDetails({
             </TabsContent>
           </EventTabsClient>
         </div>
-        <div className="md:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           <SideBar
             salesStats={<MinimalEventSalesStats eventId={evento.id} />}
             eventStock={eventStock}

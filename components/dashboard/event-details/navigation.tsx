@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
-import { ArrowLeft, Eye, Globe } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 import { SITE_URL } from "@/lib/constants";
@@ -21,15 +21,15 @@ export default function Navigation({ evento, isEventOwner }: NavigationProps) {
           </Link>
         </Button>
 
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="md:ml-auto flex flex-wrap items-center gap-2">
           {evento.status !== "CANCELED" && (
-            <Button variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
               <Link
                 href={`${SITE_URL}/eventos/${evento.id}`}
                 className="flex items-center"
               >
-                <Eye className="mr-2 h-4 w-4" />
-                Ver en la web
+                <Eye className="md:mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Ver en la web</span>
               </Link>
             </Button>
           )}

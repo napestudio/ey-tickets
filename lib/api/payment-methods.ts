@@ -127,6 +127,16 @@ export async function getDigitalPaymentMethodByEvent(eventId: string) {
   });
 }
 
+export async function getCashPaymentMethodIdByEvent(
+  eventId: string
+): Promise<string | null> {
+  const result = await prisma.eventPayment.findFirst({
+    where: { eventId, paymentMethod: { type: "CASH" } },
+    select: { paymentMethodId: true },
+  });
+  return result?.paymentMethodId ?? null;
+}
+
 export async function deletePaymentMethodAction(paymentMethodId: string) {
   if (!paymentMethodId) {
     throw new Error("Falta el ID del método de pago");

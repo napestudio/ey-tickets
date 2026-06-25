@@ -25,7 +25,10 @@ export const mpApi = {
           accessToken: mercadopagoToken,
         });
 
-        updateOrder(orderId, orderData);
+        updateOrder(orderId, {
+          ...orderData,
+          paymentMethodId: paymentMethod[0].paymentMethodId,
+        });
         const preference = await new Preference(mercadopago).create({
           body: {
             items: [

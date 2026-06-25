@@ -78,6 +78,7 @@ export default function EventImageSection({
 
   return (
     <div className="space-y-2">
+      <h2 className="font-bold">Miniatura del evento</h2>
       {isEditing ? (
         <div className="space-y-3">
           <FileUploader

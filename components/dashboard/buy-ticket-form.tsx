@@ -85,12 +85,14 @@ export default function BuyTicketForm({
   discountCode,
   serviceCharge,
   soldTickets,
+  cashPaymentMethodId,
 }: {
   tickets: any;
   eventId: string;
   discountCode?: Partial<DiscountCode>[];
   serviceCharge?: number;
   soldTickets?: { id?: string; title?: string; count?: number };
+  cashPaymentMethodId?: string;
 }) {
   const [discountOpen, setDiscountOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -152,6 +154,7 @@ export default function BuyTicketForm({
       phone: data.phone,
       dni: data.dni,
       totalPrice: total,
+      paymentMethodId: cashPaymentMethodId,
     };
 
     createCashOrder(orderData)
