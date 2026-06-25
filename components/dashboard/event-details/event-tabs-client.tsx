@@ -43,7 +43,7 @@ export default function EventTabsClient({
   }
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 w-full">
       <div className="flex border-b mb-1">
         <button
           type="button"
@@ -79,7 +79,7 @@ export default function EventTabsClient({
         className="w-full flex-1"
       >
         <div className="w-full overflow-x-auto">
-          <TabsList className="min-w-full w-max justify-start">
+          <TabsList className="min-w-full w-max bg-neutral-50 justify-start">
             {activeGroup === "config" && (
               <>
                 <TabsTrigger value="overview">Detalles</TabsTrigger>

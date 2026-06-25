@@ -123,7 +123,7 @@ export default function EventImageSection({
           </div>
         </div>
       ) : (
-        <div className="relative w-full h-64 rounded-md overflow-hidden bg-muted group">
+        <div className="relative w-full h-64 rounded-md overflow-hidden bg-neutral-5 border group md:px-0 px-4">
           {imageUrl ? (
             <img
               src={imageUrl}

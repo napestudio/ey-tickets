@@ -43,8 +43,10 @@ const OWNER_ONLY_TABS: TabValue[] = [
 ];
 
 function resolveTab(tab: string | undefined, isEventOwner: boolean): TabValue {
-  if (!tab || !(VALID_TABS as readonly string[]).includes(tab)) return "overview";
-  if (!isEventOwner && OWNER_ONLY_TABS.includes(tab as TabValue)) return "overview";
+  if (!tab || !(VALID_TABS as readonly string[]).includes(tab))
+    return "overview";
+  if (!isEventOwner && OWNER_ONLY_TABS.includes(tab as TabValue))
+    return "overview";
   return tab as TabValue;
 }
 
@@ -83,8 +85,8 @@ export default async function EventDetails({
 
       <Navigation evento={evento} isEventOwner={isEventOwner} />
 
-      <div className="grid gap-6 lg:grid-cols-7">
-        <div className="lg:col-span-5 space-y-6">
+      <div className="flex md:grid gap-6 lg:grid-cols-7">
+        <div className="lg:col-span-5 space-y-6 w-full">
           <EventTabsClient activeTab={activeTab} isEventOwner={isEventOwner}>
             <TabsContent value="overview" className="space-y-6">
               <DetailsTab
