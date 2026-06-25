@@ -96,7 +96,7 @@ export default function NavBar() {
               </Button>
             ))}
             <Button
-              href="/contactos"
+              href="/contacto"
               variant="primary"
               className="text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl"
             >
@@ -135,7 +135,7 @@ export default function NavBar() {
             </Button>
           ))}
           <Button
-            href="/contactos"
+            href="/contacto"
             variant="primary"
             className="text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl w-full mt-2"
             onClick={() => setIsOpen(false)}

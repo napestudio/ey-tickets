@@ -14,7 +14,7 @@ export default function Contacts() {
     <>
       <SmoothScrollProvider>
         <section className="py-22 bg-linear-to-b from-black to-ey-turquoise-darker to-80%">
-          <div className="container text-white py-10 flex gap-10">
+          <div className="container text-white py-10 flex flex-col sm:flex-row gap-10">
             <div className="w-2/2 md:w-1/2 flex flex-col gap-4">
               <Title
                 as="h1"
