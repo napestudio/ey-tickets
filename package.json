@@ -85,6 +85,7 @@
     "react-google-autocomplete": "^2.7.3",
     "react-google-places-autocomplete": "^4.0.1",
     "react-hook-form": "^7.50.1",
+    "recharts": "^3.9.0",
     "reeller": "^0.0.5",
     "resend": "^6.12.3",
     "sharp": "^0.34.5",

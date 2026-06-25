@@ -27,7 +27,7 @@ export default function TicketsTab({ evento }: { evento: Evento }) {
             ))}
         </CardContent>
         <CardFooter>
-          <Button variant="outline">
+          <Button asChild variant="outline">
             <Link
               href={`/dashboard/evento/ticket-types/${evento.id}`}
               className="flex items-center"

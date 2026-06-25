@@ -43,8 +43,7 @@ export default function EventTabsClient({
   }
 
   return (
-    <div className="w-full space-y-0">
-      {/* Selector de grupo */}
+    <div className="space-y-0 w-full">
       <div className="flex border-b mb-1">
         <button
           type="button"
@@ -63,7 +62,7 @@ export default function EventTabsClient({
             type="button"
             onClick={() => handleGroupChange("ops")}
             className={cn(
-              "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+              "px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px",
               activeGroup === "ops"
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground",
@@ -74,14 +73,13 @@ export default function EventTabsClient({
         )}
       </div>
 
-      {/* Sub-tabs del grupo activo */}
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
-        className="w-full"
+        className="w-full flex-1"
       >
-        <div className="overflow-x-auto w-full">
-          <TabsList>
+        <div className="w-full overflow-x-auto">
+          <TabsList className="min-w-full w-max bg-neutral-50 justify-start">
             {activeGroup === "config" && (
               <>
                 <TabsTrigger value="overview">Detalles</TabsTrigger>

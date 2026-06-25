@@ -1,50 +1,62 @@
-import { Button } from "@/components/ui/button";
-
-import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import { CalendarDays, BarChart2, Ticket, Settings } from "lucide-react";
 
-import { Evento } from "@/types/event";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-
-import EventsDisplay from "@/components/dashboard/events-display";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import { getAccessibleEvents } from "@/lib/api/eventos";
+
+const navItems = [
+  {
+    href: "/dashboard/eventos",
+    icon: CalendarDays,
+    label: "Eventos",
+    description: "Gestioná tus eventos",
+  },
+  {
+    href: "/dashboard/reportes",
+    icon: BarChart2,
+    label: "Reportes",
+    description: "Consultá estadísticas y ventas",
+  },
+  {
+    href: "/dashboard/ticket-stock",
+    icon: Ticket,
+    label: "Tickets",
+    description: "Stock y administración de tickets",
+  },
+  {
+    href: "/dashboard/configuracion",
+    icon: Settings,
+    label: "Configuración",
+    description: "Ajustes de tu cuenta",
+  },
+];
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
   if (!session) return;
-  const { id, producerId, role } = session.user;
 
-  const eventos = await getAccessibleEvents({ id, producerId, role });
   return (
-    <>
-      <div className="flex flex-col gap-8">
-        <div className="flex gap-5">
-          <DashboardHeader
-            title="Panel de administración"
-            subtitle="Administra tus eventos y venta de tickets"
-          />
-        </div>
-        <div className="w-full space-y-5">
-          {/* <StatsCards /> */}
-          <EventsDisplay eventos={eventos as Evento[]} session={session} />
-
-          {eventos.length === 0 && (
-            <Card className="p-6">
-              <CardContent>No hay eventos creados.</CardContent>
-              <CardFooter>
-                <Button asChild variant="secondary">
-                  <Link href={"/dashboard/nuevo-evento"}>
-                    <Plus className="mr-2" /> Crear evento
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
-        </div>
+    <div className="flex flex-col gap-8">
+      <DashboardHeader
+        title="Panel de administración"
+        subtitle="Administra tus eventos y venta de tickets"
+      />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {navItems.map(({ href, icon: Icon, label, description }) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <Icon className="h-8 w-8" strokeWidth={1.5} />
+            <div>
+              <p className="font-semibold">{label}</p>
+              <p className="text-xs text-muted-foreground">{description}</p>
+            </div>
+          </Link>
+        ))}
       </div>
-    </>
+    </div>
   );
 }

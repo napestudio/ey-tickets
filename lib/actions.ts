@@ -332,6 +332,7 @@ export type CreateOrderType = {
   email?: string;
   phone?: string;
   dni?: string;
+  paymentMethodId?: string;
 };
 
 export async function createOrder(data: CreateOrderType) {
