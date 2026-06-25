@@ -115,11 +115,7 @@ export default async function RootLayout({
       <body
         className={`${nebulica.variable} ${baseNeue.variable} ${montserrat.className} bg-background text-foreground font-nebulica`}
       >
-        <NavBar />
-        <main className="flex flex-col ">{children}</main>
-        <PreFooter />
-        <Footer />
-        <Toaster />
+        {children}
       </body>
     </html>
   );
