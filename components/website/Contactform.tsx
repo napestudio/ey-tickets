@@ -37,7 +37,7 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 
-const inputClass =
+export const inputClass =
   "bg-transparent border-2 border-ey-turquoise rounded-2xl focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0";
 
 export function ContactForm() {
