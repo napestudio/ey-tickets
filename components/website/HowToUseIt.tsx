@@ -60,7 +60,7 @@ export default function HowToUseItSection() {
                 width={24}
                 height={24}
                 alt=""
-                className="h-6 w-auto lg:w-15 pr-2"
+                className="h-6 w-auto lg:h-auto lg:w-15 pr-2"
               />
             </div>
           </div>
