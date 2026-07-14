@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getSoldTicketCountsByTypeAction } from "@/lib/actions";
-import { getEventStockDetails } from "@/lib/api/ticket-stock";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
 import DetailsTab from "./details-tab";
@@ -67,10 +66,7 @@ export default async function EventDetails({
   const isEventOwner = can(session.user, "events:edit");
   const activeTab = resolveTab(tab, isEventOwner);
 
-  const [soldTickets, eventStock] = await Promise.all([
-    getSoldTicketCountsByTypeAction(evento.id),
-    getEventStockDetails(evento.id),
-  ]);
+  const soldTickets = await getSoldTicketCountsByTypeAction(evento.id);
 
   return (
     <div className="space-y-6">
@@ -101,7 +97,7 @@ export default async function EventDetails({
               <ValidatorsTab evento={evento} />
             </TabsContent>
             <TabsContent value="soldList" className="space-y-6">
-              <SoldTicketsTab evento={evento} hasAllocation={!!eventStock} />
+              <SoldTicketsTab evento={evento} />
             </TabsContent>
             <TabsContent value="invitados" className="space-y-6">
               <InvitadosTab
@@ -121,7 +117,6 @@ export default async function EventDetails({
         <div className="lg:col-span-2 space-y-6">
           <SideBar
             salesStats={<MinimalEventSalesStats eventId={evento.id} />}
-            eventStock={eventStock}
           />
         </div>
       </div>

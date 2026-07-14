@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { isAfter } from "date-fns";
 import {
-  getEventTicketAllocation,
+  getProducerStockSummary,
   getMemberTicketAllocation,
 } from "./ticket-stock";
 
@@ -84,36 +84,45 @@ export async function updateTicketTypeWithLimit(
   ticketData: Partial<TicketType>,
 ) {
   if (ticketData.quantity !== undefined) {
-    // El form no incluye eventId en el payload — fetchearlo desde DB
+    // Fetchear eventId y producerId desde DB
     const current = await prisma.ticketType.findUniqueOrThrow({
       where: { id: ticketId },
-      select: { eventId: true },
+      select: { event: { select: { producerId: true } } },
     });
-    const eventId = current.eventId;
+    const producerId = current.event.producerId;
 
-    const [eventAllocation, othersUsage, soldResult] = await Promise.all([
-      getEventTicketAllocation(eventId),
-      prisma.ticketType.aggregate({
-        _sum: { quantity: true },
-        where: { eventId, NOT: [{ status: "DELETED" }, { id: ticketId }] },
-      }),
-      prisma.order.aggregate({
-        _sum: { quantity: true },
-        where: { ticketTypeId: ticketId, status: "PAID", isInvitation: false },
-      }),
-    ]);
+    const [othersUsage, soldResult, memberAllocations, packages] =
+      await Promise.all([
+        prisma.ticketType.aggregate({
+          _sum: { quantity: true },
+          where: {
+            NOT: [{ status: "DELETED" }, { id: ticketId }],
+            event: { producerId },
+          },
+        }),
+        prisma.order.aggregate({
+          _sum: { quantity: true },
+          where: { ticketTypeId: ticketId, status: "PAID", isInvitation: false },
+        }),
+        prisma.memberTicketAllocation.aggregate({
+          _sum: { quantity: true },
+          where: { producerId },
+        }),
+        prisma.ticketPackage.aggregate({
+          _sum: { quantity: true },
+          where: { producerId, status: "ACTIVE" },
+        }),
+      ]);
 
-    if (!eventAllocation) {
-      throw new Error("Este evento no tiene tickets asignados.");
-    }
-
+    const totalPool = packages._sum.quantity ?? 0;
+    const allocatedToMembers = memberAllocations._sum.quantity ?? 0;
     const usedByOthers = othersUsage._sum.quantity ?? 0;
-    const remaining = eventAllocation.quantity - usedByOthers;
+    const remaining = totalPool - allocatedToMembers - usedByOthers;
     const soldCount = soldResult._sum.quantity ?? 0;
 
     if (ticketData.quantity > remaining) {
       throw new Error(
-        `No podés asignar ${ticketData.quantity} tickets. El límite del evento permite ${remaining} para este tipo.`,
+        `No podés asignar ${ticketData.quantity} tickets. El pool de la productora permite ${remaining} adicionales.`,
       );
     }
 
@@ -197,28 +206,12 @@ export async function createTicketTypeWithLimit(
   producerId: string,
   creatorUserId?: string,
 ) {
-  // Guard: el evento debe tener una asignación explícita de stock
-  const eventAllocation = await getEventTicketAllocation(ticket.eventId);
-  if (!eventAllocation) {
-    throw new Error(
-      "Este evento no tiene tickets asignados. Asigná stock al evento antes de crear tipos de tickets.",
-    );
-  }
+  // 1. Validar contra el pool de la productora
+  const summary = await getProducerStockSummary(producerId);
 
-  // 1. Tope del evento
-  const existing = await prisma.ticketType.aggregate({
-    _sum: { quantity: true },
-    where: {
-      eventId: ticket.eventId,
-      NOT: { status: "DELETED" },
-    },
-  });
-  const usedForEvent = existing._sum.quantity ?? 0;
-  const remainingForEvent = eventAllocation.quantity - usedForEvent;
-
-  if (ticket.quantity > remainingForEvent) {
+  if (ticket.quantity > summary.available) {
     throw new Error(
-      `Este evento tiene un límite de ${eventAllocation.quantity} tickets. Disponibles: ${remainingForEvent}, solicitado: ${ticket.quantity}`,
+      `Stock insuficiente en el pool. Disponible: ${summary.available}, solicitado: ${ticket.quantity}`,
     );
   }
 

@@ -1,7 +1,7 @@
 import { prisma } from "../prisma";
 import { Prisma } from "@prisma/client";
 import { cache } from "react";
-import { StockSummary, ProfitReport, EventProfitRow, AllocationWithUsage } from "@/types/ticket-stock";
+import { StockSummary, ProfitReport, EventProfitRow } from "@/types/ticket-stock";
 
 // ─── Lectura ──────────────────────────────────────────────────────────────────
 
@@ -23,15 +23,17 @@ export async function getProducerTotalPool(producerId: string): Promise<number> 
 export async function getProducerStockSummary(
   producerId: string
 ): Promise<StockSummary> {
-  // Paso 1 — paralelo: pool total + asignaciones explícitas + cuotas de miembros
-  const [packages, eventAllocations, memberAllocations] = await Promise.all([
+  const [packages, ticketTypesUsage, memberAllocations] = await Promise.all([
     prisma.ticketPackage.aggregate({
       _sum: { quantity: true },
       where: { producerId, status: "ACTIVE" },
     }),
-    prisma.eventTicketAllocation.findMany({
-      where: { producerId },
-      select: { quantity: true, eventId: true },
+    prisma.ticketType.aggregate({
+      _sum: { quantity: true },
+      where: {
+        event: { producerId },
+        NOT: { status: "DELETED" },
+      },
     }),
     prisma.memberTicketAllocation.aggregate({
       _sum: { quantity: true },
@@ -40,106 +42,11 @@ export async function getProducerStockSummary(
   ]);
 
   const totalPool = packages._sum.quantity ?? 0;
-  const allocatedEventIds = eventAllocations.map((a) => a.eventId);
-  // Eventos CON asignación explícita: contar el tope comprometido
-  const allocatedToEvents = eventAllocations.reduce((acc, a) => acc + a.quantity, 0);
-
-  // Paso 2 — eventos SIN asignación explícita: contar su uso real de TicketTypes
-  const nonAllocatedResult = await prisma.ticketType.aggregate({
-    _sum: { quantity: true },
-    where: {
-      event: {
-        producerId,
-        status: { notIn: ["DELETED", "CANCELED"] },
-      },
-      NOT: [
-        { status: "DELETED" },
-        ...(allocatedEventIds.length > 0
-          ? [{ eventId: { in: allocatedEventIds } }]
-          : []),
-      ],
-    },
-  });
-  const nonAllocatedUsage = nonAllocatedResult._sum.quantity ?? 0;
-
+  const usedByTicketTypes = ticketTypesUsage._sum.quantity ?? 0;
   const allocatedToMembers = memberAllocations._sum.quantity ?? 0;
-  const unallocated = totalPool - allocatedToEvents - nonAllocatedUsage;
+  const available = totalPool - usedByTicketTypes - allocatedToMembers;
 
-  return { totalPool, allocatedToEvents, allocatedToMembers, unallocated };
-}
-
-export async function getEventTicketAllocation(eventId: string) {
-  return prisma.eventTicketAllocation.findUnique({ where: { eventId } });
-}
-
-export async function getEventStockDetails(eventId: string) {
-  const allocation = await prisma.eventTicketAllocation.findUnique({ where: { eventId } });
-  if (!allocation) return null;
-
-  const [ticketTypesResult, soldResult] = await Promise.all([
-    prisma.ticketType.aggregate({
-      _sum: { quantity: true },
-      where: { eventId, NOT: { status: "DELETED" } },
-    }),
-    prisma.order.aggregate({
-      _sum: { quantity: true },
-      where: { eventId, status: "PAID", isInvitation: false },
-    }),
-  ]);
-
-  const assignedToTypes = ticketTypesResult._sum.quantity ?? 0;
-  const sold = soldResult._sum.quantity ?? 0;
-
-  return {
-    quantity: allocation.quantity,
-    assignedToTypes,
-    available: Math.max(0, allocation.quantity - assignedToTypes),
-    sold,
-  };
-}
-
-export async function getEventAllocationsByProducer(
-  producerId: string
-): Promise<AllocationWithUsage[]> {
-  const allocations = await prisma.eventTicketAllocation.findMany({
-    where: { producerId },
-    include: {
-      event: {
-        select: { id: true, title: true, endDate: true, status: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const eventIds = allocations.map((a) => a.eventId);
-
-  if (eventIds.length === 0) return [];
-
-  const [ticketTypeAggs, orderAggs] = await Promise.all([
-    prisma.ticketType.groupBy({
-      by: ["eventId"],
-      _sum: { quantity: true },
-      where: { eventId: { in: eventIds }, NOT: { status: "DELETED" } },
-    }),
-    prisma.order.groupBy({
-      by: ["eventId"],
-      _sum: { quantity: true },
-      where: { eventId: { in: eventIds }, status: "PAID", isInvitation: false },
-    }),
-  ]);
-
-  const ticketTypeMap = new Map(
-    ticketTypeAggs.map((r) => [r.eventId, r._sum.quantity ?? 0])
-  );
-  const orderMap = new Map(
-    orderAggs.map((r) => [r.eventId, r._sum.quantity ?? 0])
-  );
-
-  return allocations.map((alloc) => ({
-    ...alloc,
-    ticketTypesQuantity: ticketTypeMap.get(alloc.eventId) ?? 0,
-    ticketsSold: orderMap.get(alloc.eventId) ?? 0,
-  }));
+  return { totalPool, usedByTicketTypes, allocatedToMembers, available };
 }
 
 export async function getMemberTicketAllocation(userId: string) {
@@ -185,45 +92,6 @@ export async function purchaseTicketPackage(data: {
   });
 }
 
-export async function upsertEventTicketAllocation(data: {
-  producerId: string;
-  eventId: string;
-  quantity: number;
-}): Promise<void> {
-  const { producerId, eventId, quantity } = data;
-
-  const [summary, existing, ticketTypeUsage] = await Promise.all([
-    getProducerStockSummary(producerId),
-    getEventTicketAllocation(eventId),
-    prisma.ticketType.aggregate({
-      _sum: { quantity: true },
-      where: { eventId, NOT: { status: "DELETED" } },
-    }),
-  ]);
-
-  const minAllowed = ticketTypeUsage._sum.quantity ?? 0;
-  if (quantity < minAllowed) {
-    throw new Error(
-      `No se puede asignar menos de ${minAllowed} tickets. Los tipos de ticket existentes consumen ese total.`
-    );
-  }
-
-  const currentAlloc = existing?.quantity ?? 0;
-  const availableForReassignment = summary.unallocated + currentAlloc;
-
-  if (quantity > availableForReassignment) {
-    throw new Error(
-      `No hay suficiente stock disponible. Disponible: ${availableForReassignment}, solicitado: ${quantity}`
-    );
-  }
-
-  await prisma.eventTicketAllocation.upsert({
-    where: { eventId },
-    create: { producerId, eventId, quantity },
-    update: { quantity },
-  });
-}
-
 export async function upsertMemberTicketAllocation(data: {
   producerId: string;
   userId: string;
@@ -237,7 +105,7 @@ export async function upsertMemberTicketAllocation(data: {
   ]);
 
   const currentAlloc = existing?.quantity ?? 0;
-  const availableForReassignment = summary.unallocated + currentAlloc;
+  const availableForReassignment = summary.available + currentAlloc;
 
   if (quantity > availableForReassignment) {
     throw new Error(
@@ -252,49 +120,18 @@ export async function upsertMemberTicketAllocation(data: {
   });
 }
 
-export async function removeEventTicketAllocation(eventId: string) {
-  const ticketTypeUsage = await prisma.ticketType.aggregate({
-    _sum: { quantity: true },
-    where: { eventId, NOT: { status: "DELETED" } },
-  });
-
-  if ((ticketTypeUsage._sum.quantity ?? 0) > 0) {
-    throw new Error(
-      "No se puede eliminar la asignación mientras existan tipos de tickets activos en el evento.",
-    );
-  }
-
-  return prisma.eventTicketAllocation.delete({ where: { eventId } });
-}
-
-// ─── Disponibilidad por evento ─────────────────────────────────────────────────
+// ─── Disponibilidad ────────────────────────────────────────────────────────────
 
 /**
- * Retorna los tickets restantes para crear en un evento dado.
- * - Si el evento tiene una asignación específica (EventTicketAllocation):
- *   devuelve `asignación - tickets ya creados` para ese evento.
- * - Si no tiene asignación: devuelve el stock no asignado de la productora.
+ * Retorna los tickets disponibles para agregar a tipos de ticket de un evento.
+ * Equivale al pool disponible total de la productora (sin ningún tope por evento).
  */
 export async function getRemainingTicketsForEvent(
-  eventId: string,
+  _eventId: string,
   producerId: string
 ): Promise<number> {
-  const [eventAllocation, existing] = await Promise.all([
-    getEventTicketAllocation(eventId),
-    prisma.ticketType.aggregate({
-      _sum: { quantity: true },
-      where: { eventId, NOT: { status: "DELETED" } },
-    }),
-  ]);
-
-  const usedForEvent = existing._sum.quantity ?? 0;
-
-  if (eventAllocation) {
-    return Math.max(0, eventAllocation.quantity - usedForEvent);
-  }
-
-  // Sin asignación explícita → el evento no puede crear tipos de tickets
-  return 0;
+  const summary = await getProducerStockSummary(producerId);
+  return Math.max(0, summary.available);
 }
 
 export async function removeMemberTicketAllocation(userId: string) {
