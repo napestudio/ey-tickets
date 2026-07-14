@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -35,6 +35,7 @@ const responseTxt: {
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessageShown, setErrorMessageShown] = useState<boolean>(false); // Control del toast
   const [urlError, setUrlError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -112,8 +113,26 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Contraseña</FormLabel>
-              <FormControl className="text-xl py-6">
-                <Input className={inputClass} type="password" {...field} />
+              <FormControl className="">
+                <div className="relative">
+                  <Input
+                    className={`${inputClass} pr-12`}
+                    type={showPassword ? "text" : "password"}
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -123,7 +142,7 @@ export default function LoginForm() {
           <Button
             type="submit"
             disabled={isLoading}
-          className="w-full font-bold text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full font-bold text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <>

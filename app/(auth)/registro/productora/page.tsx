@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { LocationSelect } from "@/components/location-select/location-select";
+import { LocationSelect } from "@/components/website/LocationSelect";
 import { EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { Title } from "@/components/website/ui/Title";
 import { inputClass } from "@/components/website/Contactform";
@@ -157,16 +157,13 @@ export default function ProducerRegistrationPage() {
         </Link>
       </div>
 
-      <div className="container mx-auto py-14 flex flex-col md:flex-row gap-10">
+      <div className="container mx-auto py-14 flex flex-col md:flex-row">
         <div className="flex-1 flex flex-col gap-4">
           <Title className="text-white font-bold uppercase text-[clamp(2.5rem,8vw,3.5rem)] leading-none">
             Registrá tu
             <br /> <span className="text-ey-turquoise">Productora</span>
           </Title>
-          <p className="text-sm text-white">
-            Paso {step} de 2 —{" "}
-            {step === 1 ? "Datos de la productora" : "Tu cuenta"}
-          </p>
+          
           <p className="text-sm text-white">
             ¿Ya tenés una cuenta?
             <Link
@@ -177,11 +174,15 @@ export default function ProducerRegistrationPage() {
             </Link>
           </p>
         </div>
-        <div className="flex-1 max-w-lg">
+        <div className="flex-1 md:max-w-lg">
+          <Title as="h2" className="text-xl text-white mb-4">
+            Paso {step} de 2 —{" "}
+            {step === 1 ? "Datos de la productora" : "Tu cuenta"}
+          </Title>
           {step === 1 && (
             <form onSubmit={handleNextStep} className="space-y-8 text-white">
               <div className="space-y-3">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="producerName">Nombre de la productora</Label>
                   <Input
                     id="producerName"
@@ -238,7 +239,7 @@ export default function ProducerRegistrationPage() {
                     onValueChange={handleSelectChange}
                     //className="flex h-9 w-full rounded-2xl border-2 border-ey-turquoise bg-ey-dark px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    <SelectTrigger className="bg-transparent border-2 border-ey-turquoise rounded-2xl">
+                    <SelectTrigger className="bg-transparent text-xl py-6 border-2 border-ey-turquoise rounded-2xl">
                       <SelectValue placeholder={"Seleccioná un tipo"} />
                     </SelectTrigger>
 
@@ -286,7 +287,7 @@ export default function ProducerRegistrationPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer"
+                className="w-full font-bold bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer"
               >
                 Siguiente
               </Button>

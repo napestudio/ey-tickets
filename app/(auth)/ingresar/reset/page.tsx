@@ -20,7 +20,7 @@ export default async function Register({ params }: { params: { id: string } }) {
           <Logo />
         </Link>
       </div>
-      <div className="container mx-auto py-14 flex flex-col gap-4 max-w-lg">
+      <div className="container mx-auto py-14 flex flex-col gap-4 md:max-w-2xl">
         <div className="flex flex-col mb-6">
           <Title className="text-white font-bold uppercase text-[clamp(2.5rem,8vw,3.5rem)] leading-none text-center">
             Recuperar<br/><span className="text-ey-turquoise">contraseña</span> 
