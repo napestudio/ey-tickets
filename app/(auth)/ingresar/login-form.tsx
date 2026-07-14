@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
+import { inputClass } from "@/components/website/Contactform";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Debe ser un email válido" }),
@@ -90,7 +91,7 @@ export default function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => onSubmit(values))}
-        className="space-y-8 w-full"
+        className="space-y-8 w-full text-white"
       >
         <FormField
           control={form.control}
@@ -98,8 +99,8 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>E-mail</FormLabel>
-              <FormControl className="text-xl py-6 rounded-none text-neutral-900">
-                <Input placeholder="Tu E-mail" {...field} />
+              <FormControl className="text-xl py-6 rounded-none">
+                <Input className={inputClass} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,8 +112,8 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Contraseña</FormLabel>
-              <FormControl className="text-xl py-6 rounded-none text-neutral-900">
-                <Input type="password" placeholder="Tu contraseña" {...field} />
+              <FormControl className="text-xl py-6">
+                <Input className={inputClass} type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -122,7 +123,7 @@ export default function LoginForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-neutral-900 transition-all rounded-none py-8 text-2xl"
+          className="w-full font-bold text-ey-dark bg-ey-turquoise hover:bg-ey-turquoise-dark uppercase rounded-2xl cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <>
