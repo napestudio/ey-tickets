@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { TicketPackageStatus } from "@prisma/client";
 import {
   CreateTicketPackageInput,
-  EventAllocationSummary,
   TicketPackageSummary,
 } from "@/types/superadmin";
 
@@ -101,59 +100,4 @@ export async function cancelTicketPackage(
   };
 }
 
-export async function getEventAllocations(
-  producerId: string
-): Promise<EventAllocationSummary[]> {
-  return prisma.eventTicketAllocation.findMany({
-    where: { producerId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      producerId: true,
-      eventId: true,
-      quantity: true,
-      createdAt: true,
-      updatedAt: true,
-      event: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        },
-      },
-    },
-  });
-}
 
-export async function assignTicketsToEvent(
-  producerId: string,
-  eventId: string,
-  quantity: number
-): Promise<EventAllocationSummary> {
-  return prisma.eventTicketAllocation.upsert({
-    where: { eventId },
-    create: {
-      producerId,
-      eventId,
-      quantity,
-    },
-    update: {
-      quantity,
-    },
-    select: {
-      id: true,
-      producerId: true,
-      eventId: true,
-      quantity: true,
-      createdAt: true,
-      updatedAt: true,
-      event: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        },
-      },
-    },
-  });
-}

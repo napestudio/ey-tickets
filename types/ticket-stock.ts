@@ -14,15 +14,6 @@ export type TicketPackage = {
   updatedAt: Date;
 };
 
-export type EventTicketAllocation = {
-  id: string;
-  producerId: string;
-  eventId: string;
-  quantity: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export type MemberTicketAllocation = {
   id: string;
   producerId: string;
@@ -34,9 +25,9 @@ export type MemberTicketAllocation = {
 
 export type StockSummary = {
   totalPool: number;
-  allocatedToEvents: number;
+  usedByTicketTypes: number;
   allocatedToMembers: number;
-  unallocated: number;
+  available: number;
 };
 
 export type PackageCatalogItem = {
@@ -78,19 +69,3 @@ export type EventStatus =
   | "CANCELED"
   | "DELETED";
 
-export type AllocationWithUsage = {
-  id: string;
-  producerId: string;
-  eventId: string;
-  quantity: number;
-  createdAt: Date;
-  updatedAt: Date;
-  event: {
-    id: string;
-    title: string;
-    status: EventStatus;
-    endDate: Date | null;
-  };
-  ticketTypesQuantity: number;
-  ticketsSold: number;
-};
