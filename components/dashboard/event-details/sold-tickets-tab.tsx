@@ -15,10 +15,8 @@ import { Ticket } from "lucide-react";
 
 export default async function SoldTicketsTab({
   evento,
-  hasAllocation,
 }: {
   evento: EventoWithTicketsType;
-  hasAllocation: boolean;
 }) {
   const { tickets, total } = await getSoldTicketsPaginated(evento.id, {
     page: 1,
@@ -36,7 +34,7 @@ export default async function SoldTicketsTab({
         <Button
           asChild
           size="sm"
-          disabled={evento.status === "CANCELED" || !hasAllocation}
+          disabled={evento.status === "CANCELED"}
         >
           <Link
             href={`/dashboard/evento/${evento.id}/vender-entrada`}

@@ -2,7 +2,6 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 import TycketTypeForm from "@/app/(dashboard)/dashboard/components/ticket-type-form/ticket-type-form";
 import { Button } from "@/components/ui/button";
 import { getEventById, getRemainingTicketsForEvent } from "@/lib/actions";
-import { getEventTicketAllocation } from "@/lib/api/ticket-stock";
 import { isOrgAdmin } from "@/lib/permissions";
 import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
@@ -35,11 +34,6 @@ export default async function NewTicketTypePage({
   if (!isOrgAdmin(role) && role !== "SUPERADMIN") {
     const membership = await getUserEventRole(userId, evento.id);
     if (!membership) redirect("/dashboard/eventos");
-  }
-
-  const eventAllocation = await getEventTicketAllocation(evento.id);
-  if (!eventAllocation) {
-    redirect(`/dashboard/evento/ticket-types/${id}`);
   }
 
   const remainingTickets = await getRemainingTicketsForEvent(

@@ -1302,17 +1302,6 @@ export async function purchaseTicketPackageAction(
   revalidatePath("/dashboard/ticket-stock");
 }
 
-export async function assignEventAllocationAction(
-  producerId: string,
-  eventId: string,
-  quantity: number
-) {
-  await TicketStock.upsertEventTicketAllocation({ producerId, eventId, quantity });
-  revalidatePath("/dashboard/ticket-stock");
-  revalidatePath(`/dashboard/evento/${eventId}`);
-  revalidatePath(`/dashboard/evento/ticket-types/${eventId}`);
-}
-
 export async function assignMemberAllocationAction(
   producerId: string,
   userId: string,
@@ -1320,13 +1309,6 @@ export async function assignMemberAllocationAction(
 ) {
   await TicketStock.upsertMemberTicketAllocation({ producerId, userId, quantity });
   revalidatePath("/dashboard/ticket-stock");
-}
-
-export async function removeEventAllocationAction(eventId: string) {
-  await TicketStock.removeEventTicketAllocation(eventId);
-  revalidatePath("/dashboard/ticket-stock");
-  revalidatePath(`/dashboard/evento/${eventId}`);
-  revalidatePath(`/dashboard/evento/ticket-types/${eventId}`);
 }
 
 export async function getSoldTicketCountsByTypeAction(eventId: string) {

@@ -113,21 +113,3 @@ export interface TicketPackageSummary {
   createdAt: Date;
 }
 
-export interface AssignTicketsInput {
-  eventId: string;
-  quantity: number;
-}
-
-export interface EventAllocationSummary {
-  id: string;
-  producerId: string;
-  eventId: string;
-  quantity: number;
-  createdAt: Date;
-  updatedAt: Date;
-  event: {
-    id: string;
-    title: string;
-    slug: string;
-  };
-}

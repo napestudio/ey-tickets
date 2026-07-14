@@ -5,9 +5,9 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { LocationSelect } from "@/components/location-select/location-select";
+import { Eye, EyeOff } from "lucide-react";
+
+import { LocationSelect } from "@/components/website/LocationSelect";
 import { EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { Title } from "@/components/website/ui/Title";
 import { inputClass } from "@/components/website/Contactform";
@@ -51,6 +51,7 @@ export default function ProducerRegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stepOneError, setStepOneError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     producerName: "",
@@ -157,31 +158,32 @@ export default function ProducerRegistrationPage() {
         </Link>
       </div>
 
-      <div className="container mx-auto py-14 flex flex-col md:flex-row gap-10">
+      <div className="container mx-auto py-14 flex flex-col md:flex-row">
         <div className="flex-1 flex flex-col gap-4">
           <Title className="text-white font-bold uppercase text-[clamp(2.5rem,8vw,3.5rem)] leading-none">
             Registrá tu
             <br /> <span className="text-ey-turquoise">Productora</span>
           </Title>
-          <p className="text-sm text-white">
-            Paso {step} de 2 —{" "}
-            {step === 1 ? "Datos de la productora" : "Tu cuenta"}
-          </p>
+
           <p className="text-sm text-white">
             ¿Ya tenés una cuenta?
             <Link
-              href="/ingresar"              
+              href="/ingresar"
               className="underline ml-4 text-ey-turquoise hover:underline hover:text-ey-turquoise-dark"
             >
               Iniciá sesión
             </Link>
           </p>
         </div>
-        <div className="flex-1 max-w-lg">
+        <div className="flex-1 md:max-w-lg">
+          <Title as="h2" className="text-xl text-white mb-4">
+            Paso {step} de 2 —{" "}
+            {step === 1 ? "Datos de la productora" : "Tu cuenta"}
+          </Title>
           {step === 1 && (
             <form onSubmit={handleNextStep} className="space-y-8 text-white">
               <div className="space-y-3">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="producerName">Nombre de la productora</Label>
                   <Input
                     id="producerName"
@@ -238,7 +240,7 @@ export default function ProducerRegistrationPage() {
                     onValueChange={handleSelectChange}
                     //className="flex h-9 w-full rounded-2xl border-2 border-ey-turquoise bg-ey-dark px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    <SelectTrigger className="bg-transparent border-2 border-ey-turquoise rounded-2xl">
+                    <SelectTrigger className="bg-transparent text-xl py-6 border-2 border-ey-turquoise rounded-2xl">
                       <SelectValue placeholder={"Seleccioná un tipo"} />
                     </SelectTrigger>
 
@@ -286,7 +288,7 @@ export default function ProducerRegistrationPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer"
+                className="w-full font-bold bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer"
               >
                 Siguiente
               </Button>
@@ -326,16 +328,30 @@ export default function ProducerRegistrationPage() {
                 </div>
                 <div>
                   <Label htmlFor="userPassword">Contraseña</Label>
-                  <Input
-                    id="userPassword"
-                    name="userPassword"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={form.userPassword}
-                    onChange={handleChange}
-                    className={inputClass}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="userPassword"
+                      name="userPassword"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      minLength={8}
+                      value={form.userPassword}
+                      onChange={handleChange}
+                      className={`${inputClass} pr-12`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 

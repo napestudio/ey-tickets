@@ -42,16 +42,17 @@ export default async function Dashboard() {
         title="Panel de administración"
         subtitle="Administra tus eventos y venta de tickets"
       />
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {navItems.map(({ href, icon: Icon, label, description }) => (
           <Link
             key={href}
             href={href}
-            className="flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="flex flex-col items-center gap-3 rounded-xl border bg-card p-3 text-center shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <Icon className="h-8 w-8" strokeWidth={1.5} />
+            <Icon className="h-6 w-6" strokeWidth={1.5} />
             <div>
-              <p className="font-semibold">{label}</p>
+              <p className="font-semibold text-sm">{label}</p>
               <p className="text-xs text-muted-foreground">{description}</p>
             </div>
           </Link>
