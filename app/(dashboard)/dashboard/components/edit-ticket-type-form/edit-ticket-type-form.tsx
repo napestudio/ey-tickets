@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Evento } from "@/types/event";
-import { updateTicketType } from "@/lib/actions";
+import { adjustTicketStock, updateTicketType } from "@/lib/actions";
 import { DatesType, TicketType } from "@/types/tickets";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
@@ -57,17 +57,13 @@ export default function EditTycketTypeForm({
   evento,
   ticket,
   eventId,
-  remainingTickets,
   soldCount,
 }: {
   evento: Evento;
   ticket: TicketType;
   eventId: string;
-  remainingTickets?: number;
   soldCount: number;
 }) {
-  const adjustableMax = (remainingTickets ?? 0) + (ticket.quantity as number) - soldCount;
-
   const FormSchema = z.object({
     selectedDates: z
       .array(z.string())
@@ -77,40 +73,42 @@ export default function EditTycketTypeForm({
     title: z.string(),
     description: z.string().optional(),
     price: z.number(),
-    quantity: z
-      .number()
-      .min(0, { message: "La cantidad ajustable no puede ser negativa." })
-      .max(adjustableMax, {
-        message: `No podés superar el límite disponible (máx. ${adjustableMax}).`,
-      }),
     discount: z.number().optional(),
     multi: z.boolean(),
     isFree: z.boolean().default(false),
     status: z.enum(["ACTIVE", "INACTIVE", "ENDED", "DELETED", "SOLDOUT"]),
-    // startDate: z.date(),
     endDate: z.date().optional(),
   });
+
   const { toast } = useToast();
   const router = useRouter();
   const backHref = `/dashboard/evento/ticket-types/${eventId}`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const parsedTicketDates = JSON.parse(ticket.dates as string);
-  // Extraemos el valor date del string parseado de feachas
   const datesValue = parsedTicketDates.map((date: DatesType) => date.date);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(
     ticket.discount !== 0 ? true : false,
   );
 
+  // Stock control state
+  const [stockDelta, setStockDelta] = useState<number>(0);
+  const [stockReason, setStockReason] = useState<string>("");
+  const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
+
+  const currentStock = ticket.quantity as number;
+  const available = currentStock - soldCount;
+  const previewQuantity = currentStock + stockDelta;
+  const previewAvailable = previewQuantity - soldCount;
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      selectedDates: datesValue, // Usamos el valor de date para el checkbox
+      selectedDates: datesValue,
       title: ticket.title,
       description: ticket.description || "",
       price: ticket.price as number,
       status: ticket.status,
-      quantity: (ticket.quantity as number) - soldCount,
       discount: ticket.discount || undefined,
       multi: ticket.buyGet ? true : false,
       isFree: ticket.isFree,
@@ -140,6 +138,26 @@ export default function EditTycketTypeForm({
     }
   }
 
+  async function handleStockAdjust() {
+    if (stockDelta === 0) return;
+    setIsAdjusting(true);
+    try {
+      await adjustTicketStock(ticket.id!, stockDelta, stockReason || undefined);
+      toast({ title: "Stock actualizado." });
+      setStockDelta(0);
+      setStockReason("");
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error al ajustar el stock",
+        description: error instanceof Error ? error.message : "Error inesperado.",
+      });
+    } finally {
+      setIsAdjusting(false);
+    }
+  }
+
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
     setIsLoading(true);
     const formatedDates = values.selectedDates.map((date, index) => ({
@@ -153,7 +171,6 @@ export default function EditTycketTypeForm({
       description: values.description || null,
       price: values.price as number,
       dates: stringDates,
-      quantity: soldCount + values.quantity,
       discount: values.discount,
       buyGet: values.multi === true ? 2 : 0,
       isFree: values.isFree,
@@ -176,6 +193,7 @@ export default function EditTycketTypeForm({
       setIsLoading(false);
     }
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -278,32 +296,97 @@ export default function EditTycketTypeForm({
               </div>
             </Box>
 
+            {/* Stock management panel */}
+            <Box>
+              <div className="space-y-6">
+                <h3 className="font-bold">Stock</h3>
+
+                {/* Summary */}
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="border rounded-lg p-3">
+                    <p className="text-2xl font-bold">{currentStock}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total asignado</p>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <p className="text-2xl font-bold">{soldCount}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Vendidos</p>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <p className="text-2xl font-bold">{available}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Disponibles</p>
+                  </div>
+                </div>
+
+                {/* Quick-delta buttons */}
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Ajuste rápido</p>
+                  <div className="flex flex-wrap gap-2">
+                    {([-100, -20, -10, 10, 20, 100] as const).map((amount) => (
+                      <Button
+                        key={amount}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setStockDelta((prev) => prev + amount)}
+                      >
+                        {amount > 0 ? `+${amount}` : amount}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom delta input */}
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    value={stockDelta}
+                    onChange={(e) => setStockDelta(Number(e.target.value))}
+                    className="w-32"
+                    placeholder="0"
+                  />
+                  {stockDelta !== 0 && (
+                    <span className="text-sm text-muted-foreground">
+                      Resultado: {previewQuantity} ({previewAvailable >= 0 ? previewAvailable : 0} disponibles)
+                    </span>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStockDelta(0)}
+                    disabled={stockDelta === 0}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
+
+                {/* Reason */}
+                <Input
+                  value={stockReason}
+                  onChange={(e) => setStockReason(e.target.value)}
+                  placeholder="Motivo (opcional)"
+                />
+
+                <Button
+                  type="button"
+                  onClick={handleStockAdjust}
+                  disabled={stockDelta === 0 || isAdjusting}
+                >
+                  {isAdjusting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Aplicando...
+                    </>
+                  ) : (
+                    `Aplicar ${stockDelta > 0 ? "+" : ""}${stockDelta || 0}`
+                  )}
+                </Button>
+              </div>
+            </Box>
+
             <Box>
               <div className="space-y-8">
                 <h3 className="font-bold">Disponibilidad</h3>
-                <FormField
-                  control={form.control}
-                  name="quantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cantidad disponible</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={adjustableMax}
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Se asignaron {ticket.quantity as number}, se vendieron {soldCount}.
-                        Podés ajustar hasta {adjustableMax} adicionales.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="endDate"

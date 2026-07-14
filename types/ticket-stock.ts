@@ -69,3 +69,19 @@ export type EventStatus =
   | "CANCELED"
   | "DELETED";
 
+export type StockMovementType = "INCREASE" | "DECREASE";
+
+export type TicketStockMovement = {
+  id: string;
+  ticketTypeId: string;
+  eventId: string;
+  producerId: string;
+  performedById: string;
+  type: StockMovementType;
+  delta: number;
+  previousQuantity: number;
+  newQuantity: number;
+  reason: string | null;
+  createdAt: Date;
+  performedBy?: { id: string; name: string | null };
+};
