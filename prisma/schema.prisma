@@ -123,7 +123,6 @@ model Producer {
   configuration           ProducerConfiguration?
   invitations             Invitation[]
   ticketPackages          TicketPackage[]
-  eventTicketAllocations  EventTicketAllocation[]
   memberTicketAllocations MemberTicketAllocation[]
 
   @@map("producers")
@@ -179,20 +178,6 @@ model TicketPackage {
   @@map("ticket_packages")
 }
 
-model EventTicketAllocation {
-  id         String   @id @default(cuid())
-  producerId String
-  eventId    String   @unique
-  quantity   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
-  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  @@index([producerId])
-  @@map("event_ticket_allocations")
-}
 
 model MemberTicketAllocation {
   id         String   @id @default(cuid())
@@ -270,7 +255,6 @@ model Event {
   ticketTypes      TicketType[]
   validatorToken   ValidatorToken[]
   eventPayments    EventPayment[]
-  ticketAllocation EventTicketAllocation?
 
   @@index([producerId])
   @@map("events")

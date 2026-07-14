@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockSummary } from "@/types/ticket-stock";
-import { Package, Calendar, Users, Ticket } from "lucide-react";
+import { Package, Calendar, Ticket } from "lucide-react";
 
 interface StockOverviewCardsProps {
   summary: StockSummary;
@@ -12,24 +12,17 @@ export default function StockOverviewCards({
   const cards = [
     {
       title: "Disponibles",
-      value: summary.unallocated,
-      description: "Sin asignar",
+      value: summary.available,
+      description: "Sin usar en tipos de ticket",
       icon: Ticket,
-      highlight: summary.unallocated <= 0,
+      highlight: summary.available <= 0,
     },
     {
-      title: "Asignados",
-      value: summary.allocatedToEvents,
-      description: "En uso en eventos activos",
+      title: "En uso",
+      value: summary.usedByTicketTypes,
+      description: "Asignados a tipos de ticket",
       icon: Calendar,
     },
-    // {
-    //   title: "Asignado a miembros",
-    //   value: summary.allocatedToMembers,
-    //   description: "Cupos de miembros",
-    //   icon: Users,
-    // },
-
     {
       title: "Total en pool",
       value: summary.totalPool,
@@ -39,7 +32,7 @@ export default function StockOverviewCards({
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-3">
       {cards.map((card) => (
         <Card
           key={card.title}
