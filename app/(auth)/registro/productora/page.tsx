@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff } from "lucide-react";
+
 import { LocationSelect } from "@/components/website/LocationSelect";
 import { EventCategory, EVENT_CATEGORY_LABELS } from "@/types/event";
 import { Title } from "@/components/website/ui/Title";
@@ -51,6 +51,7 @@ export default function ProducerRegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stepOneError, setStepOneError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     producerName: "",
@@ -163,11 +164,11 @@ export default function ProducerRegistrationPage() {
             Registrá tu
             <br /> <span className="text-ey-turquoise">Productora</span>
           </Title>
-          
+
           <p className="text-sm text-white">
             ¿Ya tenés una cuenta?
             <Link
-              href="/ingresar"              
+              href="/ingresar"
               className="underline ml-4 text-ey-turquoise hover:underline hover:text-ey-turquoise-dark"
             >
               Iniciá sesión
@@ -327,16 +328,30 @@ export default function ProducerRegistrationPage() {
                 </div>
                 <div>
                   <Label htmlFor="userPassword">Contraseña</Label>
-                  <Input
-                    id="userPassword"
-                    name="userPassword"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={form.userPassword}
-                    onChange={handleChange}
-                    className={inputClass}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="userPassword"
+                      name="userPassword"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      minLength={8}
+                      value={form.userPassword}
+                      onChange={handleChange}
+                      className={`${inputClass} pr-12`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
