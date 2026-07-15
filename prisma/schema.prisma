@@ -82,6 +82,7 @@ model User {
   createdEvents          Event[]                 @relation("CreatedEvents")
   memberTicketAllocation MemberTicketAllocation?
   createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
+  stockMovements         TicketStockMovement[]   @relation("StockMovements")
 }
 
 model UserConfiguration {
@@ -255,6 +256,7 @@ model Event {
   ticketTypes      TicketType[]
   validatorToken   ValidatorToken[]
   eventPayments    EventPayment[]
+  stockMovements   TicketStockMovement[]
 
   @@index([producerId])
   @@map("events")
@@ -302,14 +304,38 @@ model TicketType {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   isFree       Boolean          @default(false)
-  discountCode DiscountCode[]
-  orders       Order[]
-  promotion    Promotion[]
-  ticketOrder  TicketOrder[]
-  event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdBy    User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
+  discountCode   DiscountCode[]
+  orders         Order[]
+  promotion      Promotion[]
+  ticketOrder    TicketOrder[]
+  stockMovements TicketStockMovement[]
+  event          Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy      User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
   @@map("ticket_types")
+}
+
+model TicketStockMovement {
+  id               String            @id @default(cuid())
+  ticketTypeId     String
+  eventId          String
+  producerId       String
+  performedById    String
+  type             StockMovementType
+  delta            Int
+  previousQuantity Int
+  newQuantity      Int
+  reason           String?
+  createdAt        DateTime          @default(now())
+
+  ticketType  TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  performedBy User       @relation("StockMovements", fields: [performedById], references: [id])
+
+  @@index([ticketTypeId])
+  @@index([eventId])
+  @@index([producerId])
+  @@map("ticket_stock_movements")
 }
 
 // ─────────────────────────────────────────────
@@ -541,6 +567,11 @@ enum TicketPackageStatus {
   ACTIVE
   EXPIRED
   CANCELED
+}
+
+enum StockMovementType {
+  INCREASE
+  DECREASE
 }
 
 enum EventCategory {

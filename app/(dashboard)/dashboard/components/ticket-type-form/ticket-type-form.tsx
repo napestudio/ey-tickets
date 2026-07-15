@@ -250,7 +250,7 @@ export default function TycketTypeForm({
                   name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cantidad disponible</FormLabel>
+                      <FormLabel>Cantidad inicial</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
