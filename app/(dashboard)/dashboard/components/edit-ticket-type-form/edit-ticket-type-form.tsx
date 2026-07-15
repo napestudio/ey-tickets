@@ -90,6 +90,7 @@ export default function EditTycketTypeForm({
     description: z.string().optional(),
     price: z.number(),
     discount: z.number().optional(),
+    limitPerSale: z.number().min(1).optional(),
     multi: z.boolean(),
     isFree: z.boolean().default(false),
     status: z.enum(["ACTIVE", "INACTIVE", "ENDED", "DELETED", "SOLDOUT"]),
@@ -138,6 +139,7 @@ export default function EditTycketTypeForm({
       status: ticket.status,
       discount: ticket.discount || undefined,
       multi: ticket.buyGet ? true : false,
+      limitPerSale: ticket.limitPerSale ?? 10,
       isFree: ticket.isFree,
       endDate: ticket.endDate || undefined,
     },
@@ -205,6 +207,7 @@ export default function EditTycketTypeForm({
       dates: stringDates,
       discount: values.discount,
       buyGet: values.multi === true ? 2 : 0,
+      limitPerSale: values.limitPerSale,
       isFree: values.isFree,
       endDate: values.endDate,
       status: values.status,
@@ -519,6 +522,33 @@ export default function EditTycketTypeForm({
               <Box>
                 <div className="space-y-8">
                   <h3 className="font-bold">Disponibilidad</h3>
+                  <FormField
+                    control={form.control}
+                    name="limitPerSale"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Límite por venta</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                              )
+                            }
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Máximo de tickets de este tipo por transacción.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="endDate"
