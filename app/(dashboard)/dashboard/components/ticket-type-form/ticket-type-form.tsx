@@ -69,6 +69,7 @@ export default function TycketTypeForm({
       message: `No podés crear más de tickets de los disponibles.`,
     }),
     discount: z.number().optional(),
+    limitPerSale: z.number().min(1).optional(),
     multi: z.boolean(),
     isFree: z.boolean().default(false),
     status: z.enum(["ACTIVE", "INACTIVE", "ENDED", "DELETED", "SOLDOUT"]),
@@ -85,6 +86,7 @@ export default function TycketTypeForm({
       status: "ACTIVE",
       quantity: 0,
       discount: 0,
+      limitPerSale: 10,
       multi: false,
       isFree: false,
       endDate: undefined,
@@ -110,6 +112,7 @@ export default function TycketTypeForm({
       position: 0,
       discount: values.discount,
       buyGet: values.multi === true ? 2 : 0,
+      limitPerSale: values.limitPerSale,
       type: "NORMAL",
       isFree: values.isFree,
     };
@@ -260,6 +263,34 @@ export default function TycketTypeForm({
                           }
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="limitPerSale"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Límite por venta</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Máximo de tickets de este tipo por transacción.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
