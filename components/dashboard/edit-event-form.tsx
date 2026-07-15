@@ -190,7 +190,10 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
         : 0;
     setDateTimeSelections([
       ...dateTimeSelections,
-      { id: newId, date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}` },
+      {
+        id: newId,
+        date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}`,
+      },
     ]);
   };
 
@@ -726,11 +729,9 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                       </span>
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Términos y condiciones, texto legal del evento..."
-                        className="min-h-30 resize-y"
-                        {...field}
+                      <RichTextEditor
                         value={field.value ?? ""}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -740,9 +741,9 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
               {renderSectionActions("legalText")}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {legalText ? legalText : "Sin texto legal"}
-            </p>
+            <div className="text-[0.5rem] text-neutral-400">
+              {legalText && <EventDescription html={legalText} />}
+            </div>
           )}
         </Box>
 

@@ -8,7 +8,7 @@ export function EventDescription({ html }: { html: string }) {
 
   return (
     <div
-      className="rich-text text-sm"
+      className="rich-text"
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );

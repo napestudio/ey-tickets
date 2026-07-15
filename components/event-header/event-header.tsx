@@ -2,6 +2,7 @@ import { GetSingleEventResponse } from "@/lib/api/eventos";
 import { Evento } from "@/types/event";
 import { CalendarIcon, MapPin } from "lucide-react";
 import Image from "next/image";
+import { EventDescription } from "../dashboard/event-description";
 
 type EventHeaderProps = {
   evento: GetSingleEventResponse;
@@ -15,14 +16,9 @@ export default function EventHeader({
   width = 20,
   height = 20,
 }: EventHeaderProps) {
-  const truncateDescription = (description: string, maxLength: number) => {
-    const plain = description.replace(/<[^>]*>/g, "");
-    if (plain.length > maxLength) {
-      return `${plain.slice(0, maxLength)}...`;
-    }
-    return plain;
-  };
+
   if (!evento) return;
+
   return (
     <section className="w-full relative">
       <div className="absolute h-[30vh] w-full overflow-hidden ">
@@ -75,8 +71,8 @@ export default function EventHeader({
                 </div>
               </div>
               <div className="text-base text-balance">
-                <p>{truncateDescription(evento?.description || "", 250)}</p>
-              </div>
+                <EventDescription html={evento?.description || ""} />
+              </div>              
             </div>
           </div>
         </div>
