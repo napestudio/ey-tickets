@@ -216,7 +216,7 @@ export async function getStats({
 /**
  * Todos los eventos activos (para páginas públicas).
  */
-export const getAllActiveEvents = cache(async () => {
+export async function getAllActiveEvents() {
   return prisma.event.findMany({
     where: {
       status: "ACTIVE",
@@ -225,7 +225,7 @@ export const getAllActiveEvents = cache(async () => {
     include: { producer: true },
     orderBy: { createdAt: "desc" },
   });
-});
+}
 
 export async function getEventsByMemberId(userId: string) {
   return prisma.event.findMany({

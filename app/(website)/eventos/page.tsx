@@ -4,6 +4,8 @@ import { Evento } from "@/types/event";
 import { Title } from "@radix-ui/react-toast";
 import { Metadata } from "next/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "EyTickets | Eventos en vivo",
   description: "Venta de tickets online para eventos en vivo.",
