@@ -1,12 +1,12 @@
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import EditTycketTypeForm from "@/app/(dashboard)/dashboard/components/edit-ticket-type-form/edit-ticket-type-form";
-import StockMovementLog from "@/app/(dashboard)/dashboard/components/stock-movement-log/stock-movement-log";
 import { Button } from "@/components/ui/button";
 import {
   getEventById,
   getTicketTypeWithSoldCount,
   getTicketStockMovements,
 } from "@/lib/actions";
+import { getProducerStockSummary } from "@/lib/api/ticket-stock";
 import { isOrgAdmin } from "@/lib/permissions";
 import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
@@ -17,7 +17,6 @@ import { redirect } from "next/navigation";
 import { Evento } from "@/types/event";
 import { TicketType } from "@/types/tickets";
 import { Metadata } from "next";
-import Box from "@/components/dashboard/box";
 
 export const metadata: Metadata = {
   title: "Dashboard | Editar tipo de ticket",
@@ -43,9 +42,10 @@ export default async function EditTicketTypePage({
     if (!membership) redirect("/dashboard/eventos");
   }
 
-  const [ticketType, stockMovements] = await Promise.all([
+  const [ticketType, stockMovements, stockSummary] = await Promise.all([
     getTicketTypeWithSoldCount(ticketTypeId),
     getTicketStockMovements(ticketTypeId),
+    getProducerStockSummary(evento.producerId),
   ]);
 
   if (!ticketType) redirect(`/dashboard/evento/ticket-types/${id}`);
@@ -75,11 +75,9 @@ export default async function EditTicketTypePage({
         } as unknown as TicketType}
         eventId={id}
         soldCount={ticketType.soldCount}
+        stockMovements={stockMovements}
+        maxAddable={stockSummary.available}
       />
-      <Box>
-        <h3 className="font-bold mb-4">Historial de movimientos de stock</h3>
-        <StockMovementLog movements={stockMovements} />
-      </Box>
     </div>
   );
 }
