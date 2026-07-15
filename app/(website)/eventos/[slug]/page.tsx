@@ -8,6 +8,7 @@ import { DiscountCode } from "@/types/discount-code";
 import { Metadata, ResolvingMetadata } from "next";
 import { GetSingleEventResponse } from "@/lib/api/eventos";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { EventDescription } from "@/components/dashboard/event-description";
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
@@ -83,14 +84,14 @@ export default async function Evento({ params }: { params: { slug: string } }) {
         dates={groupedDates}
       />
 
-      <section className="w-200 max-w-[95vw] mx-auto py-6 md:py-12 mt-12 min-h-svh">
+      <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative">
         {paymentMethod.length > 0 && (
           <>
-            <h2 className="mb-14 mt-10 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-white text-stroke text-center">
+            <h2 className="m-4 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-black text-stroke text-center">
               <span className="font-bold">Comprá tu </span>
               <span className="font-thin">entrada</span>
             </h2>
-            <div className="md:flex w-[90vw] md:w-full max-w-[90vw] mx-auto align-center justify-center flex-1">
+            <div className="md:flex md:w-full max-w-[90vw] mx-auto align-center justify-center flex-1">
               {evento?.ticketTypes && (
                 <TicketTypePicker
                   tickets={evento.ticketTypes.map((t) => ({
@@ -116,6 +117,35 @@ export default async function Evento({ params }: { params: { slug: string } }) {
             </div>
           </>
         )}
+
+        {evento?.ageRestriction && (
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 my-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+              {evento?.ageRestriction}+
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Edad mínima para ingresar al evento
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 my-4">
+          <ul className="flex flex-wrap gap-2">
+            {evento?.restrictions?.map((tag) => (
+              <li
+                key={tag}
+                className="inline-block bg-ey-turquoise text-gray-800 text-sm font-semibold mr-2 px-5 py-2.5 rounded dark:bg-gray-700 dark:text-gray-300"
+              >
+                {tag}
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <div className="flex items-center gap-4 text-[.5rem] font-medium text-neutral-400 text-balance">
+       
+          <EventDescription html={evento?.legalText ?? ""} />
+        </div>
       </section>
     </>
   );
