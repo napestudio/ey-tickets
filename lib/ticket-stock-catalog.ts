@@ -15,3 +15,9 @@ export const PACKAGE_CATALOG: PackageCatalogItem[] = [
     totalPrice: 223200.0,
   },
 ];
+
+export function getUnitPriceForQuantity(qty: number): number {
+  if (qty >= PACKAGE_CATALOG[2].quantity) return PACKAGE_CATALOG[2].unitPrice;
+  if (qty >= PACKAGE_CATALOG[1].quantity) return PACKAGE_CATALOG[1].unitPrice;
+  return PACKAGE_CATALOG[0].unitPrice;
+}
