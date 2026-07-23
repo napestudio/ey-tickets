@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
+import { PACKAGE_CATALOG, getUnitPriceForQuantity } from "@/lib/ticket-stock-catalog";
 import PurchasePackageDialog from "./purchase-package-dialog";
 import { formatPrice } from "@/lib/utils";
 
@@ -22,7 +22,11 @@ export default function PackageCatalog({ producerId }: PackageCatalogProps) {
   const [customQty, setCustomQty] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const CUSTOM_UNIT_PRICE = PACKAGE_CATALOG[0].unitPrice;
+  const parsedCustomQty = parseInt(customQty, 10);
+  const customUnitPrice =
+    !isNaN(parsedCustomQty) && parsedCustomQty >= 1
+      ? getUnitPriceForQuantity(parsedCustomQty)
+      : PACKAGE_CATALOG[0].unitPrice;
 
   function handleSelectPackage(quantity: number, unitPrice: number) {
     setSelected({ quantity, unitPrice });
@@ -32,7 +36,7 @@ export default function PackageCatalog({ producerId }: PackageCatalogProps) {
   function handleCustomPurchase() {
     const qty = parseInt(customQty, 10);
     if (isNaN(qty) || qty < 1) return;
-    setSelected({ quantity: qty, unitPrice: CUSTOM_UNIT_PRICE });
+    setSelected({ quantity: qty, unitPrice: getUnitPriceForQuantity(qty) });
     setDialogOpen(true);
   }
 
@@ -100,7 +104,7 @@ export default function PackageCatalog({ producerId }: PackageCatalogProps) {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Precio por ticket: {formatPrice(CUSTOM_UNIT_PRICE)}
+              Precio por ticket: {formatPrice(customUnitPrice)}
             </p>
           </div>
         </CardContent>

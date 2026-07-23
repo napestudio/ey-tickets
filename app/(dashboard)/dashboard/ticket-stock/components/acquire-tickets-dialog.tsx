@@ -14,20 +14,32 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
+import {
+  PACKAGE_CATALOG,
+  getUnitPriceForQuantity,
+} from "@/lib/ticket-stock-catalog";
 import PurchasePackageDialog from "./purchase-package-dialog";
 
 interface AcquireTicketsDialogProps {
   producerId: string;
 }
 
-export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialogProps) {
+export default function AcquireTicketsDialog({
+  producerId,
+}: AcquireTicketsDialogProps) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selected, setSelected] = useState<{ quantity: number; unitPrice: number } | null>(null);
+  const [selected, setSelected] = useState<{
+    quantity: number;
+    unitPrice: number;
+  } | null>(null);
   const [customQty, setCustomQty] = useState("");
 
-  const CUSTOM_UNIT_PRICE = PACKAGE_CATALOG[0].unitPrice;
+  const parsedCustomQty = parseInt(customQty, 10);
+  const customUnitPrice =
+    !isNaN(parsedCustomQty) && parsedCustomQty >= 1
+      ? getUnitPriceForQuantity(parsedCustomQty)
+      : PACKAGE_CATALOG[0].unitPrice;
 
   function handleSelectPackage(quantity: number, unitPrice: number) {
     setCatalogOpen(false);
@@ -39,7 +51,7 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
     const qty = parseInt(customQty, 10);
     if (isNaN(qty) || qty < 1) return;
     setCustomQty("");
-    handleSelectPackage(qty, CUSTOM_UNIT_PRICE);
+    handleSelectPackage(qty, getUnitPriceForQuantity(qty));
   }
 
   function handleConfirmClose(v: boolean) {
@@ -59,7 +71,8 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
           <DialogHeader>
             <DialogTitle>Adquirir tickets</DialogTitle>
             <DialogDescription>
-              Seleccioná un paquete o ingresá una cantidad personalizada para agregar tickets a tu pool.
+              Seleccioná un paquete o ingresá una cantidad personalizada para
+              agregar tickets a tu pool.
             </DialogDescription>
           </DialogHeader>
 
@@ -89,7 +102,9 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
                   <Button
                     size="sm"
                     className="w-full"
-                    onClick={() => handleSelectPackage(pkg.quantity, pkg.unitPrice)}
+                    onClick={() =>
+                      handleSelectPackage(pkg.quantity, pkg.unitPrice)
+                    }
                   >
                     Comprar
                   </Button>
@@ -102,7 +117,10 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
               <p className="text-sm font-medium">Cantidad personalizada</p>
               <div className="flex gap-3 items-end">
                 <div className="space-y-1 flex-1">
-                  <Label htmlFor="custom-qty" className="text-xs text-muted-foreground">
+                  <Label
+                    htmlFor="custom-qty"
+                    className="text-xs text-muted-foreground"
+                  >
                     Cantidad de tickets
                   </Label>
                   <Input
@@ -125,8 +143,11 @@ export default function AcquireTicketsDialog({ producerId }: AcquireTicketsDialo
                   Comprar
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Precio por ticket: {formatPrice(CUSTOM_UNIT_PRICE)}
+              <p className="text-sm text-muted-foreground">
+                Precio por ticket:{" "}
+                <span className="font-bold">
+                  {formatPrice(customUnitPrice)}
+                </span>
               </p>
             </div>
           </div>
