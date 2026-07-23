@@ -2,6 +2,8 @@
 
 import {
   Calendar,
+  ChevronDown,
+  ChevronRight,
   CreditCard,
   LayoutDashboard,
   Settings,
@@ -19,16 +21,14 @@ import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import Logo from "../ui/Logo";
+import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
 
 interface DashboardNavProps {
   session: Session;
   producerName: string | null;
-  items: {
-    title: string;
-    href: string;
-    icon: string;
-  }[];
+  items: NavItem[];
 }
 
 export default function SideBar({
@@ -37,6 +37,25 @@ export default function SideBar({
   producerName,
 }: DashboardNavProps) {
   const path = usePathname();
+
+  const isChildActive = (item: NavItem) =>
+    !!item.children?.some((child) => path.startsWith(child.href));
+
+  const [expandedSections, setExpandedSections] = useState<string[]>(() =>
+    items
+      .filter(
+        (item) =>
+          item.children &&
+          item.children.some((child) => path.startsWith(child.href)),
+      )
+      .map((item) => item.title),
+  );
+
+  const toggleSection = (title: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
+    );
+  };
 
   const getIcon = (icon: string) => {
     switch (icon) {
@@ -61,35 +80,86 @@ export default function SideBar({
 
   return (
     <div className="flex flex-col justify-between h-full gap-4 py-6">
-      <Link href={SITE_URL} className="w-full pl-8 mb-8">
-        <div className="w-44">
-          <Logo />
-        </div>
-      </Link>
-      <nav className="grid items-start gap-2 px-4">
-        {items.map((item, index) => {
-          const isActive =
-            item.href === "/dashboard"
-              ? path === item.href
-              : path.startsWith(item.href);
-          return (
-            <Link key={index} href={item.href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
-                  isActive
-                    ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
-                    : "font-normal",
-                )}
-              >
-                {getIcon(item.icon)}
-                {item.title}
-              </Button>
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="w-full mb-8 px-4">
+        <Link href={SITE_URL} className="pl-8">
+          <div className="w-44">
+            <Logo />
+          </div>
+        </Link>
+        <nav className="grid items-start gap-2 mt-12">
+          {items.map((item, index) => {
+            if (item.children) {
+              const isExpanded = expandedSections.includes(item.title);
+              const hasActiveChild = isChildActive(item);
+              return (
+                <div key={index}>
+                  <Button
+                    variant={hasActiveChild ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
+                      hasActiveChild
+                        ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+                        : "font-normal",
+                    )}
+                    onClick={() => toggleSection(item.title)}
+                  >
+                    {getIcon(item.icon)}
+                    <span className="flex-1 text-left">{item.title}</span>
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 ml-1 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 ml-1 shrink-0" />
+                    )}
+                  </Button>
+                  {isExpanded && (
+                    <div className="mt-1 ml-4 grid gap-1">
+                      {item.children.map((child, childIndex) => {
+                        const isActive = path.startsWith(child.href);
+                        return (
+                          <Link key={childIndex} href={child.href}>
+                            <Button
+                              variant={isActive ? "secondary" : "ghost"}
+                              className={cn(
+                                "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors text-sm",
+                                isActive
+                                  ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+                                  : "font-normal",
+                              )}
+                            >
+                              {child.title}
+                            </Button>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            const isActive =
+              item.href === "/dashboard"
+                ? path === item.href
+                : path.startsWith(item.href!);
+            return (
+              <Link key={index} href={item.href!}>
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
+                    isActive
+                      ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+                      : "font-normal",
+                  )}
+                >
+                  {getIcon(item.icon)}
+                  {item.title}
+                </Button>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
 
       <div className="flex items-center gap-2 px-4">
         <Avatar className="h-9 w-9 shrink-0">

@@ -3,8 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getProducerById } from "@/lib/api/producers";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import DashboardHeader from "@/components/dashboard/dashboard-header";
 
 const ROLE_LABELS: Record<string, string> = {
   SUPERADMIN: "Super Admin",
@@ -33,12 +33,13 @@ export default async function Perfil() {
   const roleLabel = ROLE_LABELS[role ?? ""] ?? role ?? "—";
 
   return (
-    <div>
-      <h2 className="text-lg font-medium">Perfil</h2>
-      <p className="text-sm text-muted-foreground">
-        Tus datos de usuario. Estos datos no son públicos.
-      </p>
-      <Separator className="my-4" />
+    <div className="flex flex-col gap-8">
+      <div className="flex gap-5">
+        <DashboardHeader
+          title="Perfil"
+          subtitle="Tus datos de usuario. Estos datos no son públicos."
+        />
+      </div>
 
       <div className="space-y-6">
         <div className="flex items-center gap-4">

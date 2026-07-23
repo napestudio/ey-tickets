@@ -8,16 +8,14 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Session } from "@prisma/client";
 import { Home } from "lucide-react";
-import { SessionContextValue } from "next-auth/react";
 import Link from "next/link";
 import { menuData } from "../data/menuData";
 
 export default function DashboardNavigation({ session }: { session: any }) {
   const filteredMenuData = menuData.filter(
     (section) =>
-      !(session.user.type === "SELLER" && section.title === "Cuentas")
+      !(session.user.type === "SELLER" && section.title === "Cuentas"),
   );
 
   return (
@@ -29,7 +27,7 @@ export default function DashboardNavigation({ session }: { session: any }) {
               <NavigationMenuItem key={section.title}>
                 <NavigationMenuTrigger>{section.title}</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid gap-3 p-4 md:w-[200px] lg:w-[300px] lg:grid-cols-1">
+                  <ul className="grid gap-3 p-4 md:w-50 lg:w-75 lg:grid-cols-1">
                     {section.items.map((item) => (
                       <li key={item.title} className="p-0">
                         <NavigationMenuLink asChild>
@@ -59,7 +57,7 @@ export default function DashboardNavigation({ session }: { session: any }) {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-        )
+        ),
       )}
     </div>
   );

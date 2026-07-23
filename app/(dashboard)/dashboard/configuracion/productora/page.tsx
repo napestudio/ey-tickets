@@ -5,6 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getProducerById } from "@/lib/api/producers";
 import ProductoraForm from "../../components/productora-form/productora-form";
 import ProducerConfigForm from "../../components/producer-config-form/producer-config-form";
+import DashboardHeader from "@/components/dashboard/dashboard-header";
 
 export default async function ProductoraConfigPage() {
   const session = await getServerSession(authOptions);
@@ -24,7 +25,13 @@ export default async function ProductoraConfigPage() {
   const canEditConfig = session.user.isSuperAdmin === true;
 
   return (
-    <div>
+    <div className="flex flex-col gap-8">
+      <div className="flex gap-5">
+        <DashboardHeader
+          title="Productora"
+          subtitle="Configurá los datos de tu productora."
+        />
+      </div>
       {canEdit ? (
         <>
           <ProductoraForm producer={producer} />

@@ -28,6 +28,7 @@ export type StockSummary = {
   usedByTicketTypes: number;
   allocatedToMembers: number;
   available: number;
+  soldTickets: number;
 };
 
 export type PackageCatalogItem = {
