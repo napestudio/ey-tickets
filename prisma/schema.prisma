@@ -82,6 +82,7 @@ model User {
   createdEvents          Event[]                 @relation("CreatedEvents")
   memberTicketAllocation MemberTicketAllocation?
   createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
+  stockMovements         TicketStockMovement[]   @relation("StockMovements")
 }
 
 model UserConfiguration {
@@ -234,6 +235,7 @@ model Event {
   startDate   DateTime?
   endDate     DateTime?
   status          GlobalStatus
+  eventType       EventType      @default(PUBLIC)
   category        EventCategory?
   legalText       String?
   restrictions    String[]
@@ -255,6 +257,7 @@ model Event {
   ticketTypes      TicketType[]
   validatorToken   ValidatorToken[]
   eventPayments    EventPayment[]
+  stockMovements   TicketStockMovement[]
 
   @@index([producerId])
   @@map("events")
@@ -288,7 +291,7 @@ model TicketType {
   time         String?
   price        Decimal          @db.Decimal(10, 2)
   discount     Decimal?         @default(0) @db.Decimal(10, 2)
-  limit        Int?
+  limitPerSale Int?             @map("limit_per_sale")
   buyGet       Int?
   eventId      String
   createdById  String?
@@ -302,14 +305,38 @@ model TicketType {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   isFree       Boolean          @default(false)
-  discountCode DiscountCode[]
-  orders       Order[]
-  promotion    Promotion[]
-  ticketOrder  TicketOrder[]
-  event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdBy    User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
+  discountCode   DiscountCode[]
+  orders         Order[]
+  promotion      Promotion[]
+  ticketOrder    TicketOrder[]
+  stockMovements TicketStockMovement[]
+  event          Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy      User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
   @@map("ticket_types")
+}
+
+model TicketStockMovement {
+  id               String            @id @default(cuid())
+  ticketTypeId     String
+  eventId          String
+  producerId       String
+  performedById    String
+  type             StockMovementType
+  delta            Int
+  previousQuantity Int
+  newQuantity      Int
+  reason           String?
+  createdAt        DateTime          @default(now())
+
+  ticketType  TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  performedBy User       @relation("StockMovements", fields: [performedById], references: [id])
+
+  @@index([ticketTypeId])
+  @@index([eventId])
+  @@index([producerId])
+  @@map("ticket_stock_movements")
 }
 
 // ─────────────────────────────────────────────
@@ -543,6 +570,11 @@ enum TicketPackageStatus {
   CANCELED
 }
 
+enum StockMovementType {
+  INCREASE
+  DECREASE
+}
+
 enum EventCategory {
   MUSIC
   THEATER
@@ -577,4 +609,9 @@ enum VenueType {
 enum ProducerSource {
   WEBSITE
   SUPERADMIN
+}
+
+enum EventType {
+  PUBLIC
+  PRIVATE
 }

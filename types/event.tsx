@@ -9,6 +9,8 @@ export type EventStatus =
   | "CONCLUDED"
   | "DELETED";
 
+export type EventType = "PUBLIC" | "PRIVATE";
+
 export type EventCategory =
   | "MUSIC"
   | "THEATER"
@@ -49,6 +51,7 @@ export interface Evento {
   createdAt?: Date;
   producer?: { id: string; name: string; slug: string } | null;
   category?: EventCategory | null;
+  eventType?: EventType | null;
   legalText?: string | null;
   restrictions?: string[];
   venue?: string | null;
@@ -93,6 +96,7 @@ export interface EventoWithTicketsType {
   tickets?: Partial<TicketOrderType>[] | undefined;
   producer?: { id: string; name: string; slug: string } | null;
   category?: EventCategory | null;
+  eventType?: EventType | null;
   legalText?: string | null;
   restrictions?: string[];
   venue?: string | null;

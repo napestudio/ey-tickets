@@ -95,7 +95,7 @@ export function DiscountCodeDialog({
           discount: values.discount,
           eventId: evento.id,
         },
-        code.id as string
+        code.id as string,
       )
         .then(() => {
           setIsLoading(false);
@@ -167,7 +167,7 @@ export function DiscountCodeDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader className="text-left">
           <DialogTitle>
             {code ? "Editar" : "Agregar"} Código de Descuento
@@ -227,7 +227,7 @@ export function DiscountCodeDialog({
                       <FormControl>
                         <Button
                           variant={"outline"}
-                          className={cn("w-[240px] pl-3 text-left font-normal")}
+                          className={cn("w-60 pl-3 text-left font-normal")}
                         >
                           {field.value ? (
                             format(field.value, "dd/MM/yyyy")

@@ -3,9 +3,10 @@ import EditTycketTypeForm from "@/app/(dashboard)/dashboard/components/edit-tick
 import { Button } from "@/components/ui/button";
 import {
   getEventById,
-  getRemainingTicketsForEvent,
   getTicketTypeWithSoldCount,
+  getTicketStockMovements,
 } from "@/lib/actions";
+import { getProducerStockSummary } from "@/lib/api/ticket-stock";
 import { isOrgAdmin } from "@/lib/permissions";
 import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
@@ -41,9 +42,10 @@ export default async function EditTicketTypePage({
     if (!membership) redirect("/dashboard/eventos");
   }
 
-  const [ticketType, remainingTickets] = await Promise.all([
+  const [ticketType, stockMovements, stockSummary] = await Promise.all([
     getTicketTypeWithSoldCount(ticketTypeId),
-    getRemainingTicketsForEvent(evento.id, evento?.producerId || ""),
+    getTicketStockMovements(ticketTypeId),
+    getProducerStockSummary(evento.producerId),
   ]);
 
   if (!ticketType) redirect(`/dashboard/evento/ticket-types/${id}`);
@@ -72,8 +74,9 @@ export default async function EditTicketTypePage({
           discount: ticketType.discount !== null ? Number(ticketType.discount) : null,
         } as unknown as TicketType}
         eventId={id}
-        remainingTickets={remainingTickets}
         soldCount={ticketType.soldCount}
+        stockMovements={stockMovements}
+        maxAddable={stockSummary.available}
       />
     </div>
   );

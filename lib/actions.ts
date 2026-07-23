@@ -13,7 +13,7 @@ import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
 import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
-import { EventCategory, EventStatus } from "@/types/event";
+import { EventCategory, EventStatus, EventType } from "@/types/event";
 import { Product } from "@/types/product";
 import { DatesType, TicketOrderType, TicketType } from "@/types/tickets";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -62,6 +62,7 @@ export type Evento = {
   status: EventStatus;
   endDate: string;
   category?: EventCategory | null;
+  eventType?: EventType;
   legalText?: string | null;
   restrictions?: string[];
   venue?: string | null;
@@ -85,6 +86,22 @@ export async function createEvent(data: Evento) {
   if (eventId) {
     redirect(`/dashboard/evento/${eventId}`);
   }
+}
+
+export async function createEventAndReturnId(
+  data: Evento
+): Promise<{ eventId: string }> {
+  const { producerId, ...rest } = data;
+  const result = await Eventos.createEvent({
+    ...rest,
+    producer: { connect: { id: producerId } },
+  } as any);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/eventos");
+  revalidatePath("/");
+
+  return { eventId: result.id };
 }
 
 export async function updateEvent(data: Partial<Evento>, eventId: string) {
@@ -317,6 +334,41 @@ export async function updateTicketType(
       error instanceof Error ? error.message : "Error editando el tipo de ticket"
     );
   }
+}
+
+export async function adjustTicketStock(
+  ticketTypeId: string,
+  delta: number,
+  reason?: string,
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) throw new Error("No autorizado.");
+
+  const { id: performedById, producerId } = session.user;
+  if (!producerId) throw new Error("Sin productora asignada.");
+
+  try {
+    const result = await TicketTypes.adjustTicketTypeStock(
+      ticketTypeId,
+      delta,
+      performedById,
+      producerId,
+      reason,
+    );
+    const ticketType = await TicketTypes.getTicketTypesById(ticketTypeId);
+    if (ticketType) {
+      revalidatePath(`/dashboard/evento/ticket-types/${ticketType.eventId}`);
+    }
+    return result;
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "Error ajustando el stock.",
+    );
+  }
+}
+
+export async function getTicketStockMovements(ticketTypeId: string) {
+  return TicketTypes.getStockMovementsByTicketType(ticketTypeId);
 }
 
 export type CreateOrderType = {

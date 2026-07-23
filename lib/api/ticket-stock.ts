@@ -23,30 +23,40 @@ export async function getProducerTotalPool(producerId: string): Promise<number> 
 export async function getProducerStockSummary(
   producerId: string
 ): Promise<StockSummary> {
-  const [packages, ticketTypesUsage, memberAllocations] = await Promise.all([
-    prisma.ticketPackage.aggregate({
-      _sum: { quantity: true },
-      where: { producerId, status: "ACTIVE" },
-    }),
-    prisma.ticketType.aggregate({
-      _sum: { quantity: true },
-      where: {
-        event: { producerId },
-        NOT: { status: "DELETED" },
-      },
-    }),
-    prisma.memberTicketAllocation.aggregate({
-      _sum: { quantity: true },
-      where: { producerId },
-    }),
-  ]);
+  const [packages, ticketTypesUsage, memberAllocations, soldOrders] =
+    await Promise.all([
+      prisma.ticketPackage.aggregate({
+        _sum: { quantity: true },
+        where: { producerId, status: "ACTIVE" },
+      }),
+      prisma.ticketType.aggregate({
+        _sum: { quantity: true },
+        where: {
+          event: { producerId },
+          NOT: { status: "DELETED" },
+        },
+      }),
+      prisma.memberTicketAllocation.aggregate({
+        _sum: { quantity: true },
+        where: { producerId },
+      }),
+      prisma.order.aggregate({
+        _sum: { quantity: true },
+        where: {
+          status: "PAID",
+          isInvitation: false,
+          event: { producerId },
+        },
+      }),
+    ]);
 
   const totalPool = packages._sum.quantity ?? 0;
   const usedByTicketTypes = ticketTypesUsage._sum.quantity ?? 0;
   const allocatedToMembers = memberAllocations._sum.quantity ?? 0;
+  const soldTickets = soldOrders._sum.quantity ?? 0;
   const available = totalPool - usedByTicketTypes - allocatedToMembers;
 
-  return { totalPool, usedByTicketTypes, allocatedToMembers, available };
+  return { totalPool, usedByTicketTypes, allocatedToMembers, available, soldTickets };
 }
 
 export async function getMemberTicketAllocation(userId: string) {

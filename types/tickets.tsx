@@ -23,7 +23,7 @@ export interface TicketType {
   createdBy?: { id: string; name: string | null } | null;
   discount?: number | null;
   buyGet?: number | null;
-  limit?: number | null;
+  limitPerSale?: number | null;
   status: TicketTypeStatus;
   type: TicketTypes;
   startDate?: Date | null;

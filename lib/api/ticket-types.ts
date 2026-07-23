@@ -246,3 +246,100 @@ export async function createTicketTypeWithLimit(
     data: createData as Prisma.TicketTypeUncheckedCreateInput,
   });
 }
+
+// ─── Stock movement (delta-based) ────────────────────────────────────────────
+
+export async function adjustTicketTypeStock(
+  ticketTypeId: string,
+  delta: number,
+  performedById: string,
+  producerId: string,
+  reason?: string,
+): Promise<{ previousQuantity: number; newQuantity: number }> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.ticketType.findUniqueOrThrow({
+      where: { id: ticketTypeId },
+      select: { quantity: true, eventId: true },
+    });
+
+    const previousQuantity = current.quantity;
+    const newQuantity = previousQuantity + delta;
+
+    // Floor: cannot go below sold count
+    const soldResult = await tx.order.aggregate({
+      _sum: { quantity: true },
+      where: { ticketTypeId, status: "PAID", isInvitation: false },
+    });
+    const soldCount = soldResult._sum.quantity ?? 0;
+
+    if (newQuantity < 0) {
+      throw new Error("El stock no puede ser negativo.");
+    }
+    if (newQuantity < soldCount) {
+      throw new Error(
+        `No podés reducir a ${newQuantity}. Ya se vendieron ${soldCount} tickets de este tipo.`,
+      );
+    }
+
+    // Ceiling: only when adding — cannot exceed producer pool
+    if (delta > 0) {
+      const [othersUsage, memberAllocations, packages] = await Promise.all([
+        tx.ticketType.aggregate({
+          _sum: { quantity: true },
+          where: {
+            NOT: [{ status: "DELETED" }, { id: ticketTypeId }],
+            event: { producerId },
+          },
+        }),
+        tx.memberTicketAllocation.aggregate({
+          _sum: { quantity: true },
+          where: { producerId },
+        }),
+        tx.ticketPackage.aggregate({
+          _sum: { quantity: true },
+          where: { producerId, status: "ACTIVE" },
+        }),
+      ]);
+
+      const remaining =
+        (packages._sum.quantity ?? 0) -
+        (memberAllocations._sum.quantity ?? 0) -
+        (othersUsage._sum.quantity ?? 0);
+
+      if (newQuantity > remaining) {
+        throw new Error(
+          `Stock insuficiente en el pool. Podés asignar hasta ${remaining} tickets a este tipo.`,
+        );
+      }
+    }
+
+    await tx.ticketType.update({
+      where: { id: ticketTypeId },
+      data: { quantity: newQuantity },
+    });
+
+    await tx.ticketStockMovement.create({
+      data: {
+        ticketTypeId,
+        eventId: current.eventId,
+        producerId,
+        performedById,
+        type: delta >= 0 ? "INCREASE" : "DECREASE",
+        delta,
+        previousQuantity,
+        newQuantity,
+        reason: reason ?? null,
+      },
+    });
+
+    return { previousQuantity, newQuantity };
+  });
+}
+
+export async function getStockMovementsByTicketType(ticketTypeId: string) {
+  return prisma.ticketStockMovement.findMany({
+    where: { ticketTypeId },
+    orderBy: { createdAt: "desc" },
+    include: { performedBy: { select: { id: true, name: true } } },
+  });
+}
