@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockSummary } from "@/types/ticket-stock";
-import { Package, Calendar, Ticket } from "lucide-react";
+import { ShoppingCart, Calendar, Ticket } from "lucide-react";
 
 interface StockOverviewCardsProps {
   summary: StockSummary;
@@ -18,16 +18,16 @@ export default function StockOverviewCards({
       highlight: summary.available <= 0,
     },
     {
-      title: "En uso",
-      value: summary.usedByTicketTypes,
-      description: "Asignados a tipos de ticket",
+      title: "Recuperables",
+      value: summary.usedByTicketTypes - summary.soldTickets,
+      description: "Asignados pero no vendidos",
       icon: Calendar,
     },
     {
-      title: "Total en pool",
-      value: summary.totalPool,
-      description: "Tickets adquiridos",
-      icon: Package,
+      title: "Vendidos",
+      value: summary.soldTickets,
+      description: "Consumo permanente del pool",
+      icon: ShoppingCart,
     },
   ];
 

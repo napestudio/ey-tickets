@@ -40,6 +40,7 @@ import {
 import { EventPayment, PaymentMethod } from "@prisma/client";
 import UnassignPaymentMethodButton from "./unassign-payment-method";
 import { cn } from "@/lib/utils";
+import { Landmark } from "lucide-react";
 // import { EditPaymentMethodDialog } from "./edit-payment-method-dialog"
 
 export default function PaymentMethodsList({ methods }: { methods: any[] }) {
@@ -52,6 +53,10 @@ export default function PaymentMethodsList({ methods }: { methods: any[] }) {
       DIGITAL: {
         label: "MercadoPago",
         color: "bg-blue text-white",
+      },
+      TRANSFER: {
+        label: "Transferencia",
+        color: "bg-amber-500 text-white",
       },
       DEFAULT: {
         label: type,
@@ -129,12 +134,17 @@ export default function PaymentMethodsList({ methods }: { methods: any[] }) {
                           </svg>
                         </div>
                       )}
+                      {method.paymentMethod.type === "TRANSFER" && (
+                        <div className="h-10 w-10 flex items-center justify-center bg-amber-500 text-white rounded-md overflow-hidden">
+                          <Landmark className="h-6 w-6" />
+                        </div>
+                      )}
                       <div>
                         <div className="font-medium">
                           {method.paymentMethod.name}
                         </div>
                         {method.paymentMethod.apiKey && (
-                          <div className="text-sm text-muted-foreground truncate max-w-[150px]">
+                          <div className="text-sm text-muted-foreground truncate max-w-37.5">
                             {method.paymentMethod.apiKey}
                           </div>
                         )}

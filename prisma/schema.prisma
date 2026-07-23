@@ -235,6 +235,7 @@ model Event {
   startDate   DateTime?
   endDate     DateTime?
   status          GlobalStatus
+  eventType       EventType      @default(PUBLIC)
   category        EventCategory?
   legalText       String?
   restrictions    String[]
@@ -608,4 +609,9 @@ enum VenueType {
 enum ProducerSource {
   WEBSITE
   SUPERADMIN
+}
+
+enum EventType {
+  PUBLIC
+  PRIVATE
 }
