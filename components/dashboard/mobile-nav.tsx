@@ -1,31 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Calendar,
   ChevronDown,
-  ChevronRight,
   CreditCard,
   LayoutDashboard,
   Menu,
   Settings,
   Ticket,
   Users,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
+import Logo from "../ui/Logo";
 
 interface MobileSidebarProps {
   items: NavItem[];
@@ -45,6 +37,22 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
       .map((item) => item.title),
   );
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   const toggleSection = (title: string) => {
     setExpandedSections((prev) =>
       prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
@@ -54,17 +62,17 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
   const getIcon = (icon: string) => {
     switch (icon) {
       case "dashboard":
-        return <LayoutDashboard className="mr-2 h-4 w-4" />;
+        return <LayoutDashboard className="mr-3 h-5 w-5 shrink-0" />;
       case "calendar":
-        return <Calendar className="mr-2 h-4 w-4" />;
+        return <Calendar className="mr-3 h-5 w-5 shrink-0" />;
       case "ticket":
-        return <Ticket className="mr-2 h-4 w-4" />;
+        return <Ticket className="mr-3 h-5 w-5 shrink-0" />;
       case "sales":
-        return <CreditCard className="mr-2 h-4 w-4" />;
+        return <CreditCard className="mr-3 h-5 w-5 shrink-0" />;
       case "users":
-        return <Users className="mr-2 h-4 w-4" />;
+        return <Users className="mr-3 h-5 w-5 shrink-0" />;
       case "settings":
-        return <Settings className="mr-2 h-4 w-4" />;
+        return <Settings className="mr-3 h-5 w-5 shrink-0" />;
       default:
         return null;
     }
@@ -75,105 +83,130 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild className=" bg-black text-white">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed right-5 bottom-5 md:hidden z-50"
-        >
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="pr-0 sm:max-w-xs">
-        <SheetHeader className="border-b pb-4 mb-4">
-          <SheetTitle className="flex items-center">
-            <Ticket className="h-5 w-5 mr-2" />
-            <span>EventTix</span>
-          </SheetTitle>
-        </SheetHeader>
-        <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10">
-          <div className="flex flex-col space-y-2 pr-6">
-            {items.map((item, index) => {
-              if (item.children) {
-                const isExpanded = expandedSections.includes(item.title);
-                const hasActiveChild = item.children.some((child) =>
-                  pathname.startsWith(child.href),
-                );
-                return (
-                  <div key={index}>
-                    <Button
-                      variant={hasActiveChild ? "secondary" : "ghost"}
-                      className={cn(
-                        "w-full justify-start",
-                        hasActiveChild ? "bg-muted font-medium" : "font-normal",
-                      )}
-                      onClick={() => toggleSection(item.title)}
-                    >
-                      {getIcon(item.icon)}
-                      <span className="flex-1 text-left">{item.title}</span>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 ml-1 shrink-0" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 ml-1 shrink-0" />
-                      )}
-                    </Button>
-                    {isExpanded && (
-                      <div className="mt-1 ml-4 flex flex-col gap-1">
-                        {item.children.map((child, childIndex) => {
-                          const isActive = pathname.startsWith(child.href);
-                          return (
-                            <Link
-                              key={childIndex}
-                              href={child.href}
-                              onClick={() => setOpen(false)}
-                            >
-                              <Button
-                                variant={isActive ? "secondary" : "ghost"}
-                                className={cn(
-                                  "w-full justify-start text-sm",
-                                  isActive
-                                    ? "bg-muted font-medium"
-                                    : "font-normal",
-                                )}
-                              >
-                                {child.title}
-                              </Button>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
+    <>
+      {/* Fixed top navbar — only visible on mobile */}
+      <nav className="md:hidden fixed top-0 left-0 right-0 z-50 bg-neutral-900 h-14 flex items-center justify-between px-4 shadow-lg">
+        <div className="w-32">
+          <Logo />
+        </div>
 
-              const isActive =
-                pathname === item.href ||
-                pathname.startsWith(`${item.href}/`);
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          className="relative flex h-9 w-9 items-center justify-center rounded-md text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+        >
+          <span
+            className={cn(
+              "absolute transition-all duration-200",
+              open ? "opacity-100 rotate-0" : "opacity-0 rotate-90",
+            )}
+          >
+            <X className="h-5 w-5" />
+          </span>
+          <span
+            className={cn(
+              "absolute transition-all duration-200",
+              open ? "opacity-0 -rotate-90" : "opacity-100 rotate-0",
+            )}
+          >
+            <Menu className="h-5 w-5" />
+          </span>
+        </button>
+      </nav>
+
+      {/* Spacer to offset fixed navbar height in the document flow */}
+      <div className="md:hidden h-14 shrink-0" />
+
+      {/* Full-screen animated overlay menu */}
+      <div
+        aria-hidden={!open}
+        className={cn(
+          "md:hidden fixed inset-0 top-14 z-40 bg-neutral-900 overflow-y-auto transition-all duration-300 ease-in-out",
+          open
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 -translate-y-4 pointer-events-none",
+        )}
+      >
+        <div className="flex flex-col gap-1 p-4">
+          {items.map((item, index) => {
+            if (item.children) {
+              const isExpanded = expandedSections.includes(item.title);
+              const hasActiveChild = item.children.some((child) =>
+                pathname.startsWith(child.href),
+              );
+
               return (
-                <Link
-                  key={index}
-                  href={item.href!}
-                  onClick={() => setOpen(false)}
-                >
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
+                <div key={index}>
+                  <button
                     className={cn(
-                      "w-full justify-start",
-                      isActive ? "bg-muted font-medium" : "font-normal",
+                      "w-full flex items-center px-4 py-3 rounded-lg text-left text-base transition-colors",
+                      hasActiveChild
+                        ? "bg-neutral-700 text-white font-medium"
+                        : "text-neutral-300 hover:bg-neutral-800 hover:text-white",
                     )}
+                    onClick={() => toggleSection(item.title)}
                   >
                     {getIcon(item.icon)}
-                    {item.title}
-                  </Button>
-                </Link>
+                    <span className="flex-1">{item.title}</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 ml-2 shrink-0 transition-transform duration-200",
+                        isExpanded ? "rotate-0" : "-rotate-90",
+                      )}
+                    />
+                  </button>
+
+                  <div
+                    className={cn(
+                      "overflow-hidden transition-all duration-200 ease-in-out",
+                      isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
+                    )}
+                  >
+                    <div className="ml-4 mt-1 flex flex-col gap-1 pb-1">
+                      {item.children.map((child, childIndex) => {
+                        const isActive = pathname.startsWith(child.href);
+                        return (
+                          <Link
+                            key={childIndex}
+                            href={child.href}
+                            className={cn(
+                              "flex items-center px-4 py-2.5 rounded-lg text-sm transition-colors",
+                              isActive
+                                ? "bg-neutral-700 text-white font-medium"
+                                : "text-neutral-400 hover:bg-neutral-800 hover:text-white",
+                            )}
+                          >
+                            {child.title}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               );
-            })}
-          </div>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+            }
+
+            const isActive =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+            return (
+              <Link
+                key={index}
+                href={item.href!}
+                className={cn(
+                  "flex items-center px-4 py-3 rounded-lg text-base transition-colors",
+                  isActive
+                    ? "bg-neutral-700 text-white font-medium"
+                    : "text-neutral-300 hover:bg-neutral-800 hover:text-white",
+                )}
+              >
+                {getIcon(item.icon)}
+                {item.title}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </>
   );
 }

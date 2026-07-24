@@ -25,12 +25,9 @@ export default async function EventOverview({
 
   return (
     <div className="space-y-6">
-      <EventOverviewHeader
-        evento={evento}
-        isEventOwner={isEventOwner}
-      />
+      <EventOverviewHeader evento={evento} isEventOwner={isEventOwner} />
 
-      <div className="flex md:grid gap-6 lg:grid-cols-7">
+      <div className="flex flex-col-reverse md:grid gap-6 lg:grid-cols-7">
         <div className="lg:col-span-5 space-y-6 w-full">
           <EventActionGrid
             baseHref={`/dashboard/evento/${evento.id}`}
@@ -38,7 +35,9 @@ export default async function EventOverview({
           />
         </div>
         <div className="lg:col-span-2 space-y-6">
-          <SideBar salesStats={<MinimalEventSalesStats eventId={evento.id} />} />
+          <SideBar
+            salesStats={<MinimalEventSalesStats eventId={evento.id} />}
+          />
         </div>
       </div>
     </div>
