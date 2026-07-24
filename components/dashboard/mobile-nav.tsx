@@ -31,7 +31,12 @@ interface MobileSidebarProps {
   producerImage: string | null;
 }
 
-export function MobileSidebar({ items, session, producerName, producerImage }: MobileSidebarProps) {
+export function MobileSidebar({
+  items,
+  session,
+  producerName,
+  producerImage,
+}: MobileSidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -49,7 +54,6 @@ export function MobileSidebar({ items, session, producerName, producerImage }: M
     setOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when menu is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -94,7 +98,6 @@ export function MobileSidebar({ items, session, producerName, producerImage }: M
 
   return (
     <>
-      {/* Fixed top navbar — only visible on mobile */}
       <nav className="md:hidden fixed top-0 left-0 right-0 z-50 bg-neutral-900 h-14 flex items-center justify-between px-4 shadow-lg">
         <div className="w-32">
           <Logo />
@@ -124,10 +127,8 @@ export function MobileSidebar({ items, session, producerName, producerImage }: M
         </button>
       </nav>
 
-      {/* Spacer to offset fixed navbar height in the document flow */}
       <div className="md:hidden h-14 shrink-0" />
 
-      {/* Full-screen animated overlay menu */}
       <div
         aria-hidden={!open}
         className={cn(
@@ -219,7 +220,6 @@ export function MobileSidebar({ items, session, producerName, producerImage }: M
           })}
         </div>
 
-        {/* Profile & logout section */}
         <div className="p-4 mt-2 border-t border-neutral-700">
           <div className="flex items-center gap-3 px-4 py-3">
             <Avatar className="h-9 w-9 shrink-0">
@@ -230,7 +230,9 @@ export function MobileSidebar({ items, session, producerName, producerImage }: M
             </Avatar>
             <div className="flex flex-col min-w-0">
               {producerName && (
-                <span className="text-xs text-neutral-400 truncate">{producerName}</span>
+                <span className="text-xs text-neutral-400 truncate">
+                  {producerName}
+                </span>
               )}
               <span className="text-sm font-medium text-white truncate">
                 {session.user?.name}
