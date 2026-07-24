@@ -34,7 +34,12 @@ export default async function DashboardLayout({
   return (
     <>
       <SessionProvider session={session}>
-        <MobileSidebar items={sidebarNav} />
+        <MobileSidebar
+          items={sidebarNav}
+          session={session}
+          producerName={producer?.name ?? null}
+          producerImage={producer?.logo ?? null}
+        />
         <div className="flex min-h-svh gap-8 py-5 p-4 md:pl-0 md:py-8 mx-auto w-full bg-white">
           <div className="bg-neutral-900 text-neutral-50 max-md:hidden w-60 shrink-0 fixed top-0 h-svh flex flex-col overflow-y-auto shadow-md">
             <SideBar

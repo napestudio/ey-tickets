@@ -34,7 +34,7 @@ export default async function TicketStockPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start justify-between gap-4">
         <DashboardHeader
           title="Stock de Tickets"
           subtitle="Podés comprar por paquete o la cantidad que necesites. Los tipos de ticket consumen directamente del pool."

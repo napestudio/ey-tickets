@@ -156,7 +156,8 @@ export default function EditTycketTypeForm({
       toast({
         variant: "destructive",
         title: "Error al eliminar el tipo de ticket",
-        description: error instanceof Error ? error.message : "Error inesperado.",
+        description:
+          error instanceof Error ? error.message : "Error inesperado.",
       });
     } finally {
       setIsLoading(false);
@@ -178,7 +179,8 @@ export default function EditTycketTypeForm({
       toast({
         variant: "destructive",
         title: "Error al ajustar el stock",
-        description: error instanceof Error ? error.message : "Error inesperado.",
+        description:
+          error instanceof Error ? error.message : "Error inesperado.",
       });
     } finally {
       setIsAdjusting(false);
@@ -220,7 +222,8 @@ export default function EditTycketTypeForm({
       toast({
         variant: "destructive",
         title: "Error al editar el tipo de ticket",
-        description: error instanceof Error ? error.message : "Error inesperado.",
+        description:
+          error instanceof Error ? error.message : "Error inesperado.",
       });
     } finally {
       setIsLoading(false);
@@ -229,7 +232,6 @@ export default function EditTycketTypeForm({
 
   return (
     <>
-      {/* Stock adjustment dialog */}
       <Dialog open={stockDialogOpen} onOpenChange={setStockDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -241,7 +243,6 @@ export default function EditTycketTypeForm({
           </DialogHeader>
 
           <div className="space-y-5 py-2">
-            {/* Movement type selector */}
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -256,7 +257,9 @@ export default function EditTycketTypeForm({
               </Button>
               <Button
                 type="button"
-                variant={movementType === "DECREASE" ? "destructive" : "outline"}
+                variant={
+                  movementType === "DECREASE" ? "destructive" : "outline"
+                }
                 className="flex-1"
                 onClick={() => {
                   setMovementType("DECREASE");
@@ -267,7 +270,6 @@ export default function EditTycketTypeForm({
               </Button>
             </div>
 
-            {/* Pool limit hint (only relevant when adding) */}
             {movementType === "INCREASE" && (
               <p className="text-sm text-muted-foreground">
                 Podés agregar hasta{" "}
@@ -278,9 +280,10 @@ export default function EditTycketTypeForm({
               </p>
             )}
 
-            {/* Quick amounts */}
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Selección rápida</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Selección rápida
+              </p>
               <div className="flex gap-2">
                 {[10, 50, 100].map((amount) => {
                   const disabled =
@@ -429,7 +432,9 @@ export default function EditTycketTypeForm({
                           <Input
                             type="number"
                             {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                             disabled={form.watch("isFree")}
                           />
                         </FormControl>
@@ -460,7 +465,10 @@ export default function EditTycketTypeForm({
                                       checked={field.value?.includes(item.date)}
                                       onCheckedChange={(checked) =>
                                         checked
-                                          ? field.onChange([...field.value, item.date])
+                                          ? field.onChange([
+                                              ...field.value,
+                                              item.date,
+                                            ])
                                           : field.onChange(
                                               field.value?.filter(
                                                 (value) => value !== item.date,
@@ -470,9 +478,13 @@ export default function EditTycketTypeForm({
                                     />
                                   </FormControl>
                                   <FormLabel className="text-sm font-medium">
-                                    {format(new Date(item.date), "dd/MM/yyyy - HH:mm", {
-                                      locale: es,
-                                    })}
+                                    {format(
+                                      new Date(item.date),
+                                      "dd/MM/yyyy - HH:mm",
+                                      {
+                                        locale: es,
+                                      },
+                                    )}
                                   </FormLabel>
                                 </FormItem>
                               )}
@@ -493,11 +505,15 @@ export default function EditTycketTypeForm({
                   <div className="flex items-center justify-between">
                     <div className="flex gap-8">
                       <div>
-                        <p className="text-sm text-muted-foreground">Cantidad inicial</p>
+                        <p className="text-sm text-muted-foreground">
+                          Cantidad inicial
+                        </p>
                         <p className="text-2xl font-bold">{initialQuantity}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Disponibles</p>
+                        <p className="text-sm text-muted-foreground">
+                          Disponibles
+                        </p>
                         <p className="text-2xl font-bold">{available}</p>
                       </div>
                     </div>
@@ -575,7 +591,10 @@ export default function EditTycketTypeForm({
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}
@@ -695,8 +714,8 @@ export default function EditTycketTypeForm({
                         <div className="space-y-0.5">
                           <FormLabel className="text-base">Gratis</FormLabel>
                           <FormDescription>
-                            Al seleccionar este ticket, las entradas llegaran al email
-                            del cliente sin confirmación de pago.
+                            Al seleccionar este ticket, las entradas llegaran al
+                            email del cliente sin confirmación de pago.
                           </FormDescription>
                         </div>
                         <FormControl>
