@@ -1,9 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TicketPackageStatus } from "@/types/ticket-stock";
 import { formatPrice } from "@/lib/utils";
+import { TicketPackageStatus } from "@/types/ticket-stock";
 
 interface PackageRow {
   id: string;
@@ -58,9 +57,6 @@ export default function PackageHistoryTable({
                   <th className="text-right py-2 font-medium text-muted-foreground">
                     Total
                   </th>
-                  <th className="text-left py-2 font-medium text-muted-foreground pl-4">
-                    Estado
-                  </th>
                   <th className="text-left py-2 font-medium text-muted-foreground">
                     Notas
                   </th>
@@ -68,10 +64,6 @@ export default function PackageHistoryTable({
               </thead>
               <tbody>
                 {packages.map((pkg) => {
-                  const statusInfo = STATUS_MAP[pkg.status] ?? {
-                    label: pkg.status,
-                    variant: "outline" as const,
-                  };
                   return (
                     <tr key={pkg.id} className="border-b last:border-0">
                       <td className="py-3">
@@ -86,11 +78,7 @@ export default function PackageHistoryTable({
                       <td className="py-3 text-right font-medium">
                         {formatPrice(pkg.totalPrice)}
                       </td>
-                      <td className="py-3 pl-4">
-                        <Badge variant={statusInfo.variant}>
-                          {statusInfo.label}
-                        </Badge>
-                      </td>
+
                       <td className="py-3 text-muted-foreground">
                         {pkg.notes ?? "-"}
                       </td>
