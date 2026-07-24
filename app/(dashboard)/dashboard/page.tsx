@@ -21,8 +21,8 @@ const navItems = [
   {
     href: "/dashboard/ticket-stock",
     icon: Ticket,
-    label: "Tickets",
-    description: "Stock y administración de tickets",
+    label: "Stock",
+    description: "Administración del stock de tickets",
   },
   {
     href: "/dashboard/configuracion",

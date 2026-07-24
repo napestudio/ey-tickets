@@ -4,26 +4,34 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart2,
   Calendar,
   ChevronDown,
   CreditCard,
   LayoutDashboard,
+  LogOut,
   Menu,
   Settings,
   Ticket,
   Users,
   X,
 } from "lucide-react";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
 
 import { cn } from "@/lib/utils";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "../ui/Logo";
 
 interface MobileSidebarProps {
   items: NavItem[];
+  session: Session;
+  producerName: string | null;
+  producerImage: string | null;
 }
 
-export function MobileSidebar({ items }: MobileSidebarProps) {
+export function MobileSidebar({ items, session, producerName, producerImage }: MobileSidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -73,6 +81,8 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
         return <Users className="mr-3 h-5 w-5 shrink-0" />;
       case "settings":
         return <Settings className="mr-3 h-5 w-5 shrink-0" />;
+      case "chart":
+        return <BarChart2 className="mr-3 h-5 w-5 shrink-0" />;
       default:
         return null;
     }
@@ -127,7 +137,7 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
             : "opacity-0 -translate-y-4 pointer-events-none",
         )}
       >
-        <div className="flex flex-col gap-1 p-4">
+        <div className="flex flex-col gap-1 p-4 pb-0">
           {items.map((item, index) => {
             if (item.children) {
               const isExpanded = expandedSections.includes(item.title);
@@ -187,7 +197,9 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
             }
 
             const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+              pathname === item.href ||
+              (item.href !== "/dashboard" &&
+                pathname.startsWith(`${item.href}/`));
 
             return (
               <Link
@@ -205,6 +217,33 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
               </Link>
             );
           })}
+        </div>
+
+        {/* Profile & logout section */}
+        <div className="p-4 mt-2 border-t border-neutral-700">
+          <div className="flex items-center gap-3 px-4 py-3">
+            <Avatar className="h-9 w-9 shrink-0">
+              <AvatarImage src={producerImage ?? ""} alt={producerName ?? ""} />
+              <AvatarFallback className="bg-neutral-700 text-white">
+                {producerName?.charAt(0) ?? session.user?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col min-w-0">
+              {producerName && (
+                <span className="text-xs text-neutral-400 truncate">{producerName}</span>
+              )}
+              <span className="text-sm font-medium text-white truncate">
+                {session.user?.name}
+              </span>
+              <button
+                onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
+                className="flex items-center gap-1 text-neutral-400 hover:text-white transition-colors text-xs mt-0.5 w-fit"
+              >
+                <LogOut className="h-3 w-3" />
+                <span>Cerrar sesión</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>
