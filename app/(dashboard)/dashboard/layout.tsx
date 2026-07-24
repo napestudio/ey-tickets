@@ -35,7 +35,7 @@ export default async function DashboardLayout({
     <>
       <SessionProvider session={session}>
         <MobileSidebar items={sidebarNav} />
-        <div className="flex min-h-svh gap-8 py-2 p-4 md:pl-0 md:py-8 mx-auto w-full bg-white">
+        <div className="flex min-h-svh gap-8 py-5 p-4 md:pl-0 md:py-8 mx-auto w-full bg-white">
           <div className="bg-neutral-900 text-neutral-50 max-md:hidden w-60 shrink-0 fixed top-0 h-svh flex flex-col overflow-y-auto shadow-md">
             <SideBar
               session={session}
