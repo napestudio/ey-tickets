@@ -26,7 +26,16 @@ export async function POST(req: Request) {
       const payment = await new Payment(mp).get({ id: body.data.id });
 
       if (payment.status === "approved") {
-        await payOrderHandler(payment.external_reference as string);
+        await payOrderHandler(payment.external_reference as string, {
+          mpPaymentId: String(payment.id),
+          mpDateApproved: payment.date_approved
+            ? new Date(payment.date_approved)
+            : null,
+          mpPaymentMethodId: payment.payment_method_id ?? null,
+          mpPaymentTypeId: payment.payment_type_id ?? null,
+          mpInstallments: payment.installments ?? null,
+          mpAuthorizationCode: payment.authorization_code ?? null,
+        });
       }
     }
   }

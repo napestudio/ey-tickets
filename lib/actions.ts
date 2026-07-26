@@ -710,7 +710,16 @@ export async function getMercadPagoUrl(
   }
 }
 
-export async function payOrderHandler(orderId: string) {
+type MpPaymentData = {
+  mpPaymentId: string;
+  mpDateApproved: Date | null;
+  mpPaymentMethodId: string | null;
+  mpPaymentTypeId: string | null;
+  mpInstallments: number | null;
+  mpAuthorizationCode: string | null;
+};
+
+export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
   try {
     const order = await getOrderById(orderId);
     if (!order || order.status === "PAID") return;
@@ -722,6 +731,14 @@ export async function payOrderHandler(orderId: string) {
     await updateOrder(
       {
         status: "PAID",
+        ...(mpData && {
+          mpPaymentId: mpData.mpPaymentId,
+          mpDateApproved: mpData.mpDateApproved,
+          mpPaymentMethodId: mpData.mpPaymentMethodId,
+          mpPaymentTypeId: mpData.mpPaymentTypeId,
+          mpInstallments: mpData.mpInstallments,
+          mpAuthorizationCode: mpData.mpAuthorizationCode,
+        }),
       },
       orderId
     );
