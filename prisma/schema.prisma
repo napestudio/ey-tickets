@@ -362,6 +362,12 @@ model Order {
   customizationToken String?   @unique
   customizedAt       DateTime?
   paymentMethodId    String?
+  mpPaymentId        String?
+  mpDateApproved     DateTime?
+  mpPaymentMethodId  String?
+  mpPaymentTypeId    String?
+  mpInstallments     Int?
+  mpAuthorizationCode String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
