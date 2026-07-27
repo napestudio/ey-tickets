@@ -1,6 +1,7 @@
 "use server";
 
 import * as Eventos from "@/lib/api/eventos";
+import { computeEventEndDate } from "@/lib/api/eventos";
 import * as Orders from "@/lib/api/orders";
 import * as TicketTypes from "@/lib/api/ticket-types";
 import * as Users from "@/lib/api/users";
@@ -60,7 +61,7 @@ export type Evento = {
   imagePublicId?: string | null;
   dates: string;
   status: EventStatus;
-  endDate: string;
+  saleEndDate: string;
   category?: EventCategory | null;
   eventType?: EventType;
   legalText?: string | null;
@@ -73,8 +74,10 @@ export type Evento = {
 export async function createEvent(data: Evento) {
   let eventId = null;
   const { producerId, ...rest } = data;
+  const eventEndDate = computeEventEndDate(data.dates);
   const result = await Eventos.createEvent({
     ...rest,
+    eventEndDate,
     producer: { connect: { id: producerId } },
   } as any);
   eventId = result.id;
@@ -92,8 +95,10 @@ export async function createEventAndReturnId(
   data: Evento
 ): Promise<{ eventId: string }> {
   const { producerId, ...rest } = data;
+  const eventEndDate = computeEventEndDate(data.dates);
   const result = await Eventos.createEvent({
     ...rest,
+    eventEndDate,
     producer: { connect: { id: producerId } },
   } as any);
 
@@ -106,7 +111,11 @@ export async function createEventAndReturnId(
 
 export async function updateEvent(data: Partial<Evento>, eventId: string) {
   try {
-    const result = await Eventos.updateEvent(eventId, data);
+    const eventEndDate = data.dates ? computeEventEndDate(data.dates) : undefined;
+    const result = await Eventos.updateEvent(eventId, {
+      ...data,
+      ...(eventEndDate !== undefined ? { eventEndDate } : {}),
+    });
     revalidatePath(`/dashboard/evento/${result.id}/edit`);
     revalidatePath(`/dashboard/evento/${result.id}`);
     revalidatePath(`/eventos/${result.slug}`);
@@ -379,6 +388,9 @@ export type CreateOrderType = {
   hasCode: boolean;
   discountCode: string | undefined;
   totalPrice: number;
+  subtotal?: number;
+  discountAmount?: number;
+  serviceChargeAmount?: number;
   name?: string;
   lastName?: string;
   email?: string;
@@ -710,7 +722,16 @@ export async function getMercadPagoUrl(
   }
 }
 
-export async function payOrderHandler(orderId: string) {
+type MpPaymentData = {
+  mpPaymentId: string;
+  mpDateApproved: Date | null;
+  mpPaymentMethodId: string | null;
+  mpPaymentTypeId: string | null;
+  mpInstallments: number | null;
+  mpAuthorizationCode: string | null;
+};
+
+export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
   try {
     const order = await getOrderById(orderId);
     if (!order || order.status === "PAID") return;
@@ -722,6 +743,14 @@ export async function payOrderHandler(orderId: string) {
     await updateOrder(
       {
         status: "PAID",
+        ...(mpData && {
+          mpPaymentId: mpData.mpPaymentId,
+          mpDateApproved: mpData.mpDateApproved,
+          mpPaymentMethodId: mpData.mpPaymentMethodId,
+          mpPaymentTypeId: mpData.mpPaymentTypeId,
+          mpInstallments: mpData.mpInstallments,
+          mpAuthorizationCode: mpData.mpAuthorizationCode,
+        }),
       },
       orderId
     );

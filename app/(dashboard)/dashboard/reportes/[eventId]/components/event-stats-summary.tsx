@@ -93,6 +93,11 @@ export default function EventStatsSummary({ stats }: EventStatsSummaryProps) {
                 ? `${((stats.discountedOrders / stats.totalOrders) * 100).toFixed(1)}% de las órdenes`
                 : "Sin órdenes"}
             </p>
+            {stats.totalDiscountsGiven > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {formatPrice(stats.totalDiscountsGiven)} descontados en total
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -113,6 +118,11 @@ export default function EventStatsSummary({ stats }: EventStatsSummaryProps) {
             <p className="text-xs text-muted-foreground mt-1">
               Suma de órdenes pagadas
             </p>
+            {stats.totalServiceCharges > 0 && (
+              <p className="text-xs text-muted-foreground">
+                incl. {formatPrice(stats.totalServiceCharges)} de cargo de servicio
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -154,6 +164,11 @@ export default function EventStatsSummary({ stats }: EventStatsSummaryProps) {
               )}
               <p className="text-xs text-muted-foreground">margen sobre ingresos</p>
             </div>
+            {stats.totalServiceCharges > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Ganancia s/cargo: {formatPrice(stats.ticketProfit)}
+              </p>
+            )}
           </CardContent>
         </Card>
 

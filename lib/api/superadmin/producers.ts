@@ -165,7 +165,7 @@ export async function getSuperadminProducerById(
           slug: true,
           status: true,
           startDate: true,
-          endDate: true,
+          saleEndDate: true,
           createdAt: true,
         },
       },

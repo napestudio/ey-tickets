@@ -3,7 +3,6 @@
 import {
   Calendar,
   ChevronDown,
-  ChevronRight,
   CreditCard,
   LayoutDashboard,
   Settings,
@@ -25,6 +24,16 @@ import { useState } from "react";
 import Logo from "../ui/Logo";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
 
+const ICON_MAP: Record<string, JSX.Element> = {
+  dashboard: <LayoutDashboard className="mr-2 h-4 w-4" />,
+  calendar:  <Calendar        className="mr-2 h-4 w-4" />,
+  ticket:    <Ticket          className="mr-2 h-4 w-4" />,
+  sales:     <CreditCard      className="mr-2 h-4 w-4" />,
+  users:     <Users           className="mr-2 h-4 w-4" />,
+  chart:     <TrendingUp      className="mr-2 h-4 w-4" />,
+  settings:  <Settings        className="mr-2 h-4 w-4" />,
+};
+
 interface DashboardNavProps {
   session: Session;
   producerName: string | null;
@@ -37,9 +46,6 @@ export default function SideBar({
   producerName,
 }: DashboardNavProps) {
   const path = usePathname();
-
-  const isChildActive = (item: NavItem) =>
-    !!item.children?.some((child) => path.startsWith(child.href));
 
   const [expandedSections, setExpandedSections] = useState<string[]>(() =>
     items
@@ -57,26 +63,13 @@ export default function SideBar({
     );
   };
 
-  const getIcon = (icon: string) => {
-    switch (icon) {
-      case "dashboard":
-        return <LayoutDashboard className="mr-2 h-4 w-4" />;
-      case "calendar":
-        return <Calendar className="mr-2 h-4 w-4" />;
-      case "ticket":
-        return <Ticket className="mr-2 h-4 w-4" />;
-      case "sales":
-        return <CreditCard className="mr-2 h-4 w-4" />;
-      case "users":
-        return <Users className="mr-2 h-4 w-4" />;
-      case "chart":
-        return <TrendingUp className="mr-2 h-4 w-4" />;
-      case "settings":
-        return <Settings className="mr-2 h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
+  const navItemClass = (active: boolean, base: string) =>
+    cn(
+      base,
+      active
+        ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+        : "font-normal hover:bg-ey-turquoise-dark",
+    );
 
   return (
     <div className="flex flex-col justify-between h-full gap-4 py-6">
@@ -87,47 +80,45 @@ export default function SideBar({
           </div>
         </Link>
         <nav className="grid items-start gap-2 mt-12">
-          {items.map((item, index) => {
+          {items.map((item) => {
             if (item.children) {
               const isExpanded = expandedSections.includes(item.title);
-              const hasActiveChild = isChildActive(item);
+              const hasActiveChild = !!item.children.some((child) =>
+                path.startsWith(child.href),
+              );
               return (
-                <div key={index}>
+                <div key={item.title}>
                   <Button
                     variant={hasActiveChild ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
-                      hasActiveChild
-                        ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
-                        : "font-normal",
+                    className={navItemClass(
+                      hasActiveChild,
+                      "w-full justify-start cursor-pointer transition-colors",
                     )}
                     onClick={() => toggleSection(item.title)}
                   >
-                    {getIcon(item.icon)}
+                    {ICON_MAP[item.icon] ?? null}
                     <span className="flex-1 text-left">{item.title}</span>
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4 ml-1 shrink-0" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 ml-1 shrink-0" />
-                    )}
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 ml-1 shrink-0 transition-transform",
+                        isExpanded ? "rotate-0" : "-rotate-90",
+                      )}
+                    />
                   </Button>
                   {isExpanded && (
                     <div className="mt-1 ml-4 grid gap-1">
-                      {item.children.map((child, childIndex) => {
+                      {item.children.map((child) => {
                         const isActive = path.startsWith(child.href);
                         return (
-                          <Link key={childIndex} href={child.href}>
-                            <Button
-                              variant={isActive ? "secondary" : "ghost"}
-                              className={cn(
-                                "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors text-sm",
-                                isActive
-                                  ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
-                                  : "font-normal",
-                              )}
-                            >
-                              {child.title}
-                            </Button>
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={navItemClass(
+                              isActive,
+                              "flex w-full items-center px-4 py-2 rounded-md text-sm transition-colors",
+                            )}
+                          >
+                            {child.title}
                           </Link>
                         );
                       })}
@@ -142,19 +133,16 @@ export default function SideBar({
                 ? path === item.href
                 : path.startsWith(item.href!);
             return (
-              <Link key={index} href={item.href!}>
-                <Button
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start cursor-pointer hover:bg-ey-turquoise-dark transition-colors",
-                    isActive
-                      ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
-                      : "font-normal",
-                  )}
-                >
-                  {getIcon(item.icon)}
-                  {item.title}
-                </Button>
+              <Link
+                key={item.href ?? item.title}
+                href={item.href!}
+                className={navItemClass(
+                  isActive,
+                  "flex w-full items-center gap-2 px-4 py-2 rounded-md text-sm transition-colors",
+                )}
+              >
+                {ICON_MAP[item.icon] ?? null}
+                {item.title}
               </Link>
             );
           })}

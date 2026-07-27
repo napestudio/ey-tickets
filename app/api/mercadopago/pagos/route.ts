@@ -34,7 +34,16 @@ export async function POST(req: Request) {
 
       if (payment.status === "approved") {
         try {
-          await payOrderHandler(payment.metadata.order_id);
+          await payOrderHandler(payment.metadata.order_id, {
+            mpPaymentId: String(payment.id),
+            mpDateApproved: payment.date_approved
+              ? new Date(payment.date_approved)
+              : null,
+            mpPaymentMethodId: payment.payment_method_id ?? null,
+            mpPaymentTypeId: payment.payment_type_id ?? null,
+            mpInstallments: payment.installments ?? null,
+            mpAuthorizationCode: payment.authorization_code ?? null,
+          });
         } catch (err) {
           console.error("Error en payOrderHandler:", err);
         }

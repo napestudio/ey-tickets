@@ -63,6 +63,10 @@ export type EventDetailedStats = {
   profit: number;
   margin: number | null;
   wac: number;
+  totalDiscountsGiven: number;
+  totalServiceCharges: number;
+  netTicketRevenue: number;
+  ticketProfit: number;
   // Breakdowns
   ticketTypeBreakdown: TicketTypeBreakdown[];
   hourlySales: HourlySalesPoint[];

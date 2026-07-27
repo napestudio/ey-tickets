@@ -47,7 +47,8 @@ export interface Evento {
   validatorToken?: ValidatorToken[];
   eventPayments?: EventPayment[];
   startDate?: Date | null;
-  endDate?: Date | null;
+  saleEndDate?: Date | null;
+  eventEndDate?: Date | null;
   createdAt?: Date;
   producer?: { id: string; name: string; slug: string } | null;
   category?: EventCategory | null;

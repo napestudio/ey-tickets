@@ -58,7 +58,7 @@ export interface ProducerEventSummary {
   slug: string;
   status: string;
   startDate: Date | null;
-  endDate: Date | null;
+  saleEndDate: Date | null;
   createdAt: Date;
 }
 
