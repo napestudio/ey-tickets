@@ -14,6 +14,7 @@ import DailySalesChart from "./components/daily-sales-chart";
 import HourlySalesChart from "./components/hourly-sales-chart";
 import WeekdaySalesChart from "./components/weekday-sales-chart";
 import PaymentMethodsPanel from "./components/payment-methods-panel";
+import ExportCsvButton from "./components/export-csv-button";
 
 interface EventReportPageProps {
   params: Promise<{ eventId: string }>;
@@ -44,10 +45,13 @@ export default async function EventReportPage({ params }: EventReportPageProps) 
         subtitle="Análisis detallado de ventas, costos y asistencia"
       />
 
-      <EventDetailHeader
-        eventTitle={stats.eventTitle}
-        eventStatus={stats.eventStatus}
-      />
+      <div className="flex items-end justify-between gap-4">
+        <EventDetailHeader
+          eventTitle={stats.eventTitle}
+          eventStatus={stats.eventStatus}
+        />
+        <ExportCsvButton stats={stats} />
+      </div>
 
       <EventStatsSummary stats={stats} />
 

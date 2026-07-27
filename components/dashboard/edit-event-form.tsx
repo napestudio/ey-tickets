@@ -55,7 +55,7 @@ const formSchema = z.object({
   image: z.string(),
   imagePublicId: z.string().nullish(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
-  endDate: z.date({
+  saleEndDate: z.date({
     required_error: "La fecha de finalización es obligatoria",
   }),
   category: z
@@ -137,7 +137,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
       image: evento.image || "",
       imagePublicId: evento.imagePublicId ?? null,
       status: evento.status,
-      endDate: new Date(evento.endDate || ""),
+      saleEndDate: new Date(evento.saleEndDate || ""),
       category: evento.category ?? null,
       legalText: evento.legalText ?? "",
       venue: evento.venue ?? "",
@@ -153,7 +153,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     state,
     address,
     status,
-    endDate,
+    saleEndDate,
     category,
     legalText,
     venue,
@@ -166,7 +166,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
     "state",
     "address",
     "status",
-    "endDate",
+    "saleEndDate",
     "category",
     "legalText",
     "venue",
@@ -241,7 +241,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
           image: values.image || null,
           imagePublicId: values.imagePublicId ?? null,
           dates: JSON.stringify(dateTimeSelections),
-          endDate: new Date(values.endDate).toISOString(),
+          saleEndDate: new Date(values.saleEndDate).toISOString(),
           status: values.status,
           category: values.category ?? null,
           legalText: values.legalText ?? null,
@@ -465,7 +465,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
               <div className="flex gap-4 lg:flex-row">
                 <FormField
                   control={form.control}
-                  name="endDate"
+                  name="saleEndDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col w-max">
                       <FormLabel>Fecha</FormLabel>
@@ -511,7 +511,7 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
                 />
                 <FormField
                   control={form.control}
-                  name="endDate"
+                  name="saleEndDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Hora</FormLabel>
@@ -567,8 +567,8 @@ export default function EditEventForm({ evento }: { evento: Evento }) {
             </>
           ) : (
             <p className="text-sm">
-              {endDate
-                ? format(endDate, "d 'de' MMMM yyyy 'a las' HH:mm", {
+              {saleEndDate
+                ? format(saleEndDate, "d 'de' MMMM yyyy 'a las' HH:mm", {
                     locale: es,
                   })
                 : "Sin fecha"}

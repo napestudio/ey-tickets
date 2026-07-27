@@ -56,6 +56,7 @@ export const getEventDetailedStats = cache(
       weekdayRaw,
       eventPayments,
       revenueByPaymentMethodRaw,
+      financialTotals,
     ] = await Promise.all([
       // 1. Event metadata + access guard (producerId ensures ownership)
       prisma.event.findUnique({
@@ -168,6 +169,11 @@ export const getEventDetailedStats = cache(
           AND "isInvitation" = false
         GROUP BY "paymentMethodId"
       `,
+      // 13. Sum of discount amounts and service charges (from orders with new fields)
+      prisma.order.aggregate({
+        _sum: { discountAmount: true, serviceChargeAmount: true },
+        where: { eventId, status: "PAID", isInvitation: false },
+      }),
     ]);
 
     if (!event) return null;
@@ -193,6 +199,15 @@ export const getEventDetailedStats = cache(
     const estimatedCost = totalTicketsSold * wac;
     const profit = totalRevenue - estimatedCost;
     const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : null;
+
+    const totalDiscountsGiven = parseFloat(
+      (financialTotals._sum.discountAmount ?? 0).toString()
+    );
+    const totalServiceCharges = parseFloat(
+      (financialTotals._sum.serviceChargeAmount ?? 0).toString()
+    );
+    const netTicketRevenue = totalRevenue - totalServiceCharges;
+    const ticketProfit = netTicketRevenue - estimatedCost;
     const averageTicketPrice =
       totalTicketsSold > 0 ? totalRevenue / totalTicketsSold : 0;
     const attendanceRate =
@@ -334,6 +349,10 @@ export const getEventDetailedStats = cache(
       profit,
       margin,
       wac,
+      totalDiscountsGiven,
+      totalServiceCharges,
+      netTicketRevenue,
+      ticketProfit,
       ticketTypeBreakdown,
       hourlySales,
       dailySales,
@@ -361,4 +380,44 @@ export async function getEventDetailedStatsForMember(
   if (!membership) return null;
 
   return getEventDetailedStats(eventId, producerId);
+}
+
+// ─── Event list for reports index ─────────────────────────────────────────────
+
+export async function getEventListForReports(producerId: string) {
+  return prisma.event.findMany({
+    where: { producerId, status: { not: "DELETED" } },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      dates: true,
+      venue: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getEventListForReportsForMember(
+  producerId: string,
+  userId: string
+) {
+  const memberEvents = await prisma.eventMember.findMany({
+    where: { userId, event: { producerId } },
+    select: { eventId: true },
+  });
+
+  const eventIds = memberEvents.map((m) => m.eventId);
+
+  return prisma.event.findMany({
+    where: { id: { in: eventIds }, status: { not: "DELETED" } },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      dates: true,
+      venue: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 }

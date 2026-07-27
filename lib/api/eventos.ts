@@ -4,6 +4,20 @@ import { prisma } from "../prisma";
 import { buildEventAccessFilter, SessionUser } from "../permissions";
 
 /**
+ * Derives the event physical end date from the dates JSON string.
+ * Returns the latest datetime found in the array.
+ */
+export function computeEventEndDate(datesJson: string): Date | null {
+  try {
+    const parsed: { id: number; date: string }[] = JSON.parse(datesJson);
+    if (!parsed.length) return null;
+    return new Date(Math.max(...parsed.map((d) => new Date(d.date).getTime())));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Retorna los eventos accesibles para un usuario según su rol.
  * OWNER/ADMIN: todos los eventos de la productora.
  * MANAGER/SELLER: solo eventos donde son EventMember explícito.
@@ -43,7 +57,7 @@ export const getActiveEventsByProducerId = cache(async (producerId: string) => {
     where: {
       producerId,
       status: { equals: "ACTIVE" },
-      endDate: { not: { lte: new Date() } },
+      saleEndDate: { not: { lte: new Date() } },
     },
     include: { producer: true },
   });
@@ -54,7 +68,7 @@ export const getActiveEventsByProducerSlug = cache(async (slug: string) => {
     where: {
       producer: { slug },
       status: { equals: "ACTIVE" },
-      endDate: { not: { lte: new Date() } },
+      saleEndDate: { not: { lte: new Date() } },
     },
     include: { producer: true },
   });
@@ -220,7 +234,7 @@ export async function getAllActiveEvents() {
   return prisma.event.findMany({
     where: {
       status: "ACTIVE",
-      endDate: { not: { lte: new Date() } },
+      saleEndDate: { not: { lte: new Date() } },
     },
     include: { producer: true },
     orderBy: { createdAt: "desc" },
