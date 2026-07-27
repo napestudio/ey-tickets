@@ -102,27 +102,38 @@ export default function BuyTicketForm({
   const [total, setTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
   const [discountPer, setDiscountPer] = useState(0);
+  const [orderSubtotal, setOrderSubtotal] = useState(0);
+  const [orderDiscountAmount, setOrderDiscountAmount] = useState(0);
+  const [orderServiceChargeAmount, setOrderServiceChargeAmount] = useState(0);
 
   const calculateTotal = (ticketPrice: number, quantity: number) => {
-    let calculatedTotal = ticketPrice * quantity;
+    const baseTotal = ticketPrice * quantity;
+    setOrderSubtotal(baseTotal);
     setSubtotal(0);
 
+    let discountAmt = 0;
     if (discount && discountCode?.length && addedCode) {
       const appliedDiscount = discountCode.find(
         (code) => code.id === addedCode
       );
       if (appliedDiscount && appliedDiscount.discount) {
-        const discountPercentage = appliedDiscount.discount / 100;
-        calculatedTotal -= calculatedTotal * discountPercentage;
+        discountAmt = baseTotal * (appliedDiscount.discount / 100);
         setSubtotal(ticketPrice);
         setDiscountPer(appliedDiscount.discount);
       }
     }
+    setOrderDiscountAmount(discountAmt);
+
+    const afterDiscount = baseTotal - discountAmt;
+    const serviceChargeAmt = serviceCharge
+      ? (afterDiscount * serviceCharge) / 100
+      : 0;
+    setOrderServiceChargeAmount(serviceChargeAmt);
+
     if (serviceCharge) {
-      setSubtotal(calculatedTotal);
-      calculatedTotal += (calculatedTotal * serviceCharge) / 100;
+      setSubtotal(afterDiscount);
     }
-    setTotal(calculatedTotal);
+    setTotal(afterDiscount + serviceChargeAmt);
   };
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -154,6 +165,9 @@ export default function BuyTicketForm({
       phone: data.phone,
       dni: data.dni,
       totalPrice: total,
+      subtotal: orderSubtotal,
+      discountAmount: orderDiscountAmount,
+      serviceChargeAmount: orderServiceChargeAmount,
       paymentMethodId: cashPaymentMethodId,
     };
 

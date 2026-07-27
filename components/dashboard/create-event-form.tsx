@@ -53,7 +53,7 @@ const formSchema = z.object({
   image: z.string(),
   imagePublicId: z.string().nullish(),
   status: z.enum(["ACTIVE", "DRAFT", "CONCLUDED", "CANCELED", "DELETED"]),
-  endDate: z.date({
+  saleEndDate: z.date({
     required_error: "La fecha de finalización es obligatoria",
   }),
   category: z
@@ -108,7 +108,7 @@ export default function CreateEventForm({
       image: "",
       imagePublicId: null,
       status: "ACTIVE",
-      endDate: (() => {
+      saleEndDate: (() => {
         const date = new Date();
         date.setHours(20, 0, 0, 0);
         return date;
@@ -160,11 +160,11 @@ export default function CreateEventForm({
     setDateTimeSelections(updatedSelections);
 
     const isFirstDate = id === dateTimeSelections[0]?.id;
-    if (isFirstDate && !form.formState.dirtyFields.endDate) {
+    if (isFirstDate && !form.formState.dirtyFields.saleEndDate) {
       const datePart = date.split("T")[0];
       if (datePart) {
         const newEndDate = new Date(`${datePart}T20:00:00`);
-        form.setValue("endDate", newEndDate, { shouldDirty: false });
+        form.setValue("saleEndDate", newEndDate, { shouldDirty: false });
       }
     }
   };
@@ -227,7 +227,7 @@ export default function CreateEventForm({
         image: values.image,
         imagePublicId: values.imagePublicId ?? null,
         dates: parsedDates,
-        endDate: new Date(values.endDate).toISOString(),
+        saleEndDate: new Date(values.saleEndDate).toISOString(),
         producerId: producerId,
         slug: `${values.title
           .toLowerCase()
@@ -378,7 +378,7 @@ export default function CreateEventForm({
                 <div className="flex gap-4 lg:flex-row">
                   <FormField
                     control={form.control}
-                    name="endDate"
+                    name="saleEndDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col w-max">
                         <FormLabel>Fecha</FormLabel>
@@ -423,7 +423,7 @@ export default function CreateEventForm({
                   />
                   <FormField
                     control={form.control}
-                    name="endDate"
+                    name="saleEndDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Hora</FormLabel>

@@ -102,21 +102,21 @@ model UserConfiguration {
 // ─────────────────────────────────────────────
 
 model Producer {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  email     String   @unique
-  phone     String?
-  state     String?
-  city      String?
+  id              String          @id @default(cuid())
+  name            String
+  slug            String          @unique
+  email           String          @unique
+  phone           String?
+  state           String?
+  city            String?
   logo            String?
   logoPublicId    String?
   website         String?
   venueType       VenueType?
   eventCategories EventCategory[]
   createdFrom     ProducerSource  @default(WEBSITE)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   members                 ProducerMember[]
   events                  Event[]
@@ -179,7 +179,6 @@ model TicketPackage {
   @@map("ticket_packages")
 }
 
-
 model MemberTicketAllocation {
   id         String   @id @default(cuid())
   producerId String
@@ -222,42 +221,43 @@ model Invitation {
 // ─────────────────────────────────────────────
 
 model Event {
-  id          String       @id @default(cuid())
-  title       String
-  slug        String       @unique
-  description String
-  address     String
-  state       String?
-  city        String?
-  image         String?
-  imagePublicId String?
-  dates         String?
-  startDate   DateTime?
-  endDate     DateTime?
-  status          GlobalStatus
-  eventType       EventType      @default(PUBLIC)
-  category        EventCategory?
-  legalText       String?
-  restrictions    String[]
-  venue           String?
-  ageRestriction  Int?
-  website         String?
-  producerId  String
-  createdById String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id             String         @id @default(cuid())
+  title          String
+  slug           String         @unique
+  description    String
+  address        String
+  state          String?
+  city           String?
+  image          String?
+  imagePublicId  String?
+  dates          String?
+  startDate      DateTime?
+  saleEndDate    DateTime?
+  eventEndDate   DateTime?
+  status         GlobalStatus
+  eventType      EventType      @default(PUBLIC)
+  category       EventCategory?
+  legalText      String?
+  restrictions   String[]
+  venue          String?
+  ageRestriction Int?
+  website        String?
+  producerId     String
+  createdById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  producer         Producer               @relation(fields: [producerId], references: [id], onDelete: Cascade)
-  createdBy        User?                  @relation("CreatedEvents", fields: [createdById], references: [id])
-  members          EventMember[]
-  discountCode     DiscountCode[]
-  orders           Order[]
-  promotion        Promotion[]
-  tickets          TicketOrder[]
-  ticketTypes      TicketType[]
-  validatorToken   ValidatorToken[]
-  eventPayments    EventPayment[]
-  stockMovements   TicketStockMovement[]
+  producer       Producer              @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  createdBy      User?                 @relation("CreatedEvents", fields: [createdById], references: [id])
+  members        EventMember[]
+  discountCode   DiscountCode[]
+  orders         Order[]
+  promotion      Promotion[]
+  tickets        TicketOrder[]
+  ticketTypes    TicketType[]
+  validatorToken ValidatorToken[]
+  eventPayments  EventPayment[]
+  stockMovements TicketStockMovement[]
 
   @@index([producerId])
   @@map("events")
@@ -284,34 +284,34 @@ model EventMember {
 // ─────────────────────────────────────────────
 
 model TicketType {
-  id           String           @id @default(cuid())
-  title        String
-  description  String?
-  date         DateTime?
-  time         String?
-  price        Decimal          @db.Decimal(10, 2)
-  discount     Decimal?         @default(0) @db.Decimal(10, 2)
-  limitPerSale Int?             @map("limit_per_sale")
-  buyGet       Int?
-  eventId      String
-  createdById  String?
-  status       TicketTypeStatus
-  type         TicketTypes
-  startDate    DateTime?        @default(now())
-  endDate      DateTime?
-  quantity     Int
-  position     Int
-  dates        String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  isFree       Boolean          @default(false)
+  id             String                @id @default(cuid())
+  title          String
+  description    String?
+  date           DateTime?
+  time           String?
+  price          Decimal               @db.Decimal(10, 2)
+  discount       Decimal?              @default(0) @db.Decimal(10, 2)
+  limitPerSale   Int?                  @map("limit_per_sale")
+  buyGet         Int?
+  eventId        String
+  createdById    String?
+  status         TicketTypeStatus
+  type           TicketTypes
+  startDate      DateTime?             @default(now())
+  endDate        DateTime?
+  quantity       Int
+  position       Int
+  dates          String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  isFree         Boolean               @default(false)
   discountCode   DiscountCode[]
   orders         Order[]
   promotion      Promotion[]
   ticketOrder    TicketOrder[]
   stockMovements TicketStockMovement[]
-  event          Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdBy      User?            @relation("CreatedTicketTypes", fields: [createdById], references: [id])
+  event          Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy      User?                 @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
   @@map("ticket_types")
 }
@@ -344,36 +344,39 @@ model TicketStockMovement {
 // ─────────────────────────────────────────────
 
 model Order {
-  id           String        @id @default(cuid())
-  name         String?
-  lastName     String?
-  dni          String?
-  email        String?
-  phone        String?
-  totalPrice   Decimal?      @db.Decimal(10, 2)
-  hasPromo     Boolean       @default(false)
-  hasCode      Boolean       @default(false)
-  discountCode String?       @default("")
-  status       OrderStatus
-  ticketTypeId String
-  eventId      String
-  quantity     Int
-  isInvitation       Boolean   @default(false)
-  customizationToken String?   @unique
-  customizedAt       DateTime?
-  paymentMethodId    String?
-  mpPaymentId        String?
-  mpDateApproved     DateTime?
-  mpPaymentMethodId  String?
-  mpPaymentTypeId    String?
-  mpInstallments     Int?
+  id                  String         @id @default(cuid())
+  name                String?
+  lastName            String?
+  dni                 String?
+  email               String?
+  phone               String?
+  totalPrice          Decimal?       @db.Decimal(10, 2)
+  subtotal            Decimal?       @db.Decimal(10, 2)
+  discountAmount      Decimal?       @db.Decimal(10, 2)
+  serviceChargeAmount Decimal?       @db.Decimal(10, 2)
+  hasPromo            Boolean        @default(false)
+  hasCode             Boolean        @default(false)
+  discountCode        String?        @default("")
+  status              OrderStatus
+  ticketTypeId        String
+  eventId             String
+  quantity            Int
+  isInvitation        Boolean        @default(false)
+  customizationToken  String?        @unique
+  customizedAt        DateTime?
+  paymentMethodId     String?
+  mpPaymentId         String?
+  mpDateApproved      DateTime?
+  mpPaymentMethodId   String?
+  mpPaymentTypeId     String?
+  mpInstallments      Int?
   mpAuthorizationCode String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  ticketType         TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
-  paymentMethod      PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
-  tickets            TicketOrder[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  event               Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketType          TicketType     @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  paymentMethod       PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  tickets             TicketOrder[]
 
   @@map("orders")
 }
@@ -464,16 +467,16 @@ model Promotion {
 // ─────────────────────────────────────────────
 
 model PaymentMethod {
-  id            String      @id @default(cuid())
-  type          PaymentType
-  name          String?
-  producerId    String
-  userId        String? // Solo se usa si es CASH
-  creatorId     String  // Usuario que creó este método
-  apiKey        String? // Solo para métodos tipo DIGITAL (ej: MP)
-  cbu           String? // CBU/CVU para transferencias
-  alias         String? // Alias CBU para transferencias
-  transferEmail String? // Email para transferencias
+  id                   String      @id @default(cuid())
+  type                 PaymentType
+  name                 String?
+  producerId           String
+  userId               String? // Solo se usa si es CASH
+  creatorId            String // Usuario que creó este método
+  apiKey               String? // Solo para métodos tipo DIGITAL (ej: MP)
+  cbu                  String? // CBU/CVU para transferencias
+  alias                String? // Alias CBU para transferencias
+  transferEmail        String? // Email para transferencias
   enabled              Boolean     @default(true)
   commissionPercentage Float? // Comisión del método de pago (ej: MercadoPago)
   createdAt            DateTime    @default(now())

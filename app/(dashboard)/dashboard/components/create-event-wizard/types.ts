@@ -10,12 +10,6 @@ export type DateTimeSelection = {
 export type WizardStep1Data = {
   title: string;
   description: string;
-  state: string;
-  city: string;
-  address: string;
-  venue: string;
-  dateTimeSelections: DateTimeSelection[];
-  endDate: Date;
   category: EventCategory | null;
   legalText: string;
   website: string;
@@ -28,6 +22,18 @@ export type WizardStep2Data = {
 };
 
 export type WizardStep3Data = {
+  dateTimeSelections: DateTimeSelection[];
+  saleEndDate: Date;
+};
+
+export type WizardStep4Data = {
+  state: string;
+  city: string;
+  address: string;
+  venue: string;
+};
+
+export type WizardStep5Data = {
   files: File[];
   imageUrl: string;
   uploadedImageUrl: string;
@@ -39,7 +45,9 @@ export type WizardState = {
   step1: WizardStep1Data | null;
   step2: WizardStep2Data | null;
   step3: WizardStep3Data | null;
+  step4: WizardStep4Data | null;
+  step5: WizardStep5Data | null;
   createdEventId: string | null;
 };
 
-export type WizardStep = 1 | 2 | 3 | 4;
+export type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;

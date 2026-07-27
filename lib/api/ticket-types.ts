@@ -159,7 +159,7 @@ export async function getRemainingTicketsByProducer(producerId: string) {
   const events = await prisma.event.findMany({
     where: { producerId },
     select: {
-      endDate: true,
+      saleEndDate: true,
       ticketTypes: {
         where: {
           NOT: { status: "DELETED" },
@@ -179,7 +179,7 @@ export async function getRemainingTicketsByProducer(producerId: string) {
   let usedTickets = 0;
 
   for (const event of events) {
-    const isEventActive = event.endDate === null || isAfter(event.endDate, now);
+    const isEventActive = event.saleEndDate === null || isAfter(event.saleEndDate, now);
 
     for (const ticket of event.ticketTypes) {
       const sold = ticket.orders.reduce(
