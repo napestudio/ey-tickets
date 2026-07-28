@@ -5,7 +5,7 @@ import { datesFormater } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -14,9 +14,10 @@ export default function FeaturedCarousel({ events }: { events: Evento[] }) {
   return (
     <div className="w-full aspect-6/2 mb-18">
       <Swiper
-        modules={[Navigation, Pagination]}
+        modules={[Navigation, Pagination, Autoplay]}
         navigation
         pagination={{ clickable: true }}
+        autoplay={{ delay: 3000 }}
         loop
         className="w-full h-full rounded-xl overflow-hidden"
       >
