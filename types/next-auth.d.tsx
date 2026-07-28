@@ -11,6 +11,7 @@ declare module "next-auth" {
       email: string;
       image?: string;
       producerId: string | null;
+      producerStatus: string | null;
       role: AppRole | null;
       isSuperAdmin: boolean;
     } & DefaultSession;
@@ -28,6 +29,7 @@ declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id: string;
     producerId: string | null;
+    producerStatus: string | null;
     role: AppRole | null;
   }
 }

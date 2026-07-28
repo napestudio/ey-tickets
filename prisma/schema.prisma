@@ -98,7 +98,7 @@ model UserConfiguration {
 }
 
 // ─────────────────────────────────────────────
-// PRODUCERS (TENANTS)
+// PRODUCERS 
 // ─────────────────────────────────────────────
 
 model Producer {
@@ -115,6 +115,7 @@ model Producer {
   venueType       VenueType?
   eventCategories EventCategory[]
   createdFrom     ProducerSource  @default(WEBSITE)
+  status          ProducerStatus  @default(ACTIVE)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -637,6 +638,13 @@ enum VenueType {
 enum ProducerSource {
   WEBSITE
   SUPERADMIN
+}
+
+enum ProducerStatus {
+  ACTIVE
+  SUSPENDED
+  IN_DEBT
+  DELETED
 }
 
 enum EventType {

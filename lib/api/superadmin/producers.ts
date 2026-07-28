@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { EventCategory, VenueType } from "@prisma/client";
+import { EventCategory, ProducerStatus, VenueType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import {
   CreateProducerInput,
@@ -101,6 +101,7 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
       logo: true,
       createdAt: true,
       createdFrom: true,
+      status: true,
       _count: {
         select: { events: true },
       },
@@ -117,6 +118,7 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
     logo: p.logo,
     createdAt: p.createdAt,
     createdFrom: p.createdFrom,
+    status: p.status,
     eventCount: p._count.events,
     totalActiveTickets: p.ticketPackages.reduce(
       (sum, pkg) => sum + pkg.quantity,
@@ -143,6 +145,7 @@ export async function getSuperadminProducerById(
       createdAt: true,
       updatedAt: true,
       createdFrom: true,
+      status: true,
       members: {
         select: {
           id: true,
@@ -198,4 +201,26 @@ export async function getSuperadminProducerById(
       totalPrice: p.totalPrice.toNumber(),
     })),
   };
+}
+
+export async function updateProducerStatus(
+  id: string,
+  status: ProducerStatus
+): Promise<{ id: string; name: string; status: ProducerStatus }> {
+  const existing = await prisma.producer.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!existing) {
+    throw Object.assign(new Error("Productora no encontrada"), { status: 404 });
+  }
+
+  const updated = await prisma.producer.update({
+    where: { id },
+    data: { status },
+    select: { id: true, name: true, status: true },
+  });
+
+  return updated;
 }
