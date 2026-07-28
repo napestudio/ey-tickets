@@ -1,4 +1,9 @@
 import EventCard from "@/components/event-card/event-card";
+import EventsMarquee from "@/components/website/events/EventsMarquee";
+import FeaturedCarousel from "@/components/website/events/FeaturedCarousel";
+import CrossIcon from "@/components/website/ui/icons/CrossIcon";
+import TktIcon from "@/components/website/ui/icons/TktIcon";
+import RedHotIcon from "@/components/website/ui/icons/RedHotIcon";
 import { getAllActiveEvents } from "@/lib/api/eventos";
 import { Evento } from "@/types/event";
 import { Title } from "@radix-ui/react-toast";
@@ -26,12 +31,21 @@ export default async function EventosPage() {
 
   return (
     <>
+      <EventsMarquee events={eventos as Evento[]} />
       <section className="min-h-svh py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%">
         <div className="container mx-auto">
-          <Title className="text-8xl font-bold text-white mb-6">
-            Próximos Eventos
-          </Title>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <FeaturedCarousel events={eventos as Evento[]} />
+          <div className="flex items-center gap-6">
+            <Title className="flex items-center gap-4 text-3xl md:text-6xl font-bold text-white mb-6">
+              Próximos Eventos
+            </Title>
+            <div className="hidden md:flex gap-4">
+              <CrossIcon className="text-ey-turquoise w-13 h-10" />
+              <TktIcon className="text-[#FF5E3C] w-22 h-10" />
+              <RedHotIcon className="text-[#8D84FF] w-12 h-10" />
+            </div>
+          </div>
+          <div className="grid gap-6">
             {eventos &&
               eventos.map((evento) => (
                 <EventCard evento={evento as Evento} key={evento.id} />
