@@ -13,7 +13,11 @@ import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
 import { createStockPurchasePreference } from "@/lib/api/eytickets-mercadopago";
-import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
+import { getUnitPriceForQuantity } from "@/lib/ticket-stock-catalog";
+import {
+  updateProducer,
+  updateProducerConfiguration,
+} from "@/lib/api/producers";
 
 import { EventCategory, EventStatus, EventType } from "@/types/event";
 import { Product } from "@/types/product";
@@ -41,7 +45,10 @@ import { substractTicketQuantity } from "@/lib/api/ticket-orders";
 import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
-import { uploadImage as cloudinaryUpload, deleteImage as cloudinaryDelete } from "@/lib/cloudinary-upload";
+import {
+  uploadImage as cloudinaryUpload,
+  deleteImage as cloudinaryDelete,
+} from "@/lib/cloudinary-upload";
 import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsPDF } from "jspdf";
@@ -93,7 +100,7 @@ export async function createEvent(data: Evento) {
 }
 
 export async function createEventAndReturnId(
-  data: Evento
+  data: Evento,
 ): Promise<{ eventId: string }> {
   const { producerId, ...rest } = data;
   const eventEndDate = computeEventEndDate(data.dates);
@@ -112,7 +119,9 @@ export async function createEventAndReturnId(
 
 export async function updateEvent(data: Partial<Evento>, eventId: string) {
   try {
-    const eventEndDate = data.dates ? computeEventEndDate(data.dates) : undefined;
+    const eventEndDate = data.dates
+      ? computeEventEndDate(data.dates)
+      : undefined;
     const result = await Eventos.updateEvent(eventId, {
       ...data,
       ...(eventEndDate !== undefined ? { eventEndDate } : {}),
@@ -264,7 +273,9 @@ export async function getTicketTypeWithSoldCount(ticketTypeId: string) {
     return await TicketTypes.getTicketTypeWithSoldCount(ticketTypeId);
   } catch (error) {
     throw new Error(
-      error instanceof Error ? error.message : "Error trayendo el tipo de ticket",
+      error instanceof Error
+        ? error.message
+        : "Error trayendo el tipo de ticket",
     );
   }
 }
@@ -280,7 +291,7 @@ export async function getRemainingTicketsByProducer(producerId: string) {
 
 export async function getRemainingTicketsForEvent(
   eventId: string,
-  producerId: string
+  producerId: string,
 ) {
   try {
     return await TicketStock.getRemainingTicketsForEvent(eventId, producerId);
@@ -321,11 +332,11 @@ export async function createTicketType(data: TicketType) {
     await TicketTypes.createTicketTypeWithLimit(
       dataWithCreator,
       event.producerId,
-      createdById ?? undefined
+      createdById ?? undefined,
     );
   } catch (error) {
     throw new Error(
-      error instanceof Error ? error.message : "Error creando el TicketType"
+      error instanceof Error ? error.message : "Error creando el TicketType",
     );
   }
 
@@ -334,14 +345,16 @@ export async function createTicketType(data: TicketType) {
 
 export async function updateTicketType(
   data: Partial<TicketType>,
-  ticketId: string
+  ticketId: string,
 ) {
   try {
     await TicketTypes.updateTicketTypeWithLimit(ticketId, data);
     revalidatePath(`/dashboard/evento/${data.eventId}`);
   } catch (error) {
     throw new Error(
-      error instanceof Error ? error.message : "Error editando el tipo de ticket"
+      error instanceof Error
+        ? error.message
+        : "Error editando el tipo de ticket",
     );
   }
 }
@@ -477,7 +490,10 @@ export async function getAllUsersByClientId(producerId: string) {
   return getAllUsersByProducerId(producerId);
 }
 
-export async function getUsersByType(producerId: string, role: OrganizationRole) {
+export async function getUsersByType(
+  producerId: string,
+  role: OrganizationRole,
+) {
   try {
     const result = await Users.getUsersByProducerAndRole(producerId, role);
     return result;
@@ -573,11 +589,14 @@ export async function createPuntoDeVenta(data: PaymentMethodInput) {
   }
 }
 
-export async function updatePaymentMethod(data: PaymentMethodInput, paymentMethodId: string) {
+export async function updatePaymentMethod(
+  data: PaymentMethodInput,
+  paymentMethodId: string,
+) {
   try {
     const method = await PaymentMethod.updatePaymentMethod(
       data,
-      paymentMethodId
+      paymentMethodId,
     );
     revalidatePath("/dashboard/configuracion/metodos-de-pago");
     revalidatePath("/dashboard/punto-de-venta");
@@ -589,9 +608,8 @@ export async function updatePaymentMethod(data: PaymentMethodInput, paymentMetho
 
 export async function deletePaymentMethod(paymentMethodId: string) {
   try {
-    const result = await PaymentMethod.deletePaymentMethodAction(
-      paymentMethodId
-    );
+    const result =
+      await PaymentMethod.deletePaymentMethodAction(paymentMethodId);
 
     revalidatePath(`/dashboard/configuracion/metodos-de-pago`);
     return result;
@@ -642,7 +660,8 @@ export async function unassignPaymentMethodFromEvent({
 
 export async function getPaymentMethodsByProducerId(producerId: string) {
   try {
-    const methods = await PaymentMethod.getPaymentMethodsByProducerId(producerId);
+    const methods =
+      await PaymentMethod.getPaymentMethodsByProducerId(producerId);
     return methods;
   } catch (error) {
     throw new Error("Error buscando metodos de pago por productora");
@@ -680,7 +699,7 @@ export async function getMercadPagoUrl(
   product: any,
   orderData: any,
   orderId: string,
-  userId: string
+  userId: string,
 ) {
   // Cambiar type de product y ademas pedir la data del form para updatear la order
   updateOrder(orderData, orderId);
@@ -753,7 +772,7 @@ export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
           mpAuthorizationCode: mpData.mpAuthorizationCode,
         }),
       },
-      orderId
+      orderId,
     );
 
     const ticketsData: TicketOrderType[] = [];
@@ -784,7 +803,7 @@ export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
 export async function createFreeTicket(
   orderData: any,
   orderId: string,
-  userId: string
+  userId: string,
 ) {
   try {
     updateOrder(orderData, orderId);
@@ -825,9 +844,9 @@ export async function sendTicketMail(tickets: TicketOrderType[]) {
 
   await sendTicketConfirmationEmail({
     recipientEmail: tickets[0].email,
-    eventTitle: eventData?.title ?? '',
-    eventLocation: eventData?.venue ?? eventData?.city ?? '',
-    eventAddress: eventData?.address ?? '',
+    eventTitle: eventData?.title ?? "",
+    eventLocation: eventData?.venue ?? eventData?.city ?? "",
+    eventAddress: eventData?.address ?? "",
     tickets: qrTickets,
   });
 }
@@ -879,7 +898,7 @@ export async function createUserConfiguration(userId: string) {
 export async function updateUserConfiguration(
   data: Partial<UserConfiguration>,
   configId: string,
-  userId: string
+  userId: string,
 ) {
   try {
     if (!configId) {
@@ -979,17 +998,19 @@ export async function createUserInvitation(data: InvitationType) {
     revalidatePath("/dashboard/configuracion/usuarios");
     return result;
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : "Error creando la invitación");
+    throw new Error(
+      error instanceof Error ? error.message : "Error creando la invitación",
+    );
   }
 }
 export async function updateUserInvitationById(
   data: InvitationType,
-  invitationId: string
+  invitationId: string,
 ) {
   try {
     const result = await UserInvitation.updateInvitationsById(
       data,
-      invitationId
+      invitationId,
     );
     revalidatePath("/dashboard/configuracion/usuarios");
     return result;
@@ -1035,10 +1056,7 @@ export async function getInvitationsById(invitationId: string) {
   }
 }
 
-export async function registerUser(data: {
-  email: string;
-  password: string;
-}) {
+export async function registerUser(data: { email: string; password: string }) {
   try {
     const userData = await Users.getUserByEmailForRegister(data.email);
     if (userData) {
@@ -1046,7 +1064,7 @@ export async function registerUser(data: {
     }
 
     const userInvitation = await UserInvitation.getInvitationsByEmail(
-      data.email
+      data.email,
     );
     if (!userInvitation) {
       throw new Error("No se ha encontrado una invitación");
@@ -1190,9 +1208,12 @@ export async function inviteUserToEvent(
   data: InvitationMethodInput,
 ): Promise<{ customizationToken?: string }> {
   try {
-    const customizationToken = data.isCustomizable
-      ? randomUUID()
-      : undefined;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error("No autenticado");
+    }
+
+    const customizationToken = data.isCustomizable ? randomUUID() : undefined;
 
     const orderPayload = {
       quantity: data.quantity,
@@ -1235,7 +1256,7 @@ export async function inviteUserToEvent(
       await TicketOrders.createTicketOrder(ticketsData);
 
       const newQuantity = ticketsData.length;
-      await substractTicketQuantity(result.ticketTypeId, newQuantity);
+      await substractTicketQuantity(result.ticketTypeId, newQuantity, session.user.id);
 
       revalidatePath(`/dashboard/evento/${result.eventId}`);
 
@@ -1305,9 +1326,9 @@ export const downloadPdfFile = async (ticketId: any) => {
   if (!response) return;
   const qrCodeBase64 = await setQrCode(response.id);
   const formattedDate = `${new Date(
-    response.date
+    response.date,
   ).toLocaleDateString()} - ${new Date(response.date).getHours()}:${String(
-    new Date(response.date).getMinutes()
+    new Date(response.date).getMinutes(),
   ).padStart(2, "0")}hs.`;
   // Crear PDF
   const doc = new jsPDF();
@@ -1317,7 +1338,7 @@ export const downloadPdfFile = async (ticketId: any) => {
     20,
     10,
     50,
-    10
+    10,
   );
   // Texto principal
   doc.setFontSize(12);
@@ -1329,7 +1350,11 @@ export const downloadPdfFile = async (ticketId: any) => {
   doc.text(`${response.order.ticketType.title || "-"}`, 20, 48);
   doc.text(`Fecha:  ${formattedDate}`, 20, 53);
   doc.text(`Dirección: ${response.event.address || "-"}`, 20, 58);
-  doc.text(`Lugar: ${response.event.venue || response.event.city || "-"}`, 20, 63);
+  doc.text(
+    `Lugar: ${response.event.venue || response.event.city || "-"}`,
+    20,
+    63,
+  );
 
   // Agregar imagen QR al PDF (posición x: 140, y: 30, tamaño: 50x50)
   doc.addImage(qrCodeBase64, "PNG", 20, 68, 40, 40);
@@ -1349,7 +1374,7 @@ export async function updateProducerDetailsAction(
     website?: string;
     logo?: string;
     logoPublicId?: string | null;
-  }
+  },
 ) {
   await updateProducer(producerId, data);
   revalidatePath("/dashboard/configuracion/productora");
@@ -1361,7 +1386,7 @@ export async function updateProducerConfigurationAction(
     serviceCharge?: number;
     maxValidatorsPerEvent?: number;
     maxInvitesPerEvent?: number;
-  }
+  },
 ) {
   await updateProducerConfiguration(producerId, data);
   revalidatePath("/dashboard/configuracion/productora");
@@ -1372,9 +1397,23 @@ export async function updateProducerConfigurationAction(
 export async function purchaseTicketPackageAction(
   producerId: string,
   quantity: number,
-  unitPrice: number,
-  notes?: string
+  notes?: string,
 ) {
+  // Validar que las variables de MP estén configuradas antes de crear cualquier registro
+  if (!process.env.MP_EYTICKETS_ACCESS_TOKEN) {
+    throw new Error(
+      "El sistema de pagos no está configurado. Contactá al administrador.",
+    );
+  }
+  if (!process.env.MP_SITE_URL || !process.env.MP_SITE_URL.startsWith("http")) {
+    throw new Error(
+      "La URL del sitio no está configurada correctamente. Contactá al administrador.",
+    );
+  }
+
+  // Calcular el precio server-side para evitar manipulación desde el cliente
+  const unitPrice = getUnitPriceForQuantity(quantity);
+
   // Crear el paquete en estado PENDING antes de iniciar el pago
   const pkg = await TicketStock.createPendingTicketPackage({
     producerId,
@@ -1383,31 +1422,31 @@ export async function purchaseTicketPackageAction(
     notes,
   });
 
-  let redirectUrl: string;
-
   try {
     const totalPrice = quantity * unitPrice;
-    redirectUrl = await createStockPurchasePreference(pkg.id, quantity, totalPrice);
+    const checkoutUrl = await createStockPurchasePreference(
+      pkg.id,
+      quantity,
+      totalPrice,
+    );
+    return checkoutUrl;
   } catch {
-    // Si falla la creación de la preferencia, marcar el paquete como FAILED
-    await prisma.ticketPackage.update({
-      where: { id: pkg.id },
-      data: { paymentStatus: "FAILED" },
-    });
+    // Si falla la creación de la preferencia, eliminar el paquete pendiente
+    await prisma.ticketPackage.delete({ where: { id: pkg.id } });
     throw new Error("No se pudo iniciar el proceso de pago. Intentá de nuevo.");
   }
-
-  // redirect() debe llamarse fuera del try/catch porque Next.js lo implementa
-  // como una excepción especial (NEXT_REDIRECT)
-  redirect(redirectUrl);
 }
 
 export async function assignMemberAllocationAction(
   producerId: string,
   userId: string,
-  quantity: number
+  quantity: number,
 ) {
-  await TicketStock.upsertMemberTicketAllocation({ producerId, userId, quantity });
+  await TicketStock.upsertMemberTicketAllocation({
+    producerId,
+    userId,
+    quantity,
+  });
   revalidatePath("/dashboard/ticket-stock");
 }
 

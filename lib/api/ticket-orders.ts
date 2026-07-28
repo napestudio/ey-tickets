@@ -321,22 +321,44 @@ export async function getAllTicketsForExport(eventId: string) {
 export async function substractTicketQuantity(
   ticketTypeId: string,
   quantity: number,
+  performedById: string,
 ) {
-  const ticketType = await prisma.ticketType.findUnique({
-    where: { id: ticketTypeId },
-    select: { quantity: true },
+  return prisma.$transaction(async (tx) => {
+    const ticketType = await tx.ticketType.findUniqueOrThrow({
+      where: { id: ticketTypeId },
+      select: {
+        quantity: true,
+        eventId: true,
+        event: { select: { producerId: true } },
+      },
+    });
+
+    const previousQuantity = ticketType.quantity;
+    const newQuantity = previousQuantity - quantity;
+
+    if (newQuantity < 0) {
+      throw new Error("Not enough tickets available");
+    }
+
+    await tx.ticketType.update({
+      where: { id: ticketTypeId },
+      data: { quantity: newQuantity },
+    });
+
+    await tx.ticketStockMovement.create({
+      data: {
+        ticketTypeId,
+        eventId: ticketType.eventId,
+        producerId: ticketType.event.producerId,
+        performedById,
+        type: "DECREASE",
+        delta: -quantity,
+        previousQuantity,
+        newQuantity,
+        reason: "Invitación",
+      },
+    });
+
+    return newQuantity;
   });
-  
-  if (!ticketType) {
-    throw new Error("Ticket type not found");
-  }
-  const newQuantity = ticketType.quantity - quantity;
-  if (newQuantity < 0) {
-    throw new Error("Not enough tickets available");
-  }
-  await prisma.ticketType.update({
-    where: { id: ticketTypeId },
-    data: { quantity: newQuantity },
-  });
-  return newQuantity;
 }

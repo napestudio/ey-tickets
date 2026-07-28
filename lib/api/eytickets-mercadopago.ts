@@ -8,30 +8,38 @@ export async function createStockPurchasePreference(
   const accessToken = process.env.MP_EYTICKETS_ACCESS_TOKEN;
   if (!accessToken) throw new Error("MP_EYTICKETS_ACCESS_TOKEN no configurado");
 
+  const siteUrl = process.env.MP_SITE_URL?.replace(/\/$/, "");
+  if (!siteUrl || !siteUrl.startsWith("http")) {
+    throw new Error("MP_SITE_URL no está configurado correctamente");
+  }
+
   const mp = new MercadoPagoConfig({ accessToken });
 
-  const preference = await new Preference(mp).create({
-    body: {
-      items: [
-        {
-          id: packageId,
-          title: `Paquete de ${quantity} tickets - EYTickets`,
-          quantity: 1,
-          unit_price: totalPrice,
-          currency_id: "ARS",
+  try {
+    const preference = await new Preference(mp).create({
+      body: {
+        items: [
+          {
+            id: packageId,
+            title: `Paquete de ${quantity} tickets - EYTickets`,
+            quantity: 1,
+            unit_price: totalPrice,
+          },
+        ],
+        external_reference: packageId,
+        back_urls: {
+          success: `${siteUrl}/dashboard/ticket-stock`,
+          failure: `${siteUrl}/dashboard/ticket-stock`,
+          pending: `${siteUrl}/dashboard/ticket-stock`,
         },
-      ],
-      external_reference: packageId,
-      back_urls: {
-        // MP agrega automáticamente ?payment_id=xxx&status=approved a la success URL
-        success: `${process.env.MP_SITE_URL}/dashboard/ticket-stock`,
-        failure: `${process.env.MP_SITE_URL}/dashboard/ticket-stock`,
-        pending: `${process.env.MP_SITE_URL}/dashboard/ticket-stock`,
+        auto_return: "approved",
+        notification_url: `${siteUrl}/api/mercadopago/stock`,
       },
-      auto_return: "approved",
-      notification_url: `${process.env.MP_SITE_URL}/api/mercadopago/stock`,
-    },
-  });
+    });
 
-  return preference.init_point!;
+    return preference.init_point!;
+  } catch (err) {
+    console.error("[EYTickets MP] Error creando Preference:", err);
+    throw err;
+  }
 }

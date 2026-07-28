@@ -15,7 +15,10 @@ import StockPaymentAlert from "./components/stock-payment-alert";
 export default async function TicketStockPage({
   searchParams,
 }: {
-  searchParams: { payment_id?: string; status?: string };
+  searchParams: Promise<{
+    status?: string;
+    external_reference?: string;
+  }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session) return;
@@ -26,16 +29,22 @@ export default async function TicketStockPage({
 
   const pid = producerId!;
 
-  // Verificar el payment_id de MP contra la BD para mostrar feedback seguro
+  const { status, external_reference } = await searchParams;
+
+  // Mostrar alerta de feedback al volver desde MP Checkout Pro.
+  // La validación real del pago la hace el webhook (/api/mercadopago/stock).
+  // Aquí solo consultamos el estado en BD para mostrar un mensaje al usuario.
   let alertStatus: "success" | "pending" | null = null;
-  if (searchParams.payment_id) {
+  if (external_reference) {
     const pkg = await prisma.ticketPackage.findFirst({
-      where: { mpPaymentId: searchParams.payment_id, producerId: pid },
+      where: { id: external_reference, producerId: pid },
       select: { paymentStatus: true },
     });
+
     if (pkg?.paymentStatus === "PAID") {
       alertStatus = "success";
-    } else if (searchParams.status === "pending") {
+    } else if (status === "approved" || status === "pending") {
+      // El webhook aún no procesó el pago — informar que está en curso
       alertStatus = "pending";
     }
   }

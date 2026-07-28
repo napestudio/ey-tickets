@@ -1,9 +1,30 @@
 import { confirmTicketPackagePurchase } from "@/lib/api/ticket-stock";
 import MercadoPagoConfig, { Payment } from "mercadopago";
 
+// GET: permite que MP y cualquier herramienta de diagnóstico verifiquen
+// que la URL es accesible antes de enviar notificaciones.
+export async function GET() {
+  return new Response("OK", { status: 200 });
+}
+
 export async function POST(req: Request) {
-  const body = await req.json();
-  const topic = body.topic || body.type;
+  const rawBody = await req.text();
+
+  // Volcar headers relevantes para diagnóstico
+  const headersForLog: Record<string, string> = {};
+  req.headers.forEach((value, key) => {
+    headersForLog[key] = value;
+  });
+
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    console.error("[MP Stock Webhook] Body no es JSON válido");
+    return new Response(null, { status: 200 });
+  }
+
+  const topic = (body.topic || body.type) as string | undefined;
 
   // Ignorar notificaciones que no sean de tipo payment o que no traigan data
   if (topic !== "payment" || !body.data) {
@@ -12,25 +33,30 @@ export async function POST(req: Request) {
 
   const accessToken = process.env.MP_EYTICKETS_ACCESS_TOKEN;
   if (!accessToken) {
-    console.error("[MP Stock Webhook] MP_EYTICKETS_ACCESS_TOKEN no configurado");
     return new Response(null, { status: 500 });
   }
 
   try {
+    const data = body.data as { id?: string | number };
+    const paymentId = data.id;
+
     const mp = new MercadoPagoConfig({ accessToken });
-    const payment = await new Payment(mp).get({ id: body.data.id });
+    const payment = await new Payment(mp).get({ id: Number(paymentId) });
 
     if (payment.status === "approved") {
       const packageId = payment.external_reference;
       if (!packageId) {
-        console.error("[MP Stock Webhook] external_reference vacío en el pago", payment.id);
+        console.error(
+          "[MP Stock Webhook] external_reference vacío en el pago",
+          payment.id,
+        );
         return new Response(null, { status: 200 });
       }
 
       const feeAmount =
         payment.fee_details?.reduce(
           (acc: number, f: { amount?: number }) => acc + (f.amount ?? 0),
-          0
+          0,
         ) ?? null;
 
       await confirmTicketPackagePurchase(packageId, {

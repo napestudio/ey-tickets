@@ -110,7 +110,7 @@ export async function updateTicketTypeWithLimit(
         }),
         prisma.ticketPackage.aggregate({
           _sum: { quantity: true },
-          where: { producerId, status: "ACTIVE" },
+          where: { producerId, status: "ACTIVE", paymentStatus: "PAID" },
         }),
       ]);
 
@@ -297,7 +297,7 @@ export async function adjustTicketTypeStock(
         }),
         tx.ticketPackage.aggregate({
           _sum: { quantity: true },
-          where: { producerId, status: "ACTIVE" },
+          where: { producerId, status: "ACTIVE", paymentStatus: "PAID" },
         }),
       ]);
 

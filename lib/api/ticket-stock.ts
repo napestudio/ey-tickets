@@ -7,7 +7,12 @@ import { StockSummary, ProfitReport, EventProfitRow } from "@/types/ticket-stock
 
 export async function getTicketPackagesByProducer(producerId: string) {
   return prisma.ticketPackage.findMany({
-    where: { producerId, status: { not: "CANCELED" } },
+    where: {
+      producerId,
+      status: { not: "CANCELED" },
+      // Excluir intentos fallidos de pago (residuos de errores)
+      paymentStatus: { not: "FAILED" },
+    },
     orderBy: { purchasedAt: "desc" },
   });
 }

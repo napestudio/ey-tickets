@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -37,13 +37,30 @@ export default function PurchasePackageDialog({
 
   function handleConfirm() {
     startTransition(async () => {
+      // Abrir la pestaña en blanco ANTES del await para mantener el contexto
+      // de gesto del usuario y evitar que el bloqueador de popups lo bloquee
+      const newTab = window.open("", "_blank");
+
       try {
-        await purchaseTicketPackageAction(producerId, quantity, unitPrice);
-      } catch (e) {
-        // Los errores NEXT_REDIRECT deben propagarse para que Next.js maneje
-        // la navegación hacia MP Checkout Pro
-        const digest = (e as { digest?: string })?.digest ?? "";
-        if (digest.startsWith("NEXT_REDIRECT")) throw e;
+        const checkoutUrl = await purchaseTicketPackageAction(
+          producerId,
+          quantity
+        );
+
+        if (checkoutUrl && newTab) {
+          newTab.location.href = checkoutUrl;
+          onOpenChange(false);
+          toast({
+            title: "Checkout abierto",
+            description:
+              "Completá el pago en la nueva pestaña. El stock se acreditará automáticamente.",
+          });
+        } else {
+          newTab?.close();
+          throw new Error("No se recibió la URL de pago.");
+        }
+      } catch {
+        newTab?.close();
         toast({
           variant: "destructive",
           title: "Error",
@@ -59,20 +76,21 @@ export default function PurchasePackageDialog({
         <DialogHeader>
           <DialogTitle>Confirmar compra</DialogTitle>
           <DialogDescription>
-            Estás por adquirir un paquete de tickets para tu productora.
+            Estás por adquirir un paquete de tickets para tu productora. El
+            pago se completará en una nueva pestaña.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Cantidad de tickets</span>
-            <span className="font-medium">{quantity.toLocaleString("es-AR")}</span>
+            <span className="font-medium">
+              {quantity.toLocaleString("es-AR")}
+            </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Precio por ticket</span>
-            <span className="font-medium">
-              {formatPrice(unitPrice)}
-            </span>
+            <span className="font-medium">{formatPrice(unitPrice)}</span>
           </div>
           <div className="flex justify-between text-sm font-semibold border-t pt-3">
             <span>Total</span>
@@ -81,12 +99,16 @@ export default function PurchasePackageDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancelar
           </Button>
           <Button onClick={handleConfirm} disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Confirmar compra
+            Ir al pago
           </Button>
         </DialogFooter>
       </DialogContent>
