@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { TicketPackageStatus } from "@prisma/client";
+import { Prisma, TicketPackageStatus } from "@prisma/client";
 import {
+  AdjustProducerStockInput,
+  AdjustProducerStockResult,
   CreateTicketPackageInput,
   TicketPackageSummary,
 } from "@/types/superadmin";
+import { getProducerStockSummary } from "@/lib/api/ticket-stock";
 
 export async function getTicketPackages(
   producerId: string
@@ -103,4 +106,76 @@ export async function cancelTicketPackage(
   };
 }
 
+export async function adjustProducerStock(
+  producerId: string,
+  input: AdjustProducerStockInput
+): Promise<AdjustProducerStockResult> {
+  const { action, quantity, reason } = input;
 
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    throw Object.assign(
+      new Error("La cantidad debe ser un entero positivo"),
+      { status: 400 }
+    );
+  }
+
+  const summary = await getProducerStockSummary(producerId);
+  const currentPool = summary.totalPool;
+  const committed = summary.usedByTicketTypes + summary.allocatedToMembers;
+
+  let delta: number;
+  if (action === "add") {
+    delta = quantity;
+  } else if (action === "remove") {
+    delta = -quantity;
+  } else {
+    // "set"
+    delta = quantity - currentPool;
+  }
+
+  const newPool = currentPool + delta;
+
+  if (newPool < 0) {
+    throw Object.assign(
+      new Error(
+        `No se puede reducir el pool a un valor negativo. Pool actual: ${currentPool}.`
+      ),
+      { status: 422 }
+    );
+  }
+
+  if (newPool < committed) {
+    throw Object.assign(
+      new Error(
+        `No se puede reducir el pool por debajo del stock comprometido. Comprometido: ${committed}, nuevo pool solicitado: ${newPool}.`
+      ),
+      { status: 422 }
+    );
+  }
+
+  if (delta === 0) {
+    return { previousPool: currentPool, newPool: currentPool, delta: 0, packageId: "" };
+  }
+
+  const noteParts = [
+    "Ajuste administrativo superadmin",
+    delta > 0 ? `+${delta}` : `${delta}`,
+  ];
+  if (reason) noteParts.push(`| Motivo: ${reason}`);
+  const noteText = noteParts.join(" ");
+
+  const pkg = await prisma.ticketPackage.create({
+    data: {
+      producerId,
+      quantity: delta,
+      unitPrice: new Prisma.Decimal(0),
+      totalPrice: new Prisma.Decimal(0),
+      status: "ACTIVE",
+      paymentStatus: "PAID",
+      notes: noteText,
+    },
+    select: { id: true },
+  });
+
+  return { previousPool: currentPool, newPool, delta, packageId: pkg.id };
+}
