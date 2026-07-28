@@ -16,7 +16,7 @@ export default async function Ingresar() {
   return (
     <div className="min-h-screen bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
-        <Link href="/" className="flex items-center gap-2 py-6 max-w-[200px]">
+        <Link href="/" className="flex items-center gap-2 py-6 max-w-50">
           <Logo />
         </Link>
       </div>
