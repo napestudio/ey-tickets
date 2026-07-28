@@ -12,6 +12,7 @@ import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
+import { createStockPurchasePreference } from "@/lib/api/eytickets-mercadopago";
 import { updateProducer, updateProducerConfiguration } from "@/lib/api/producers";
 
 import { EventCategory, EventStatus, EventType } from "@/types/event";
@@ -1374,13 +1375,31 @@ export async function purchaseTicketPackageAction(
   unitPrice: number,
   notes?: string
 ) {
-  await TicketStock.purchaseTicketPackage({
+  // Crear el paquete en estado PENDING antes de iniciar el pago
+  const pkg = await TicketStock.createPendingTicketPackage({
     producerId,
     quantity,
     unitPrice,
     notes,
   });
-  revalidatePath("/dashboard/ticket-stock");
+
+  let redirectUrl: string;
+
+  try {
+    const totalPrice = quantity * unitPrice;
+    redirectUrl = await createStockPurchasePreference(pkg.id, quantity, totalPrice);
+  } catch {
+    // Si falla la creación de la preferencia, marcar el paquete como FAILED
+    await prisma.ticketPackage.update({
+      where: { id: pkg.id },
+      data: { paymentStatus: "FAILED" },
+    });
+    throw new Error("No se pudo iniciar el proceso de pago. Intentá de nuevo.");
+  }
+
+  // redirect() debe llamarse fuera del try/catch porque Next.js lo implementa
+  // como una excepción especial (NEXT_REDIRECT)
+  redirect(redirectUrl);
 }
 
 export async function assignMemberAllocationAction(

@@ -15,7 +15,7 @@ export async function getTicketPackagesByProducer(producerId: string) {
 export async function getProducerTotalPool(producerId: string): Promise<number> {
   const result = await prisma.ticketPackage.aggregate({
     _sum: { quantity: true },
-    where: { producerId, status: "ACTIVE" },
+    where: { producerId, status: "ACTIVE", paymentStatus: "PAID" },
   });
   return result._sum.quantity ?? 0;
 }
@@ -27,7 +27,7 @@ export async function getProducerStockSummary(
     await Promise.all([
       prisma.ticketPackage.aggregate({
         _sum: { quantity: true },
-        where: { producerId, status: "ACTIVE" },
+        where: { producerId, status: "ACTIVE", paymentStatus: "PAID" },
       }),
       prisma.ticketType.aggregate({
         _sum: { quantity: true },
@@ -98,6 +98,69 @@ export async function purchaseTicketPackage(data: {
       totalPrice,
       status: "ACTIVE",
       notes: notes ?? null,
+    },
+  });
+}
+
+export async function createPendingTicketPackage(data: {
+  producerId: string;
+  quantity: number;
+  unitPrice: number;
+  notes?: string;
+}) {
+  const { producerId, quantity, unitPrice, notes } = data;
+  const totalPrice = new Prisma.Decimal(unitPrice).mul(quantity);
+
+  return prisma.ticketPackage.create({
+    data: {
+      producerId,
+      quantity,
+      unitPrice: new Prisma.Decimal(unitPrice),
+      totalPrice,
+      status: "ACTIVE",
+      paymentStatus: "PENDING",
+      notes: notes ?? null,
+    },
+  });
+}
+
+export async function confirmTicketPackagePurchase(
+  packageId: string,
+  mpData: {
+    mpPaymentId: string;
+    mpDateApproved: Date | null;
+    mpPaymentMethodId: string | null;
+    mpPaymentTypeId: string | null;
+    mpInstallments: number | null;
+    mpAuthorizationCode: string | null;
+    mpTransactionAmount: number | null;
+    mpNetReceivedAmount: number | null;
+    mpFeeAmount: number | null;
+    mpCurrencyId: string | null;
+    mpRawResponse: object;
+  }
+) {
+  return prisma.ticketPackage.update({
+    where: { id: packageId },
+    data: {
+      paymentStatus: "PAID",
+      mpPaymentId: mpData.mpPaymentId,
+      mpDateApproved: mpData.mpDateApproved,
+      mpPaymentMethodId: mpData.mpPaymentMethodId,
+      mpPaymentTypeId: mpData.mpPaymentTypeId,
+      mpInstallments: mpData.mpInstallments,
+      mpAuthorizationCode: mpData.mpAuthorizationCode,
+      mpTransactionAmount: mpData.mpTransactionAmount
+        ? new Prisma.Decimal(mpData.mpTransactionAmount)
+        : null,
+      mpNetReceivedAmount: mpData.mpNetReceivedAmount
+        ? new Prisma.Decimal(mpData.mpNetReceivedAmount)
+        : null,
+      mpFeeAmount: mpData.mpFeeAmount
+        ? new Prisma.Decimal(mpData.mpFeeAmount)
+        : null,
+      mpCurrencyId: mpData.mpCurrencyId,
+      mpRawResponse: mpData.mpRawResponse,
     },
   });
 }

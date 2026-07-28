@@ -39,12 +39,11 @@ export default function PurchasePackageDialog({
     startTransition(async () => {
       try {
         await purchaseTicketPackageAction(producerId, quantity, unitPrice);
-        toast({
-          title: "Paquete adquirido",
-          description: `Se agregaron ${quantity} tickets a tu stock.`,
-        });
-        onOpenChange(false);
-      } catch {
+      } catch (e) {
+        // Los errores NEXT_REDIRECT deben propagarse para que Next.js maneje
+        // la navegación hacia MP Checkout Pro
+        const digest = (e as { digest?: string })?.digest ?? "";
+        if (digest.startsWith("NEXT_REDIRECT")) throw e;
         toast({
           variant: "destructive",
           title: "Error",
