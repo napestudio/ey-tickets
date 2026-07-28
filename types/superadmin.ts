@@ -41,7 +41,8 @@ export interface ProducerSummary {
   createdFrom: string;
   status: ProducerStatus;
   eventCount: number;
-  totalActiveTickets: number;
+  totalPool: number;
+  availableTickets: number;
 }
 
 export interface SuperadminProducersResponse {
@@ -83,6 +84,24 @@ export interface TicketPackageDetail {
   createdAt: Date;
 }
 
+export interface TicketTypeSummary {
+  id: string;
+  title: string;
+  eventId: string;
+  eventTitle: string;
+  quantity: number;
+  soldCount: number;
+  status: string;
+}
+
+export interface ProducerStockSummary {
+  totalPool: number;
+  usedByTicketTypes: number;
+  allocatedToMembers: number;
+  available: number;
+  soldTickets: number;
+}
+
 export interface ProducerDetail {
   id: string;
   name: string;
@@ -100,6 +119,8 @@ export interface ProducerDetail {
   members: ProducerMemberDetail[];
   events: ProducerEventSummary[];
   ticketPackages: TicketPackageDetail[];
+  ticketTypes: TicketTypeSummary[];
+  stockSummary: ProducerStockSummary;
 }
 
 export interface CreateTicketPackageInput {
@@ -124,3 +145,15 @@ export interface TicketPackageSummary {
   createdAt: Date;
 }
 
+export interface AdjustProducerStockInput {
+  action: "add" | "remove" | "set";
+  quantity: number;
+  reason?: string;
+}
+
+export interface AdjustProducerStockResult {
+  previousPool: number;
+  newPool: number;
+  delta: number;
+  packageId: string;
+}
