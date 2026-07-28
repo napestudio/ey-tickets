@@ -103,22 +103,22 @@ export default function NavBar() {
 
           {/* Hamburger */}
           <button
-            className="md:hidden ml-auto flex flex-col justify-center gap-[6px] w-10 h-10 cursor-pointer"
+            className="md:hidden ml-auto flex flex-col justify-center gap-1.5 w-10 h-10 cursor-pointer"
             onClick={() => setIsOpen((prev) => !prev)}
             aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={isOpen}
           >
             <span
               ref={line1Ref}
-              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+              className="block h-0.5 w-6 bg-white rounded-full origin-center"
             />
             <span
               ref={line2Ref}
-              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+              className="block h-0.5 w-6 bg-white rounded-full origin-center"
             />
             <span
               ref={line3Ref}
-              className="block h-[2px] w-6 bg-white rounded-full origin-center"
+              className="block h-0.5 w-6 bg-white rounded-full origin-center"
             />
           </button>
         </div>

@@ -8,6 +8,7 @@ import {
   Tailwind,
   pixelBasedPreset,
 } from "react-email";
+import { SITE_PROD_URL } from "@/lib/constants";
 
 const tailwindConfig = {
   presets: [pixelBasedPreset],
@@ -39,7 +40,7 @@ export function EmailLayout({ children }: EmailLayoutProps) {
         >
           <Section className="text-center mb-4">
             <Img
-              src={`${process.env.BASE_URL}/images/Logo.svg`}
+              src={`${SITE_PROD_URL}/email-logo.png`}
               width="160"
               alt="EyTickets"
               className="mx-auto py-10"
