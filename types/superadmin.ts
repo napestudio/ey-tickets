@@ -59,6 +59,7 @@ export interface ProducerEventSummary {
   status: string;
   startDate: Date | null;
   saleEndDate: Date | null;
+  eventEndDate: Date | null;
   createdAt: Date;
 }
 
@@ -68,6 +69,7 @@ export interface TicketPackageDetail {
   unitPrice: number;
   totalPrice: number;
   status: string;
+  paymentStatus: string;
   purchasedAt: Date;
   expiresAt: Date | null;
   notes: string | null;
@@ -107,6 +109,7 @@ export interface TicketPackageSummary {
   unitPrice: number;
   totalPrice: number;
   status: string;
+  paymentStatus: string;
   purchasedAt: Date;
   expiresAt: Date | null;
   notes: string | null;
