@@ -14,12 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateInvitationTicketOrders } from "@/lib/actions";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -86,21 +81,23 @@ export function TicketBulkEditForm({ tickets }: TicketBulkEditFormProps) {
     fields.forEach((_, i) => {
       if (i === 0) return;
       form.setValue(`tickets.${i}.name`, first.name, { shouldValidate: true });
-      form.setValue(`tickets.${i}.lastName`, first.lastName, { shouldValidate: true });
+      form.setValue(`tickets.${i}.lastName`, first.lastName, {
+        shouldValidate: true,
+      });
       form.setValue(`tickets.${i}.dni`, first.dni, { shouldValidate: true });
-      form.setValue(`tickets.${i}.email`, first.email, { shouldValidate: true });
+      form.setValue(`tickets.${i}.email`, first.email, {
+        shouldValidate: true,
+      });
     });
   }
 
   async function handleSubmit(values: FormValues) {
-      const response = await updateInvitationTicketOrders(values.tickets);
-      console.log("🚀 ~ handleSubmit ~ response:", response)
+    const response = await updateInvitationTicketOrders(values.tickets);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-
         {/* Tickets */}
         {fields.map((field, index) => (
           <Card key={field.id}>
@@ -113,7 +110,6 @@ export function TicketBulkEditForm({ tickets }: TicketBulkEditFormProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
-
               <FormField
                 control={form.control}
                 name={`tickets.${index}.name`}
@@ -163,13 +159,16 @@ export function TicketBulkEditForm({ tickets }: TicketBulkEditFormProps) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="ejemplo@mail.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="ejemplo@mail.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
             </CardContent>
           </Card>
         ))}
@@ -188,7 +187,6 @@ export function TicketBulkEditForm({ tickets }: TicketBulkEditFormProps) {
             </Button>
           </div>
         </div>
-
       </form>
     </Form>
   );
