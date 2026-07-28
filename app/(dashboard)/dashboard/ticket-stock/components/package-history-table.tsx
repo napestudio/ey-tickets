@@ -1,8 +1,9 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
-import { TicketPackageStatus } from "@/types/ticket-stock";
+import { TicketPackagePaymentStatus, TicketPackageStatus } from "@/types/ticket-stock";
 
 interface PackageRow {
   id: string;
@@ -10,6 +11,7 @@ interface PackageRow {
   unitPrice: number;
   totalPrice: number;
   status: TicketPackageStatus;
+  paymentStatus: TicketPackagePaymentStatus;
   purchasedAt: Date;
   notes: string | null;
 }
@@ -25,6 +27,16 @@ const STATUS_MAP: Record<
   ACTIVE: { label: "Activo", variant: "secondary" },
   EXPIRED: { label: "Expirado", variant: "outline" },
   CANCELED: { label: "Cancelado", variant: "destructive" },
+};
+
+const PAYMENT_STATUS_MAP: Record<
+  TicketPackagePaymentStatus,
+  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+> = {
+  PAID: { label: "Pagado", variant: "default" },
+  PENDING: { label: "Pendiente", variant: "outline" },
+  FAILED: { label: "Fallido", variant: "destructive" },
+  REFUNDED: { label: "Reembolsado", variant: "secondary" },
 };
 
 export default function PackageHistoryTable({
@@ -58,12 +70,16 @@ export default function PackageHistoryTable({
                     Total
                   </th>
                   <th className="text-left py-2 font-medium text-muted-foreground">
+                    Pago
+                  </th>
+                  <th className="text-left py-2 font-medium text-muted-foreground">
                     Notas
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {packages.map((pkg) => {
+                  const paymentBadge = PAYMENT_STATUS_MAP[pkg.paymentStatus];
                   return (
                     <tr key={pkg.id} className="border-b last:border-0">
                       <td className="py-3">
@@ -78,7 +94,11 @@ export default function PackageHistoryTable({
                       <td className="py-3 text-right font-medium">
                         {formatPrice(pkg.totalPrice)}
                       </td>
-
+                      <td className="py-3">
+                        <Badge variant={paymentBadge.variant}>
+                          {paymentBadge.label}
+                        </Badge>
+                      </td>
                       <td className="py-3 text-muted-foreground">
                         {pkg.notes ?? "-"}
                       </td>

@@ -161,17 +161,29 @@ model ProducerConfiguration {
 // ─────────────────────────────────────────────
 
 model TicketPackage {
-  id          String              @id @default(cuid())
-  producerId  String
-  quantity    Int
-  unitPrice   Decimal             @db.Decimal(10, 2)
-  totalPrice  Decimal             @db.Decimal(10, 2)
-  status      TicketPackageStatus @default(ACTIVE)
-  purchasedAt DateTime            @default(now())
-  expiresAt   DateTime?
-  notes       String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  id                  String                     @id @default(cuid())
+  producerId          String
+  quantity            Int
+  unitPrice           Decimal                    @db.Decimal(10, 2)
+  totalPrice          Decimal                    @db.Decimal(10, 2)
+  status              TicketPackageStatus        @default(ACTIVE)
+  paymentStatus       TicketPackagePaymentStatus @default(PENDING)
+  purchasedAt         DateTime                   @default(now())
+  expiresAt           DateTime?
+  notes               String?
+  mpPaymentId         String?
+  mpDateApproved      DateTime?
+  mpPaymentMethodId   String?
+  mpPaymentTypeId     String?
+  mpInstallments      Int?
+  mpAuthorizationCode String?
+  mpTransactionAmount Decimal?                   @db.Decimal(10, 2)
+  mpNetReceivedAmount Decimal?                   @db.Decimal(10, 2)
+  mpFeeAmount         Decimal?                   @db.Decimal(10, 2)
+  mpCurrencyId        String?
+  mpRawResponse       Json?
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
 
   producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
 
@@ -577,6 +589,13 @@ enum TicketPackageStatus {
   ACTIVE
   EXPIRED
   CANCELED
+}
+
+enum TicketPackagePaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }
 
 enum StockMovementType {

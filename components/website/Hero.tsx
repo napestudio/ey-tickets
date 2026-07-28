@@ -38,7 +38,7 @@ export default function WebsiteHero() {
               <span className="sm:hidden"> </span>
               Con EyTickets cobras vos, controlas vos.
             </Paragraph>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 items-stretch sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-center">
               <Button
                 className="bg-ey-turquoise uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
                 href="/registro/productora"
