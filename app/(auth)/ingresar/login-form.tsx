@@ -36,7 +36,7 @@ const responseTxt: {
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [errorMessageShown, setErrorMessageShown] = useState<boolean>(false); // Control del toast
+  const [errorMessageShown, setErrorMessageShown] = useState<boolean>(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();

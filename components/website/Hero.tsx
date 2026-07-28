@@ -3,6 +3,9 @@ import { Button } from "./ui/Button";
 import { Title } from "./ui/Title";
 import { Paragraph } from "./ui/Paragraph";
 import ScrollToButton from "./ScrollToButton";
+import CrossIcon from "./ui/icons/CrossIcon";
+import TktIcon from "./ui/icons/TktIcon";
+import RedHotIcon from "./ui/icons/RedHotIcon";
 
 export default function WebsiteHero() {
   return (
@@ -56,24 +59,9 @@ export default function WebsiteHero() {
           </div>
         </div>
         <div className="hidden absolute top-10 md:top-0 right-30 w-1/12 md:w-1/8 md:flex gap-4">
-          <Image
-            src="/images/cross.svg"
-            width={50}
-            height={40}
-            alt="VENDE ENTRADAS SIN COMISIONES"
-          />
-          <Image
-            src="/images/tkt-red.svg"
-            height={45}
-            width={100}
-            alt="VENDE ENTRADAS SIN COMISIONES"
-          />
-          <Image
-            src="/images/red-hot.svg"
-            width={50}
-            height={40}
-            alt="VENDE ENTRADAS SIN COMISIONES"
-          />
+          <CrossIcon className="text-ey-turquoise w-17 h-13" />
+          <TktIcon className="text-[#FF5E3C] w-32.5 h-14.5" />
+          <RedHotIcon className="text-[#8D84FF] w-16.25 h-13" />
         </div>
       </div>
     </div>

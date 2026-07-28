@@ -6,7 +6,7 @@ import LoginForm from "./login-form";
 import Link from "next/link";
 import Image from "next/image";
 import { Title } from "@/components/website/ui/Title";
-import Logo from "@/components/ui/LogoFooter";
+import Logo from "@/components/ui/Logo";
 
 export default async function Ingresar() {
   const session = await getServerSession(authOptions);
@@ -37,6 +37,16 @@ export default async function Ingresar() {
             prefetch={false}
           >
             Olvidé mi contraseña
+          </Link>
+        </div>
+        <div className="text-center text-sm text-neutral-100 dark:text-neutral-50">
+          ¿No tenés cuenta?{" "}
+          <Link
+            href="/registro/productora"
+            className="font-medium underline"
+            prefetch={false}
+          >
+            Registrate
           </Link>
         </div>
       </div>
