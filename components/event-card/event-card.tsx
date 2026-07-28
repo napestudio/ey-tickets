@@ -14,8 +14,8 @@ export default function EventCard({ evento }: { evento: Evento }) {
       prefetch={true}
       className="overflow-hidden shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)] bg-[linear-gradient(175deg,#11111105,#99999924)]"
     >
-      <div className="flex flex-col h-full">
-        <div className="relative max-w-[95vw] h-55">
+      <div className="flex h-full">
+        <div className="relative max-w-[95vw] aspect-square h-55">
           {evento.image ? (
             <Image
               src={evento.image}
@@ -45,12 +45,12 @@ export default function EventCard({ evento }: { evento: Evento }) {
           <p className="text-xs uppercase font-bold tracking-wide text-neutral-100 ">
             {evento.city}, {evento.state}
           </p>
-        </div>
-        <div className="flex justify-end gap-2 p-4 mt-auto">
-          <Button className="w-full">
-            <TicketIcon className="mr-2" />
-            Comprar entradas
-          </Button>
+          <div className="flex gap-2 mt-auto">
+            <div className="bg-ey-turquoise flex font-bold items-center px-6 py-3 w-max rounded-md shadow-md">
+              <TicketIcon className="mr-2" />
+              Comprar entradas
+            </div>
+          </div>
         </div>
       </div>
     </Link>
