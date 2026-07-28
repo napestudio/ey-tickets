@@ -131,13 +131,19 @@ export const authOptions: NextAuthOptions = {
           select: {
             isSuperAdmin: true,
             producerMember: {
-              select: { producerId: true, role: true },
+              select: {
+                producerId: true,
+                role: true,
+                producer: { select: { status: true } },
+              },
             },
           },
         });
 
         if (dbUser) {
           token.producerId = dbUser.producerMember?.producerId ?? null;
+          token.producerStatus =
+            dbUser.producerMember?.producer?.status ?? null;
           // isSuperAdmin en la DB se mapea a role "SUPERADMIN" en el token
           token.role = dbUser.isSuperAdmin
             ? "SUPERADMIN"
@@ -152,6 +158,7 @@ export const authOptions: NextAuthOptions = {
       if (session?.user) {
         session.user.id = token.id as string;
         session.user.producerId = token.producerId as string | null;
+        session.user.producerStatus = token.producerStatus as string | null;
         session.user.role = token.role;
         session.user.isSuperAdmin = token.role === "SUPERADMIN";
       }

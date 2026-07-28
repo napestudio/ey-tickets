@@ -1,3 +1,9 @@
+export type ProducerStatus = "ACTIVE" | "SUSPENDED" | "IN_DEBT" | "DELETED";
+
+export interface UpdateProducerStatusInput {
+  status: ProducerStatus;
+}
+
 export interface CreateProducerInput {
   producer: {
     name: string;
@@ -33,6 +39,7 @@ export interface ProducerSummary {
   logo: string | null;
   createdAt: Date;
   createdFrom: string;
+  status: ProducerStatus;
   eventCount: number;
   totalActiveTickets: number;
 }
@@ -89,6 +96,7 @@ export interface ProducerDetail {
   createdAt: Date;
   updatedAt: Date;
   createdFrom: string;
+  status: ProducerStatus;
   members: ProducerMemberDetail[];
   events: ProducerEventSummary[];
   ticketPackages: TicketPackageDetail[];
