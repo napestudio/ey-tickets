@@ -1,5 +1,6 @@
 import { Column, Hr, Img, Link, Row, Section, Text } from "react-email";
 import { EmailLayout } from "./components/email-layout";
+import { SITE_PROD_URL, SITE_URL } from "@/lib/constants";
 
 export type QrTicketEmailData = {
   code: number;
@@ -124,12 +125,20 @@ export function TicketConfirmationEmail({
                   {ticket.ticketType.title}
                 </Text>
                 <Text
-                  style={{ color: "#555555", fontSize: "13px", margin: "0 0 2px 0" }}
+                  style={{
+                    color: "#555555",
+                    fontSize: "13px",
+                    margin: "0 0 2px 0",
+                  }}
                 >
                   📍 <strong>{eventLocation}</strong>
                 </Text>
                 <Text
-                  style={{ color: "#555555", fontSize: "13px", margin: "0 0 2px 0" }}
+                  style={{
+                    color: "#555555",
+                    fontSize: "13px",
+                    margin: "0 0 2px 0",
+                  }}
                 >
                   {eventAddress}
                 </Text>
@@ -155,7 +164,12 @@ export function TicketConfirmationEmail({
                   style={{ display: "block", margin: "0 auto 6px" }}
                 />
                 <Text
-                  style={{ color: "#999999", fontSize: "10px", margin: 0, textAlign: "center" }}
+                  style={{
+                    color: "#999999",
+                    fontSize: "10px",
+                    margin: 0,
+                    textAlign: "center",
+                  }}
                 >
                   Escaneá para validar
                 </Text>
@@ -169,15 +183,17 @@ export function TicketConfirmationEmail({
 
       {/* Footer note */}
       <Section style={{ padding: "16px 24px" }}>
-        <Text style={{ color: "#555555", fontSize: "14px", margin: "0 0 12px 0" }}>
+        <Text
+          style={{ color: "#555555", fontSize: "14px", margin: "0 0 12px 0" }}
+        >
           Recordá llevar tu DNI. ¡Nos vemos ahí!
         </Text>
-        <Link
-          href={`${process.env.BASE_URL}/terminos-y-condiciones`}
+        {/* <Link
+          href={`${SITE_PROD_URL}/terminos-y-condiciones`}
           style={{ color: "#3addbe", fontSize: "12px" }}
         >
           Términos y Condiciones de Uso
-        </Link>
+        </Link> */}
       </Section>
     </EmailLayout>
   );

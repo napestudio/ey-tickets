@@ -1,7 +1,5 @@
-import fs from "fs";
-import nodePath from "path";
 import { Resend } from "resend";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, SITE_PROD_URL } from "@/lib/constants";
 import { TicketConfirmationEmail } from "./ticket-confirmation";
 import { PasswordResetEmail } from "./password-reset";
 import { UserInvitationEmail } from "./user-invitation";
@@ -18,30 +16,6 @@ function getResend(): Resend {
 
 const FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL ?? `${SITE_NAME} <noreply@example.com>`;
-
-// Inline attachment type — Resend supports content_id for embedded images
-// even though it's not reflected in the SDK's TypeScript types.
-type InlineAttachment = {
-  content: Buffer;
-  filename: string;
-  content_id: string;
-  content_type: string;
-};
-
-function buildLogoAttachment(): InlineAttachment | null {
-  try {
-    const logoPath = nodePath.join(process.cwd(), "public", "email-logo.png");
-    const content = fs.readFileSync(logoPath);
-    return {
-      content,
-      filename: "email-logo.png",
-      content_id: "email-logo",
-      content_type: "image/png",
-    };
-  } catch {
-    return null;
-  }
-}
 
 export type TicketEmailPayload = {
   recipientEmail: string;
@@ -69,14 +43,9 @@ export async function sendTicketConfirmationEmail(
   const { recipientEmail, eventTitle, eventLocation, eventAddress, tickets } =
     payload;
 
-  const attachments: InlineAttachment[] = [];
-
-  const logo = buildLogoAttachment();
-  if (logo) attachments.push(logo);
-
   const ticketsForTemplate = tickets.map((ticket) => ({
     ...ticket,
-    qrSrc: `${process.env.BASE_URL}/api/tickets/qr/${ticket.ticketId}`,
+    qrSrc: `${SITE_PROD_URL}/api/tickets/qr/${ticket.ticketId}`,
   }));
 
   const { error } = await getResend().emails.send({
@@ -89,8 +58,6 @@ export async function sendTicketConfirmationEmail(
       eventAddress,
       tickets: ticketsForTemplate,
     }),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    attachments: attachments as any,
   });
 
   if (error) {
@@ -103,17 +70,11 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const { recipientEmail, resetToken } = payload;
 
-  const attachments: InlineAttachment[] = [];
-  const logo = buildLogoAttachment();
-  if (logo) attachments.push(logo);
-
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: [recipientEmail],
     subject: `Recuperar contraseña de ${SITE_NAME}`,
     react: PasswordResetEmail({ resetToken }),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    attachments: attachments as any,
   });
 
   if (error) {
@@ -126,17 +87,11 @@ export async function sendInvitationEmail(
 ): Promise<void> {
   const { recipientEmail, roleLabel, invitationId, invitationToken } = payload;
 
-  const attachments: InlineAttachment[] = [];
-  const logo = buildLogoAttachment();
-  if (logo) attachments.push(logo);
-
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: [recipientEmail],
     subject: `Invitación a ${SITE_NAME}`,
     react: UserInvitationEmail({ roleLabel, invitationId, invitationToken }),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    attachments: attachments as any,
   });
 
   if (error) {

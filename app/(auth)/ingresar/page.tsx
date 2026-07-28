@@ -6,7 +6,7 @@ import LoginForm from "./login-form";
 import Link from "next/link";
 import Image from "next/image";
 import { Title } from "@/components/website/ui/Title";
-import Logo from "@/components/ui/LogoFooter";
+import Logo from "@/components/ui/Logo";
 
 export default async function Ingresar() {
   const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export default async function Ingresar() {
   return (
     <div className="min-h-screen bg-linear-to-b to-black from-ey-turquoise-darker to-80%">
       <div className="container mx-auto">
-        <Link href="/" className="flex items-center gap-2 py-6 max-w-[200px]">
+        <Link href="/" className="flex items-center gap-2 py-6 max-w-50">
           <Logo />
         </Link>
       </div>
@@ -37,6 +37,16 @@ export default async function Ingresar() {
             prefetch={false}
           >
             Olvidé mi contraseña
+          </Link>
+        </div>
+        <div className="text-center text-sm text-neutral-100 dark:text-neutral-50">
+          ¿No tenés cuenta?{" "}
+          <Link
+            href="/registro/productora"
+            className="font-medium underline"
+            prefetch={false}
+          >
+            Registrate
           </Link>
         </div>
       </div>

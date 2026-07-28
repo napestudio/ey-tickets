@@ -1,6 +1,6 @@
 import { Button, Link, Section, Text } from "react-email";
 import { EmailLayout } from "./components/email-layout";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, SITE_PROD_URL } from "@/lib/constants";
 
 type UserInvitationEmailProps = {
   roleLabel: string;
@@ -47,7 +47,7 @@ export function UserInvitationEmail({
           Para completar tu registro y acceder a la plataforma, es necesario que
           leas y aceptes nuestros{" "}
           <Link
-            href={`${process.env.BASE_URL}/terminos-y-condiciones`}
+            href={`${SITE_PROD_URL}/terminos-y-condiciones`}
             className="text-dark underline"
           >
             Términos y Condiciones de Uso
@@ -65,8 +65,8 @@ export function UserInvitationEmail({
           Aceptar invitación y términos de uso
         </Button>
         <Text className="text-sm text-gray-500 mt-5">
-          Si no reconocés esta invitación o no deseás unirte, simplemente
-          ignorá este mensaje.
+          Si no reconocés esta invitación o no deseás unirte, simplemente ignorá
+          este mensaje.
         </Text>
       </Section>
     </EmailLayout>
