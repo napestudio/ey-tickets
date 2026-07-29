@@ -1,3 +1,4 @@
+// @legacy — reemplazado por ticket-type-picker-v2. Verificar usos antes de eliminar.
 "use client";
 
 import Link from "next/link";

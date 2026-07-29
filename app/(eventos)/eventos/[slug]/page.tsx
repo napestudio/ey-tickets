@@ -1,8 +1,8 @@
 import { getSingleEventBySlug, getSoldTicketsByType } from "@/lib/actions";
 import { datesFormater } from "@/lib/utils";
-import TicketTypePicker from "@/components/ticket-type-picker/ticket-type-picker";
+import TicketTypePickerV2 from "@/components/ticket-type-picker/ticket-type-picker-v2";
+import { TicketTypeForPicker } from "@/components/ticket-type-picker/ticket-type-picker-form";
 import EventHeader from "@/components/event-header/event-header";
-import { DiscountCode } from "@/types/discount-code";
 
 import { Metadata, ResolvingMetadata } from "next";
 import { GetSingleEventResponse } from "@/lib/api/eventos";
@@ -80,6 +80,25 @@ export default async function Evento({ params }: { params: { slug: string } }) {
   const groupedDates = datesFormater(evento?.dates as string);
   const { title, dates, city, state } = evento;
 
+  const ticketsForPicker: TicketTypeForPicker[] =
+    evento.ticketTypes?.map((t) => ({
+      id: t.id,
+      title: t.title,
+      price: Number(t.price),
+      discount: t.discount !== null ? Number(t.discount) : null,
+      limitPerSale: t.limitPerSale ?? null,
+      buyGet: t.buyGet ?? null,
+      status: t.status as TicketTypeForPicker["status"],
+      endDate: t.endDate ?? null,
+      dates: t.dates ?? null,
+      quantity: t.quantity,
+      isFree: t.isFree ?? false,
+    })) ?? [];
+
+  const hasDiscountCodes = Boolean(
+    evento.discountCode?.some((dc) => dc.status !== "DELETED"),
+  );
+
   return (
     <>
       <EventsMarquee events={Array(6).fill({ title, dates, city, state })} />
@@ -99,40 +118,17 @@ export default async function Evento({ params }: { params: { slug: string } }) {
           dates={groupedDates}
         />
 
-        <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative">
-          {paymentMethod.length > 0 && (
-            <>
-              <h2 className="m-4 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-white text-stroke text-center">
-                <span className="font-bold">Comprá tu </span>
-                <span className="font-thin">entrada</span>
-              </h2>
-              <div className="md:flex md:w-full max-w-[90vw] mx-auto align-center justify-center flex-1">
-                {evento?.ticketTypes && (
-                  <TicketTypePicker
-                    tickets={evento.ticketTypes.map((t) => ({
-                      ...t,
-                      price: Number(t.price),
-                      discount: t.discount !== null ? Number(t.discount) : null,
-                    }))}
-                    eventId={evento?.id}
-                    soldTickets={soldTickets}
-                    discountCode={
-                      evento?.discountCode &&
-                      (evento.discountCode as DiscountCode[]).filter(
-                        (dc) => dc.status !== "DELETED",
-                      ).length > 0
-                        ? (evento.discountCode as DiscountCode[]).filter(
-                            (dc) => dc.status !== "DELETED",
-                          )
-                        : undefined
-                    }
-                    serviceCharge={serviceCharge || undefined}
-                  />
-                )}
-              </div>
-            </>
-          )}
+        {paymentMethod.length > 0 && evento?.ticketTypes && (
+          <TicketTypePickerV2
+            tickets={ticketsForPicker}
+            eventId={evento.id}
+            serviceCharge={serviceCharge ?? 0}
+            hasDiscountCodes={hasDiscountCodes}
+            soldTickets={soldTickets as Record<string, { count: number }>}
+          />
+        )}
 
+        <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative pb-28">
           {evento?.ageRestriction && (
             <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-4 py-3 my-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
