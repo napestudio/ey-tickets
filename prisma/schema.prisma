@@ -235,33 +235,33 @@ model Invitation {
 // ─────────────────────────────────────────────
 
 model Event {
-  id             String         @id @default(cuid())
-  title          String
-  slug           String         @unique
-  description    String
-  address        String
-  state          String?
-  city           String?
-  image                String?
-  imagePublicId        String?
-  featuredImage        String?
+  id                    String         @id @default(cuid())
+  title                 String
+  slug                  String         @unique
+  description           String
+  address               String
+  state                 String?
+  city                  String?
+  image                 String?
+  imagePublicId         String?
+  featuredImage         String?
   featuredImagePublicId String?
-  dates          String?
-  startDate      DateTime?
-  saleEndDate    DateTime?
-  eventEndDate   DateTime?
-  status         GlobalStatus
-  eventType      EventType      @default(PUBLIC)
-  category       EventCategory?
-  legalText      String?
-  restrictions   String[]
-  venue          String?
-  ageRestriction Int?
-  website        String?
-  producerId     String
-  createdById    String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  dates                 String?
+  startDate             DateTime?
+  saleEndDate           DateTime?
+  eventEndDate          DateTime?
+  status                GlobalStatus
+  eventType             EventType      @default(PUBLIC)
+  category              EventCategory?
+  legalText             String?
+  restrictions          String[]
+  venue                 String?
+  ageRestriction        Int?
+  website               String?
+  producerId            String
+  createdById           String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
   producer       Producer              @relation(fields: [producerId], references: [id], onDelete: Cascade)
   createdBy      User?                 @relation("CreatedEvents", fields: [createdById], references: [id])
@@ -527,7 +527,7 @@ model EventPayment {
 model FeaturedEvent {
   id          String              @id @default(cuid())
   eventId     String
-  position    Int                 
+  position    Int
   startDate   DateTime
   endDate     DateTime
   status      FeaturedEventStatus @default(ACTIVE)
@@ -537,8 +537,8 @@ model FeaturedEvent {
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 
-  event     Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdBy User?  @relation("FeaturedEventCreatedBy", fields: [createdById], references: [id])
+  event     Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy User? @relation("FeaturedEventCreatedBy", fields: [createdById], references: [id])
 
   @@index([eventId])
   @@index([startDate, endDate])
