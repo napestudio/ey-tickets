@@ -3,12 +3,18 @@
 import { useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import useIsomorphicLayoutEffect from "@/hooks/useIsometricLayoutEffect";
-import { Evento } from "@/types/event";
 import { datesFormater } from "@/lib/utils";
+
+type EventMarqueeItem = {
+  title: string;
+  dates?: string | null;
+  city?: string | null;
+  state?: string | null;
+};
 
 const SPEED = 80; // px/s
 
-export default function EventsMarquee({ events }: { events: Evento[] }) {
+export default function EventsMarquee({ events }: { events: EventMarqueeItem[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const set2Ref = useRef<HTMLDivElement>(null);
