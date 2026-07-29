@@ -68,6 +68,8 @@ export type Evento = {
   createdById?: string;
   image: string | null;
   imagePublicId?: string | null;
+  thumbnailImage?: string | null;
+  thumbnailImagePublicId?: string | null;
   dates: string;
   status: EventStatus;
   saleEndDate: string;

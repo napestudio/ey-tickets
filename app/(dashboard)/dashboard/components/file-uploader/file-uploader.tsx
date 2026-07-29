@@ -19,6 +19,7 @@ type FileUploaderProps = {
   setFiles: Dispatch<SetStateAction<File[]>>;
   setFileUpdated: Dispatch<SetStateAction<boolean>>;
   onDelete: (url: string) => Promise<void>;
+  square?: boolean;
 };
 
 const convertFileToUrl = (file: File) => URL.createObjectURL(file);
@@ -29,6 +30,7 @@ export function FileUploader({
   setFiles,
   setFileUpdated,
   onDelete,
+  square = false,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,7 +73,7 @@ export function FileUploader({
         onClick={() => !imageUrl && inputRef.current?.click()}
         className="flex-center border bg-dark-3 flex cursor-pointer flex-col overflow-hidden rounded-xl bg-grey-50"
       >
-        <div className="flex-center text-center flex-col py-5 text-grey-500 relative min-h-[245px]">
+        <div className={`flex-center text-center flex-col py-5 text-grey-500 relative ${square ? "aspect-square" : "min-h-61.25"}`}>
           {imageUrl ? (
             <>
               <Image
