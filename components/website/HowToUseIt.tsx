@@ -5,6 +5,8 @@ import { ShapeMask } from "./ShapeMask";
 import { Paragraph } from "./ui/Paragraph";
 import { Title } from "./ui/Title";
 
+import { ticketMaskX } from "./ui/utils";
+
 const HOW_TO_USE_IT_STEPS = [
   {
     title: "Registrate gratis",
@@ -26,20 +28,16 @@ export default function HowToUseItSection() {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center">
           <div className="order-2 md:order-1 relative w-full md:w-2/5">
-            <ShapeMask
-              orientation="vertical"
-              borderColor="#3ADDBE"
-              borderWidth={3}
-              className="h-full aspect-[3/4]"
-            >
+            <div >
               <Image
                 src="/images/qr-scanning.webp"
                 width="1400"
                 height="933"
+                style={ticketMaskX}
                 className="w-full h-full object-cover bg-bottom grayscale opacity-80"
                 alt=""
               />
-            </ShapeMask>
+            </div>
             <Image
               src="/images/star.svg"
               width={40}
