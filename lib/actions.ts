@@ -431,6 +431,111 @@ export async function createOrder(data: CreateOrderType) {
   revalidatePath("/dashboard");
 }
 
+export type CreateSecureOrderInput = {
+  ticketTypeId: string;
+  quantity: number;
+  eventId: string;
+  discountCode?: string;
+  paymentMethodId?: string;
+};
+
+export async function createSecureOrder(input: CreateSecureOrderInput) {
+  const ticketType = await prisma.ticketType.findUnique({
+    where: { id: input.ticketTypeId },
+    select: {
+      id: true,
+      price: true,
+      discount: true,
+      limitPerSale: true,
+      status: true,
+      endDate: true,
+      eventId: true,
+      isFree: true,
+    },
+  });
+
+  if (!ticketType) throw new Error("Tipo de ticket no encontrado.");
+  if (ticketType.eventId !== input.eventId)
+    throw new Error("El ticket no pertenece a este evento.");
+  if (
+    ticketType.status === "INACTIVE" ||
+    ticketType.status === "DELETED" ||
+    ticketType.status === "SOLDOUT"
+  )
+    throw new Error("Este tipo de ticket no está disponible.");
+  if (ticketType.endDate && ticketType.endDate < new Date())
+    throw new Error("Este tipo de ticket ha expirado.");
+
+  const maxQty = ticketType.limitPerSale ?? 10;
+  if (input.quantity < 1 || input.quantity > maxQty)
+    throw new Error(`La cantidad debe ser entre 1 y ${maxQty}.`);
+
+  let discountPercent = 0;
+  let appliedCodeId: string | undefined;
+  if (input.discountCode) {
+    const codeRecord = await Code.getActiveDiscountCodeByString(
+      input.discountCode,
+      input.eventId
+    );
+    if (
+      codeRecord &&
+      codeRecord.status === "ACTIVE" &&
+      (!codeRecord.expiresAt || codeRecord.expiresAt > new Date())
+    ) {
+      discountPercent = codeRecord.discount ?? 0;
+      appliedCodeId = codeRecord.id;
+    }
+  }
+
+  const event = await prisma.event.findUnique({
+    where: { id: input.eventId },
+    select: {
+      producer: {
+        select: { configuration: { select: { serviceCharge: true } } },
+      },
+    },
+  });
+  const serviceChargeRate =
+    event?.producer?.configuration?.serviceCharge ?? 0;
+
+  const unitPrice = Number(ticketType.price);
+  const baseSubtotal = unitPrice * input.quantity;
+  const discountAmount = discountPercent
+    ? (baseSubtotal * discountPercent) / 100
+    : 0;
+  const afterDiscount = baseSubtotal - discountAmount;
+  const serviceChargeAmount = serviceChargeRate
+    ? (afterDiscount * serviceChargeRate) / 100
+    : 0;
+  const totalPrice = afterDiscount + serviceChargeAmount;
+
+  const orderData: CreateOrderType = {
+    ticketTypeId: input.ticketTypeId,
+    status: "PENDING",
+    quantity: input.quantity,
+    eventId: input.eventId,
+    hasCode: discountPercent > 0,
+    discountCode: appliedCodeId,
+    totalPrice,
+    subtotal: baseSubtotal,
+    discountAmount,
+    serviceChargeAmount,
+    paymentMethodId: input.paymentMethodId,
+  };
+
+  let orderId: string | null = null;
+  try {
+    const result = await Orders.createOrder(orderData);
+    orderId = result.id;
+  } catch {
+    throw new Error("Error creando la orden.");
+  }
+
+  if (orderId) {
+    redirect(`/orders/${orderId}`);
+  }
+}
+
 export async function createCashOrder(data: CreateOrderType) {
   try {
     const result = await Orders.createOrder(data);

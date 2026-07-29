@@ -33,6 +33,13 @@ export default async function OrderPage({
     ? {
         ...order,
         totalPrice: order.totalPrice !== null ? Number(order.totalPrice) : null,
+        subtotal: order.subtotal !== null ? Number(order.subtotal) : null,
+        discountAmount:
+          order.discountAmount !== null ? Number(order.discountAmount) : null,
+        serviceChargeAmount:
+          order.serviceChargeAmount !== null
+            ? Number(order.serviceChargeAmount)
+            : null,
         ticketType: order.ticketType
           ? {
               ...order.ticketType,

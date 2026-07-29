@@ -1,14 +1,16 @@
 import { getSingleEventBySlug, getSoldTicketsByType } from "@/lib/actions";
 import { datesFormater } from "@/lib/utils";
-import TicketTypePicker from "@/components/ticket-type-picker/ticket-type-picker";
+import TicketTypePickerV2 from "@/components/ticket-type-picker/ticket-type-picker-v2";
+import { TicketTypeForPicker } from "@/components/ticket-type-picker/ticket-type-picker-form";
 import EventHeader from "@/components/event-header/event-header";
-
-import { DiscountCode } from "@/types/discount-code";
 
 import { Metadata, ResolvingMetadata } from "next";
 import { GetSingleEventResponse } from "@/lib/api/eventos";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { EventDescription } from "@/components/dashboard/event-description";
+import EventsMarquee from "@/components/website/events/EventsMarquee";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
@@ -76,77 +78,86 @@ export default async function Evento({ params }: { params: { slug: string } }) {
   const { evento, serviceCharge, soldTickets, paymentMethod } = eventData;
 
   const groupedDates = datesFormater(evento?.dates as string);
+  const { title, dates, city, state } = evento;
+
+  const ticketsForPicker: TicketTypeForPicker[] =
+    evento.ticketTypes?.map((t) => ({
+      id: t.id,
+      title: t.title,
+      price: Number(t.price),
+      discount: t.discount !== null ? Number(t.discount) : null,
+      limitPerSale: t.limitPerSale ?? null,
+      buyGet: t.buyGet ?? null,
+      status: t.status as TicketTypeForPicker["status"],
+      endDate: t.endDate ?? null,
+      dates: t.dates ?? null,
+      quantity: t.quantity,
+      isFree: t.isFree ?? false,
+    })) ?? [];
+
+  const hasDiscountCodes = Boolean(
+    evento.discountCode?.some((dc) => dc.status !== "DELETED"),
+  );
 
   return (
     <>
-      <EventHeader
-        evento={evento as GetSingleEventResponse}
-        dates={groupedDates}
-      />
+      <EventsMarquee events={Array(6).fill({ title, dates, city, state })} />
+      <div className="min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white">
+        <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 pt-8">
+          <Link
+            href="/eventos"
+            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a eventos
+          </Link>
+        </div>
 
-      <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative">
-        {paymentMethod.length > 0 && (
-          <>
-            <h2 className="m-4 scroll-m-20 text-4xl tracking-tight lg:text-7xl text-black text-stroke text-center">
-              <span className="font-bold">Comprá tu </span>
-              <span className="font-thin">entrada</span>
-            </h2>
-            <div className="md:flex md:w-full max-w-[90vw] mx-auto align-center justify-center flex-1">
-              {evento?.ticketTypes && (
-                <TicketTypePicker
-                  tickets={evento.ticketTypes.map((t) => ({
-                    ...t,
-                    price: Number(t.price),
-                    discount: t.discount !== null ? Number(t.discount) : null,
-                  }))}
-                  eventId={evento?.id}
-                  soldTickets={soldTickets}
-                  discountCode={
-                    evento?.discountCode &&
-                    (evento.discountCode as DiscountCode[]).filter(
-                      (dc) => dc.status !== "DELETED",
-                    ).length > 0
-                      ? (evento.discountCode as DiscountCode[]).filter(
-                          (dc) => dc.status !== "DELETED",
-                        )
-                      : undefined
-                  }
-                  serviceCharge={serviceCharge || undefined}
-                />
-              )}
-            </div>
-          </>
+        <EventHeader
+          evento={evento as GetSingleEventResponse}
+          dates={groupedDates}
+        />
+
+        {paymentMethod.length > 0 && evento?.ticketTypes && (
+          <TicketTypePickerV2
+            tickets={ticketsForPicker}
+            eventId={evento.id}
+            serviceCharge={serviceCharge ?? 0}
+            hasDiscountCodes={hasDiscountCodes}
+            soldTickets={soldTickets as Record<string, { count: number }>}
+          />
         )}
 
-        {evento?.ageRestriction && (
-          <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 my-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-              {evento?.ageRestriction}+
+        <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative pb-28">
+          {evento?.ageRestriction && (
+            <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-4 py-3 my-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
+                {evento?.ageRestriction}+
+              </div>
+              <p className="text-sm text-neutral-400">
+                Edad mínima para ingresar al evento
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Edad mínima para ingresar al evento
-            </p>
+          )}
+
+          <div className="flex flex-col gap-2 my-4">
+            <ul className="flex flex-wrap gap-2">
+              {evento?.restrictions?.map((tag) => (
+                <li
+                  key={tag}
+                  className="inline-block bg-ey-turquoise text-gray-800 text-sm font-semibold mr-2 px-5 py-2.5 rounded"
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
 
-        <div className="flex flex-col gap-2 my-4">
-          <ul className="flex flex-wrap gap-2">
-            {evento?.restrictions?.map((tag) => (
-              <li
-                key={tag}
-                className="inline-block bg-ey-turquoise text-gray-800 text-sm font-semibold mr-2 px-5 py-2.5 rounded dark:bg-gray-700 dark:text-gray-300"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        <div className="flex items-center gap-4 text-[.5rem] font-medium text-neutral-400 text-balance">
-       
-          <EventDescription html={evento?.legalText ?? ""} />
-        </div>
-      </section>
+          <div className="flex items-center gap-4 text-[.5rem] font-medium text-neutral-400 text-balance">
+            <EventDescription html={evento?.legalText ?? ""} />
+          </div>
+        </section>
+      </div>
     </>
   );
 }

@@ -54,3 +54,16 @@ export async function getDiscountCodeById(codeId: string) {
     },
   });
 }
+
+export async function getActiveDiscountCodeByString(
+  code: string,
+  eventId: string
+) {
+  return await prisma.discountCode.findFirst({
+    where: {
+      code,
+      eventId,
+      status: { not: "DELETED" },
+    },
+  });
+}
