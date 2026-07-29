@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/Card";
+import { ticketMaskY } from "./ui/utils";
 
 interface PricingCardPackage {
   title: string;
@@ -16,6 +17,7 @@ interface PricingCardPackage {
   discountPrice?: number | null;
   featured?: number | boolean;
 }
+
 
 export default function PricePackageCard({
   title,
@@ -31,10 +33,10 @@ export default function PricePackageCard({
         "bg-transparent border-none ",
       )}
     >
-      <div className="h-full flex flex-col justify-between text-ey-dark">
+      <div style={ticketMaskY} className="h-full flex flex-col justify-between text-ey-dark">
         <CardHeader
           className={cn(
-            "rounded-4xl text-center overflow-hidden bg-ey-turquoise border-none",
+            "text-center overflow-hidden bg-ey-turquoise border-none",
             featured && "bg-ey-orange w-full",
             featured === 2 && "bg-white",
           )}
@@ -45,7 +47,7 @@ export default function PricePackageCard({
           </CardDescription>
         </CardHeader>
         <CardContent className={cn(
-            "rounded-4xl text-center bg-ey-turquoise p-6",
+            "text-center bg-ey-turquoise p-6 pt-0",
             featured && "bg-ey-orange w-full",
             featured === 2 && "bg-white",
           )}>
