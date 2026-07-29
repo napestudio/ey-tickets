@@ -242,10 +242,12 @@ model Event {
   address               String
   state                 String?
   city                  String?
-  image                 String?
-  imagePublicId         String?
-  featuredImage         String?
-  featuredImagePublicId String?
+  image                    String?
+  imagePublicId            String?
+  thumbnailImage           String?
+  thumbnailImagePublicId   String?
+  featuredImage            String?
+  featuredImagePublicId    String?
   dates                 String?
   startDate             DateTime?
   saleEndDate           DateTime?

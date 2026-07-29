@@ -16,9 +16,9 @@ export default function EventCard({ evento }: { evento: Evento }) {
     >
       <div className="flex h-full md:flex-row flex-col">
         <div className="relative max-w-[95vw] aspect-square md:h-55 overflow-hidden">
-          {evento.image ? (
+          {evento.thumbnailImage || evento.image ? (
             <Image
-              src={evento.image}
+              src={evento.thumbnailImage || evento.image}
               alt={`Portada del evento ${evento.title}`}
               height={500}
               width={500}

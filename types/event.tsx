@@ -40,6 +40,8 @@ export interface Evento {
   createdById?: string | null;
   image: string;
   imagePublicId?: string | null;
+  thumbnailImage?: string | null;
+  thumbnailImagePublicId?: string | null;
   dates: string;
   status?: EventStatus;
   discountCode?: DiscountCode[] | undefined;
@@ -88,6 +90,8 @@ export interface EventoWithTicketsType {
   producerId: string;
   image: string;
   imagePublicId?: string | null;
+  thumbnailImage?: string | null;
+  thumbnailImagePublicId?: string | null;
   dates: string;
   status?: EventStatus;
   discountCode?: DiscountCode[] | undefined;

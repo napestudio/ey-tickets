@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   CreditCard,
+  Image,
   Pencil,
   Receipt,
   ShieldCheck,
@@ -27,6 +28,13 @@ const ACTION_ITEMS: ActionItem[] = [
     icon: Pencil,
     label: "Editar evento",
     description: "Actualizá los datos del evento",
+    ownerOnly: true,
+  },
+  {
+    href: "imagenes",
+    icon: Image,
+    label: "Imágenes",
+    description: "Imagen principal y miniatura",
     ownerOnly: true,
   },
   {
