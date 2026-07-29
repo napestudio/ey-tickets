@@ -13,6 +13,7 @@ import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
 import { createStockPurchasePreference } from "@/lib/api/eytickets-mercadopago";
+import { getActiveFeaturedEventsForCarousel } from "@/lib/api/superadmin/featured-events";
 import { getUnitPriceForQuantity } from "@/lib/ticket-stock-catalog";
 import {
   updateProducer,
@@ -1478,4 +1479,8 @@ export async function getAllTicketsForExportAction(eventId: string) {
 export async function removeMemberAllocationAction(userId: string) {
   await TicketStock.removeMemberTicketAllocation(userId);
   revalidatePath("/dashboard/ticket-stock");
+}
+
+export async function getActiveFeaturedEvents() {
+  return getActiveFeaturedEventsForCarousel();
 }

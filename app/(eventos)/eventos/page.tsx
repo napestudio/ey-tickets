@@ -5,6 +5,7 @@ import CrossIcon from "@/components/website/ui/icons/CrossIcon";
 import TktIcon from "@/components/website/ui/icons/TktIcon";
 import RedHotIcon from "@/components/website/ui/icons/RedHotIcon";
 import { getAllActiveEvents } from "@/lib/api/eventos";
+import { getActiveFeaturedEvents } from "@/lib/actions";
 import { Evento } from "@/types/event";
 import { Title } from "@radix-ui/react-toast";
 import { Metadata } from "next/types";
@@ -17,7 +18,10 @@ export const metadata: Metadata = {
 };
 
 export default async function EventosPage() {
-  const eventos = await getAllActiveEvents();
+  const [eventos, featuredEvents] = await Promise.all([
+    getAllActiveEvents(),
+    getActiveFeaturedEvents(),
+  ]);
 
   if (!eventos.length) {
     return (
@@ -34,7 +38,9 @@ export default async function EventosPage() {
       <EventsMarquee events={eventos as Evento[]} />
       <section className="min-h-svh py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%">
         <div className="container mx-auto">
-          <FeaturedCarousel events={eventos as Evento[]} />
+          {featuredEvents.length > 0 && (
+            <FeaturedCarousel events={featuredEvents} />
+          )}
           <div className="flex items-center gap-6">
             <Title className="flex items-center gap-4 text-3xl md:text-6xl font-bold text-white mb-6">
               Próximos Eventos
