@@ -83,6 +83,7 @@ model User {
   memberTicketAllocation MemberTicketAllocation?
   createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
   stockMovements         TicketStockMovement[]   @relation("StockMovements")
+  featuredEvents         FeaturedEvent[]         @relation("FeaturedEventCreatedBy")
 }
 
 model UserConfiguration {
@@ -234,31 +235,33 @@ model Invitation {
 // ─────────────────────────────────────────────
 
 model Event {
-  id             String         @id @default(cuid())
-  title          String
-  slug           String         @unique
-  description    String
-  address        String
-  state          String?
-  city           String?
-  image          String?
-  imagePublicId  String?
-  dates          String?
-  startDate      DateTime?
-  saleEndDate    DateTime?
-  eventEndDate   DateTime?
-  status         GlobalStatus
-  eventType      EventType      @default(PUBLIC)
-  category       EventCategory?
-  legalText      String?
-  restrictions   String[]
-  venue          String?
-  ageRestriction Int?
-  website        String?
-  producerId     String
-  createdById    String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id                    String         @id @default(cuid())
+  title                 String
+  slug                  String         @unique
+  description           String
+  address               String
+  state                 String?
+  city                  String?
+  image                 String?
+  imagePublicId         String?
+  featuredImage         String?
+  featuredImagePublicId String?
+  dates                 String?
+  startDate             DateTime?
+  saleEndDate           DateTime?
+  eventEndDate          DateTime?
+  status                GlobalStatus
+  eventType             EventType      @default(PUBLIC)
+  category              EventCategory?
+  legalText             String?
+  restrictions          String[]
+  venue                 String?
+  ageRestriction        Int?
+  website               String?
+  producerId            String
+  createdById           String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
   producer       Producer              @relation(fields: [producerId], references: [id], onDelete: Cascade)
   createdBy      User?                 @relation("CreatedEvents", fields: [createdById], references: [id])
@@ -271,6 +274,7 @@ model Event {
   validatorToken ValidatorToken[]
   eventPayments  EventPayment[]
   stockMovements TicketStockMovement[]
+  featuredSlots  FeaturedEvent[]
 
   @@index([producerId])
   @@map("events")
@@ -517,6 +521,31 @@ model EventPayment {
 }
 
 // ─────────────────────────────────────────────
+// FEATURED EVENTS (CAROUSEL)
+// ─────────────────────────────────────────────
+
+model FeaturedEvent {
+  id          String              @id @default(cuid())
+  eventId     String
+  position    Int
+  startDate   DateTime
+  endDate     DateTime
+  status      FeaturedEventStatus @default(ACTIVE)
+  price       Decimal             @db.Decimal(10, 2)
+  notes       String?
+  createdById String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  event     Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdBy User? @relation("FeaturedEventCreatedBy", fields: [createdById], references: [id])
+
+  @@index([eventId])
+  @@index([startDate, endDate])
+  @@map("featured_events")
+}
+
+// ─────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────
 
@@ -650,4 +679,10 @@ enum ProducerStatus {
 enum EventType {
   PUBLIC
   PRIVATE
+}
+
+enum FeaturedEventStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
 }

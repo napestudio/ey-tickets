@@ -16,28 +16,16 @@ export default function EventHeader({
   width = 20,
   height = 20,
 }: EventHeaderProps) {
-
   if (!evento) return;
 
   return (
     <section className="w-full relative">
-      <div className="absolute h-[30vh] w-full overflow-hidden ">
-        {evento.image && (
-          <Image
-            src={evento?.image || ""}
-            alt="text"
-            fill
-            style={{ objectFit: "cover" }}
-            className="inset-0 w-full h-full z-0 blur-sm scale-105"
-          />
-        )}
-      </div>
-      <div className="w-200 max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative translate-y-24">
+      <div className="w-200 max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative">
         <div className="gap-6 flex flex-col mx-auto">
           <div className="flex flex-col items-start justify-between gap-4">
             {evento.image && (
               <div
-                className={`relative aspect-video h-auto w-full overflow-hidden`}
+                className={`relative aspect-3/4 h-auto w-full overflow-hidden`}
               >
                 <Image
                   src={evento?.image || ""}
@@ -72,7 +60,7 @@ export default function EventHeader({
               </div>
               <div className="text-base text-balance">
                 <EventDescription html={evento?.description || ""} />
-              </div>              
+              </div>
             </div>
           </div>
         </div>

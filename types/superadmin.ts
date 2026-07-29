@@ -157,3 +157,66 @@ export interface AdjustProducerStockResult {
   delta: number;
   packageId: string;
 }
+
+// ─────────────────────────────────────────────
+// FEATURED EVENTS (CAROUSEL)
+// ─────────────────────────────────────────────
+
+export type FeaturedEventStatus = "ACTIVE" | "INACTIVE" | "EXPIRED";
+
+export interface CreateFeaturedEventInput {
+  eventId: string;
+  position: number;
+  startDate: string; // ISO 8601
+  endDate: string; // ISO 8601
+  price: number;
+  notes?: string;
+}
+
+export interface UpdateFeaturedEventInput {
+  position?: number;
+  startDate?: string; // ISO 8601
+  endDate?: string; // ISO 8601
+  status?: FeaturedEventStatus;
+  price?: number;
+  notes?: string;
+}
+
+export interface FeaturedEventDetail {
+  id: string;
+  position: number;
+  startDate: Date;
+  endDate: Date;
+  status: FeaturedEventStatus;
+  price: number;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  event: {
+    id: string;
+    title: string;
+    slug: string;
+    image: string | null;
+    featuredImage: string | null;
+    startDate: Date | null;
+    eventEndDate: Date | null;
+    producer: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+export interface FeaturedEventCarouselItem {
+  id: string;
+  position: number;
+  event: {
+    id: string;
+    title: string;
+    slug: string;
+    image: string | null;
+    featuredImage: string | null;
+    startDate: Date | null;
+    eventEndDate: Date | null;
+  };
+}

@@ -14,8 +14,8 @@ export default function EventCard({ evento }: { evento: Evento }) {
       prefetch={true}
       className="overflow-hidden rounded-xl bg-neutral-950 shadow-[-1px_-1px_0.5px_0px_rgba(255,255,255,0.15),1px_1px_0.5px_0px_rgba(255,255,255,0.15)] bg-[linear-gradient(175deg,#11111105,#99999924)] group"
     >
-      <div className="flex h-full ">
-        <div className="relative max-w-[95vw] aspect-square h-55 overflow-hidden">
+      <div className="flex h-full md:flex-row flex-col">
+        <div className="relative max-w-[95vw] aspect-square md:h-55 overflow-hidden">
           {evento.image ? (
             <Image
               src={evento.image}
@@ -43,8 +43,8 @@ export default function EventCard({ evento }: { evento: Evento }) {
           </div>
           <p className="text-sm font-medium text-neutral-100">{groupedDates}</p>
 
-          <div className="flex gap-2 mt-auto">
-            <div className="bg-ey-turquoise flex font-bold items-center px-6 py-3 w-max rounded-md shadow-md">
+          <div className="flex gap-2 mt-4 md:mt-auto">
+            <div className="bg-ey-turquoise flex font-bold justify-center items-center px-6 py-3 w-full md:w-max rounded-md shadow-md">
               <TicketIcon className="mr-2" />
               Comprar entradas
             </div>
