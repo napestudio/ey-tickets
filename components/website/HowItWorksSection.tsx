@@ -4,7 +4,7 @@ import HowItWorksCard from "./HowItWorksCard";
 import { ShapeMask } from "./ShapeMask";
 import { Paragraph } from "./ui/Paragraph";
 import { Title } from "./ui/Title";
-
+import { ticketMaskX } from "./ui/utils";
 const HOW_IT_WORKS_STEPS = [
   {
     title: "Creás tu cuenta",
@@ -25,6 +25,7 @@ const HOW_IT_WORKS_DESCRIPTION = {
   text: "Pagás un costo fijo por ticket. Sin costos ocultos, sin comisiones por venta.",
 };
 
+
 export default function HowItWorksSection() {
   return (
     <section
@@ -32,7 +33,7 @@ export default function HowItWorksSection() {
       className="lg:py-20 px-4 lg:px-20 bg-linear-to-t to-black from-ey-turquoise-darker to-80%"
     >
       <div className="container mx-auto font-nebulica">
-        <div className="flex flex-col md:flex-row gap-20 items-center ">
+        <div className="flex flex-col md:flex-row gap-10 lg:gap-20 items-center ">
           <div className="w-full md:w-3/5 flex flex-col">
             <div className="flex flex-col text-white">
               <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-none">
@@ -57,21 +58,17 @@ export default function HowItWorksSection() {
             </div>
           </div>
           <div className="relative w-full md:w-2/5">
-            <ShapeMask
-              orientation="vertical"
-              borderColor="#3ADDBE"
-              borderWidth={3}
-              className="h-full aspect-[3/4]"
-            >
+            <div className="shadow-md">
               <Image
                 //src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
                 src="/images/credit-card.webp"
                 width="933"
                 height="1440"
+                style={ticketMaskX}
                 className="w-full h-full object-cover object-bottom grayscale opacity-80"
-                alt=""
+                alt="Ey tickets entradas online"
               />
-            </ShapeMask>
+            </div>
             <Image
               src="/images/star.svg"
               width={40}
