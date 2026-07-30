@@ -3,42 +3,20 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  createFreeTicket,
-  getMercadPagoUrl,
-  payOrderHandler,
-  updateOrder,
-} from "@/lib/actions";
+import { createFreeTicket, updateOrder } from "@/lib/actions";
 import { Order } from "@/types/order";
 import { useEffect, useState } from "react";
 import { createMercadoPagoOrder } from "@/lib/mercadopago";
-import { redirect } from "next/navigation";
+import { inputClass } from "@/components/website/Contactform";
 
 const formSchema = z
   .object({
-    name: z.string().min(2, {
-      message: "Debe tener al menos 2 caracteres",
-    }),
-    lastName: z.string().min(2, {
-      message: "Debe tener al menos 2 caracteres",
-    }),
-    email: z.string().email().min(5, { message: "Debe ser un email válido" }),
-    confirmEmail: z
-      .string()
-      .email()
-      .min(5, { message: "Debe ser un email válido" }),
+    name: z.string().min(2, { message: "Debe tener al menos 2 caracteres" }),
+    lastName: z.string().min(2, { message: "Debe tener al menos 2 caracteres" }),
+    email: z.string().email({ message: "Debe ser un email válido" }),
+    confirmEmail: z.string().email({ message: "Debe ser un email válido" }),
     phone: z.string(),
     dni: z
       .string()
@@ -50,17 +28,19 @@ const formSchema = z
     path: ["confirmEmail"],
   });
 
+type FormValues = z.infer<typeof formSchema>;
+
 export default function UserDataForm({ order }: { order: Order }) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [hasDiscount, setHasDiscount] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasDiscount, setHasDiscount] = useState(false);
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
-  const [isFree, setIsFree] = useState<boolean>(false);
+  const [isFree, setIsFree] = useState(false);
+
   const orderId = order?.id;
   const producerId = order?.event!?.producerId;
 
   const totalWithDiscount = hasDiscount
-    ? order.ticketType!.price -
-      order.ticketType!.price * (discountPercent! / 100)
+    ? order.ticketType!.price - order.ticketType!.price * (discountPercent! / 100)
     : order.ticketType!.price;
 
   useEffect(() => {
@@ -74,7 +54,11 @@ export default function UserDataForm({ order }: { order: Order }) {
     }
   }, [order]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -86,7 +70,7 @@ export default function UserDataForm({ order }: { order: Order }) {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     setIsLoading(true);
     const orderData = {
       name: values.name,
@@ -103,153 +87,124 @@ export default function UserDataForm({ order }: { order: Order }) {
       eventId: order.eventId,
     };
 
-    // IF ISFREE SALTEAR MERCADOPAGO
     try {
       if (order.ticketType!.isFree || isFree) {
         await createFreeTicket(orderData, orderId!, producerId);
         return;
       }
-    } catch (error) {
+    } catch {
       throw new Error("Error free ticket");
     }
-    // await getMercadPagoUrl(product, orderData, orderId!, userId);
 
     await createMercadoPagoOrder(product, orderData, orderId!, producerId);
   }
 
-  function expire() {
-    updateOrder(
-      {
-        status: "EXPIRED",
-      },
-      orderId as string
-    );
-  }
-
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((values) => onSubmit(values))}
-          className="space-y-8 w-full"
-        >
-          <div className="flex gap-3">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre</FormLabel>
-                  <FormControl className="border-4 border-black rounded-none p-5">
-                    <Input
-                      placeholder="Nombre"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Apellido</FormLabel>
-                  <FormControl className="border-4 border-black rounded-none p-5">
-                    <Input
-                      placeholder="Apellido"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="dni"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>DNI</FormLabel>
-                <FormControl className="border-4 border-black rounded-none p-5">
-                  <Input placeholder="Dni" {...field} disabled={isLoading} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefono</FormLabel>
-                <FormControl className="border-4 border-black rounded-none p-5">
-                  <Input
-                    placeholder="Telefono"
-                    {...field}
-                    disabled={isLoading}
-                  />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>E-mail</FormLabel>
-                <FormControl className="border-4 border-black rounded-none p-5">
-                  <Input
-                    placeholder="nombre@email.com"
-                    {...field}
-                    disabled={isLoading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="confirmEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Reingresar email</FormLabel>
-                <FormControl className="border-4 border-black rounded-none p-5">
-                  <Input
-                    placeholder="nombre@email.com"
-                    {...field}
-                    disabled={isLoading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            className="w-full bg-red hover:bg-red-light hover:bg-opacity-10 hover:shadow-none transition-all rounded-none py-8 text-2xl border-4 border-black shadow-hard"
-            type="submit"
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-6 text-white"
+    >
+      <div className="flex gap-4">
+        <div className="flex-1 space-y-2">
+          <label htmlFor="name" className="text-sm font-medium">Nombre</label>
+          <input
+            id="name"
+            placeholder="Nombre"
+            className={inputClass}
             disabled={isLoading}
-          >
-            <span className={`${isLoading ? "hidden" : "block"} `}>Pagar</span>
-            <span className={`${!isLoading ? "hidden" : "block"} `}>
-              Pagando...
-            </span>
-          </Button>
-        </form>
-      </Form>
-    </>
+            {...register("name")}
+          />
+          {errors.name && (
+            <p className="text-sm text-destructive">{errors.name.message}</p>
+          )}
+        </div>
+        <div className="flex-1 space-y-2">
+          <label htmlFor="lastName" className="text-sm font-medium">Apellido</label>
+          <input
+            id="lastName"
+            placeholder="Apellido"
+            className={inputClass}
+            disabled={isLoading}
+            {...register("lastName")}
+          />
+          {errors.lastName && (
+            <p className="text-sm text-destructive">{errors.lastName.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="dni" className="text-sm font-medium">DNI</label>
+        <input
+          id="dni"
+          placeholder="12345678"
+          className={inputClass}
+          disabled={isLoading}
+          {...register("dni")}
+        />
+        {errors.dni && (
+          <p className="text-sm text-destructive">{errors.dni.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="phone" className="text-sm font-medium">Teléfono</label>
+        <input
+          id="phone"
+          placeholder="+54 9 11 0000-0000"
+          className={inputClass}
+          disabled={isLoading}
+          {...register("phone")}
+        />
+        {errors.phone && (
+          <p className="text-sm text-destructive">{errors.phone.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-sm font-medium">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          placeholder="nombre@email.com"
+          className={inputClass}
+          disabled={isLoading}
+          {...register("email")}
+        />
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="confirmEmail" className="text-sm font-medium">Confirmar e-mail</label>
+        <input
+          id="confirmEmail"
+          type="email"
+          placeholder="nombre@email.com"
+          className={inputClass}
+          disabled={isLoading}
+          {...register("confirmEmail")}
+        />
+        {errors.confirmEmail && (
+          <p className="text-sm text-destructive">{errors.confirmEmail.message}</p>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full font-bold bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed py-3"
+      >
+        {isLoading ? (
+          <span className="inline-flex items-center justify-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Procesando...
+          </span>
+        ) : (
+          "Pagar"
+        )}
+      </button>
+    </form>
   );
 }

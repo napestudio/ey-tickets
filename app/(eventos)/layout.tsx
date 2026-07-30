@@ -26,6 +26,7 @@ export default async function EventsLayout({
       <main className="flex flex-col ">{children}</main>
       <PreFooter />
       <Footer />
+      <Toaster />
     </SmoothScrollProvider>
   );
 }

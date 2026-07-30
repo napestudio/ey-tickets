@@ -1,7 +1,6 @@
 "use client";
 
 import { Order } from "@/types/order";
-import { TicketOrderType } from "@/types/tickets";
 import { TicketType } from "@/types/tickets";
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/lib/utils";
@@ -34,30 +33,52 @@ export default function OrderTotal({
     }
   }, [order]);
 
-  const total = ticketType?.price! * order?.quantity!;
+  const subtotal = ticketType?.price! * order?.quantity!;
+  const discountAmount = hasDiscount ? subtotal * (discountPercent! / 100) : 0;
+  const afterDiscount = subtotal - discountAmount;
+  const serviceChargeAmount = serviceCharge
+    ? (afterDiscount * serviceCharge) / 100
+    : 0;
+  const total = afterDiscount + serviceChargeAmount;
 
-  const totalWithDiscount = hasDiscount
-    ? total - total * (discountPercent! / 100)
-    : total;
-
-  const serviceChargePercent = serviceCharge / 100;
-  const totalWithServiceCharge = totalWithDiscount * (1 + serviceChargePercent);
   return (
-    <div className="flex mx-auto align-center justify-center gap-3 flex-col max-w-md text-black">
-      <div className="flex gap-4 justify-between">
-        <div className="item bg-gray-100 border-4 border-black rounded-none p-5 w-full">
-          {ticketType?.title} | {groupedTicketDates}
+    <div className="flex flex-col gap-3 text-white w-full">
+      <div className="flex items-start justify-between pb-4 border-b border-white/10">
+        <div>
+          <p className="font-semibold">{ticketType?.title}</p>
+          {groupedTicketDates && (
+            <p className="text-sm text-white/50 mt-0.5">{groupedTicketDates}</p>
+          )}
         </div>
-        <div className="item bg-gray-100 border-4 border-black rounded-none p-5 font-bold">
-          {order?.quantity}
-        </div>
-      </div>
-      <div className="item bg-gray-100 border-4 text-2xl border-black rounded-none p-5">
-        <span>TOTAL:</span>
-        <span className="font-bold">
-          {" "}
-          {formatPrice(totalWithServiceCharge)}
+        <span className="text-sm text-white/60 font-medium shrink-0 ml-4">
+          × {order?.quantity}
         </span>
+      </div>
+
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-sm text-white/50">
+          <span>Subtotal</span>
+          <span>{formatPrice(subtotal)}</span>
+        </div>
+
+        {hasDiscount && discountPercent !== null && (
+          <div className="flex justify-between text-sm text-ey-turquoise">
+            <span>Descuento ({discountPercent}%)</span>
+            <span>-{formatPrice(discountAmount)}</span>
+          </div>
+        )}
+
+        {serviceCharge > 0 && (
+          <div className="flex justify-between text-sm text-white/50">
+            <span>Costo de servicio ({serviceCharge}%)</span>
+            <span>+{formatPrice(serviceChargeAmount)}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between font-bold pt-3 border-t border-white/10">
+          <span className="uppercase text-sm tracking-widest">Total</span>
+          <span className="text-xl">{formatPrice(total)}</span>
+        </div>
       </div>
     </div>
   );

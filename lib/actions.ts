@@ -440,19 +440,32 @@ export type CreateSecureOrderInput = {
 };
 
 export async function createSecureOrder(input: CreateSecureOrderInput) {
-  const ticketType = await prisma.ticketType.findUnique({
-    where: { id: input.ticketTypeId },
-    select: {
-      id: true,
-      price: true,
-      discount: true,
-      limitPerSale: true,
-      status: true,
-      endDate: true,
-      eventId: true,
-      isFree: true,
-    },
-  });
+  const [ticketType, discountCodeRecord, event] = await Promise.all([
+    prisma.ticketType.findUnique({
+      where: { id: input.ticketTypeId },
+      select: {
+        id: true,
+        price: true,
+        discount: true,
+        limitPerSale: true,
+        status: true,
+        endDate: true,
+        eventId: true,
+        isFree: true,
+      },
+    }),
+    input.discountCode
+      ? Code.getActiveDiscountCodeByString(input.discountCode, input.eventId)
+      : Promise.resolve(null),
+    prisma.event.findUnique({
+      where: { id: input.eventId },
+      select: {
+        producer: {
+          select: { configuration: { select: { serviceCharge: true } } },
+        },
+      },
+    }),
+  ]);
 
   if (!ticketType) throw new Error("Tipo de ticket no encontrado.");
   if (ticketType.eventId !== input.eventId)
@@ -472,29 +485,15 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
 
   let discountPercent = 0;
   let appliedCodeId: string | undefined;
-  if (input.discountCode) {
-    const codeRecord = await Code.getActiveDiscountCodeByString(
-      input.discountCode,
-      input.eventId
-    );
-    if (
-      codeRecord &&
-      codeRecord.status === "ACTIVE" &&
-      (!codeRecord.expiresAt || codeRecord.expiresAt > new Date())
-    ) {
-      discountPercent = codeRecord.discount ?? 0;
-      appliedCodeId = codeRecord.id;
-    }
+  if (
+    discountCodeRecord &&
+    discountCodeRecord.status === "ACTIVE" &&
+    (!discountCodeRecord.expiresAt || discountCodeRecord.expiresAt > new Date())
+  ) {
+    discountPercent = discountCodeRecord.discount ?? 0;
+    appliedCodeId = discountCodeRecord.id;
   }
 
-  const event = await prisma.event.findUnique({
-    where: { id: input.eventId },
-    select: {
-      producer: {
-        select: { configuration: { select: { serviceCharge: true } } },
-      },
-    },
-  });
   const serviceChargeRate =
     event?.producer?.configuration?.serviceCharge ?? 0;
 
