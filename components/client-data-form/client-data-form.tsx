@@ -102,10 +102,10 @@ export default function UserDataForm({ order }: { order: Order }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 text-white"
+      className="space-y-6 text-white p-6"
     >
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-2">
+      <div className="flex flex-col gap-4 ">
+        <div className="flex flex-col space-y-2">
           <label htmlFor="name" className="text-sm font-medium">Nombre</label>
           <input
             id="name"
@@ -118,7 +118,7 @@ export default function UserDataForm({ order }: { order: Order }) {
             <p className="text-sm text-destructive">{errors.name.message}</p>
           )}
         </div>
-        <div className="flex-1 space-y-2">
+        <div className="flex flex-col space-y-2">
           <label htmlFor="lastName" className="text-sm font-medium">Apellido</label>
           <input
             id="lastName"
@@ -133,7 +133,7 @@ export default function UserDataForm({ order }: { order: Order }) {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col space-y-2">
         <label htmlFor="dni" className="text-sm font-medium">DNI</label>
         <input
           id="dni"
@@ -147,7 +147,7 @@ export default function UserDataForm({ order }: { order: Order }) {
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col space-y-2">
         <label htmlFor="phone" className="text-sm font-medium">Teléfono</label>
         <input
           id="phone"
@@ -161,7 +161,7 @@ export default function UserDataForm({ order }: { order: Order }) {
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col space-y-2">
         <label htmlFor="email" className="text-sm font-medium">E-mail</label>
         <input
           id="email"
@@ -176,7 +176,7 @@ export default function UserDataForm({ order }: { order: Order }) {
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col space-y-2">
         <label htmlFor="confirmEmail" className="text-sm font-medium">Confirmar e-mail</label>
         <input
           id="confirmEmail"
