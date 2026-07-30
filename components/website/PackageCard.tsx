@@ -33,7 +33,7 @@ export default function PricePackageCard({
         "bg-transparent border-none ",
       )}
     >
-      <div style={ticketMaskY} className="h-full flex flex-col justify-between text-ey-dark">
+      <div style={ticketMaskY} className="h-full flex flex-col justify-between text-ey-dark rounded-lg">
         <CardHeader
           className={cn(
             "text-center overflow-hidden bg-ey-turquoise border-none",
