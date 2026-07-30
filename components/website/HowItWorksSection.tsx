@@ -58,7 +58,7 @@ export default function HowItWorksSection() {
             </div>
           </div>
           <div className="relative w-full md:w-2/5">
-            <div className="shadow-md">
+            <div className="rounded-lg overflow-hidden aspect-[3/4]">
               <Image
                 //src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
                 src="/images/credit-card.webp"

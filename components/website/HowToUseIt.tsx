@@ -28,7 +28,7 @@ export default function HowToUseItSection() {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-20 items-center">
           <div className="order-2 md:order-1 relative w-full md:w-2/5">
-            <div >
+            <div className="rounded-lg overflow-hidden aspect-[3/4]">
               <Image
                 src="/images/qr-scanning.webp"
                 width="1400"
