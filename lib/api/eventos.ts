@@ -88,6 +88,14 @@ export async function updateEvent(
   });
 }
 
+export async function getEventTitleById(eventId: string): Promise<string | null> {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { title: true },
+  });
+  return event?.title ?? null;
+}
+
 export const getSingleEvent = cache(async (eventId: string) => {
   return prisma.event.findUnique({
     where: { id: eventId },
@@ -193,6 +201,34 @@ export const getEventById = cache(async (eventId: string) => {
       discount: tt.discount?.toNumber() ?? null,
     })),
   };
+});
+
+/**
+ * Lightweight query for the dashboard event overview page.
+ * Only fetches the fields needed to render the header and action grid.
+ */
+export const getEventForOverview = cache(async (eventId: string) => {
+  return prisma.event.findUnique({
+    where: { id: eventId },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      address: true,
+      state: true,
+      city: true,
+      producerId: true,
+      image: true,
+      dates: true,
+      status: true,
+      venue: true,
+      startDate: true,
+      saleEndDate: true,
+      eventEndDate: true,
+      createdAt: true,
+    },
+  });
 });
 
 export async function getStats({

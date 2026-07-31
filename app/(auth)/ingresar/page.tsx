@@ -21,8 +21,8 @@ export default async function Ingresar() {
         </Link>
       </div>
       <div className="container mx-auto py-14 flex flex-col gap-4 max-w-lg">
-        <Title className="text-white font-bold uppercase text-[clamp(2.5rem,8vw,3.5rem)] leading-none text-center">
-          Ingresá
+        <Title className="text-white font-nebulica font-bold uppercase text-[clamp(2.5rem,8vw,3.5rem)] leading-none text-center">
+          Ingresar
         </Title>
         <LoginForm />
         <hr className="mx-auto w-4/5 border-black" />

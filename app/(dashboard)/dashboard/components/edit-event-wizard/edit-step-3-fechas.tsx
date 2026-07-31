@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import Box from "@/components/dashboard/box";
 import DatesPicker from "@/components/dates-picker/dates-picker";
 import {
@@ -23,45 +23,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { WizardStep3Data, DateTimeSelection } from "./types";
+import { WizardStep3Data, DateTimeSelection } from "../create-event-wizard/types";
 
-const step2Schema = z.object({
-  saleEndDate: z.date({
-    required_error: "La fecha de finalización es obligatoria",
-  }),
+const schema = z.object({
+  saleEndDate: z.date({ required_error: "La fecha de finalización es obligatoria" }),
 });
 
-type Step2Schema = z.infer<typeof step2Schema>;
+type Schema = z.infer<typeof schema>;
 
-interface Step2DatesProps {
-  initialData: WizardStep3Data | null;
-  onComplete: (data: WizardStep3Data) => void;
-  onBack: () => void;
+interface Props {
+  initialData: WizardStep3Data;
+  onSave: (data: WizardStep3Data) => Promise<void>;
 }
 
-export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps) {
+export function EditStep3Fechas({ initialData, onSave }: Props) {
   const [dateTimeSelections, setDateTimeSelections] = useState<DateTimeSelection[]>(
-    initialData?.dateTimeSelections ?? [
-      { id: 0, date: `${new Date().toISOString().slice(0, 10)}T20:00` },
-    ]
+    initialData.dateTimeSelections
   );
+  const [savedDateTimeSelections, setSavedDateTimeSelections] = useState<DateTimeSelection[]>(
+    initialData.dateTimeSelections
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  const form = useForm<Step2Schema>({
-    resolver: zodResolver(step2Schema),
-    defaultValues: {
-      saleEndDate: initialData?.saleEndDate ?? (() => {
-        const date = new Date();
-        date.setHours(20, 0, 0, 0);
-        return date;
-      })(),
-    },
+  const form = useForm<Schema>({
+    resolver: zodResolver(schema),
+    defaultValues: { saleEndDate: initialData.saleEndDate },
   });
+
+  const datesChanged =
+    JSON.stringify(dateTimeSelections) !== JSON.stringify(savedDateTimeSelections);
+  const isDirty = form.formState.isDirty || datesChanged;
 
   const handleAddDateTime = () => {
     const lastDate = dateTimeSelections[dateTimeSelections.length - 1];
@@ -79,39 +80,30 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
         : 0;
     setDateTimeSelections([
       ...dateTimeSelections,
-      {
-        id: newId,
-        date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}`,
-      },
+      { id: newId, date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}` },
     ]);
   };
 
-  const handleRemoveDateTime = (id: number) => {
-    setDateTimeSelections(
-      dateTimeSelections.filter((selection) => selection.id !== id)
-    );
-  };
+  const handleRemoveDateTime = (id: number) =>
+    setDateTimeSelections(dateTimeSelections.filter((s) => s.id !== id));
 
   const handleDateChange = (date: string, id: number) => {
-    const updatedSelections = dateTimeSelections.map((selection) => {
-      if (selection.id === id) {
-        return { ...selection, date };
-      }
-      return selection;
-    });
-    setDateTimeSelections(updatedSelections);
-
-    const isFirstDate = id === dateTimeSelections[0]?.id;
-    if (isFirstDate && !form.formState.dirtyFields.saleEndDate) {
+    const updated = dateTimeSelections.map((s) =>
+      s.id === id ? { ...s, date } : s
+    );
+    setDateTimeSelections(updated);
+    const isFirst = id === dateTimeSelections[0]?.id;
+    if (isFirst && !form.formState.dirtyFields.saleEndDate) {
       const datePart = date.split("T")[0];
       if (datePart) {
-        const newEndDate = new Date(`${datePart}T20:00:00`);
-        form.setValue("saleEndDate", newEndDate, { shouldDirty: false });
+        form.setValue("saleEndDate", new Date(`${datePart}T20:00:00`), {
+          shouldDirty: false,
+        });
       }
     }
   };
 
-  function onSubmit(values: Step2Schema) {
+  async function onSubmit(values: Schema) {
     const lastEventDate = dateTimeSelections
       .map((s) => new Date(s.date))
       .filter((d) => !isNaN(d.getTime()))
@@ -125,10 +117,16 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
       return;
     }
 
-    onComplete({
-      dateTimeSelections,
-      saleEndDate: values.saleEndDate,
-    });
+    setIsSaving(true);
+    try {
+      await onSave({ dateTimeSelections, saleEndDate: values.saleEndDate });
+      form.reset(values);
+      setSavedDateTimeSelections([...dateTimeSelections]);
+    } catch {
+      // Error handled by wizard
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -155,10 +153,6 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
             <p className="text-sm text-muted-foreground">
               Selecciona la fecha y hora de finalización de venta de tickets.
             </p>
-            <p className="text-xs text-muted-foreground">
-              La configuración individual por tipo de ticket se realiza en el
-              formulario de tipo de ticket.
-            </p>
             <div className="flex gap-4 lg:flex-row">
               <FormField
                 control={form.control}
@@ -170,7 +164,7 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
+                            variant="outline"
                             className={cn(
                               "w-full font-normal",
                               !field.value && "text-muted-foreground"
@@ -191,10 +185,7 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
                           onSelect={(date) => {
                             const current = field.value ?? new Date();
                             const updated = new Date(date!);
-                            updated.setHours(
-                              current.getHours(),
-                              current.getMinutes()
-                            );
+                            updated.setHours(current.getHours(), current.getMinutes());
                             field.onChange(updated);
                           }}
                           initialFocus
@@ -213,17 +204,11 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
                     <FormLabel>Hora</FormLabel>
                     <FormControl>
                       <Select
-                        value={`${field.value
-                          .getHours()
-                          .toString()
-                          .padStart(2, "0")}:${field.value
-                          .getMinutes()
-                          .toString()
-                          .padStart(2, "0")}`}
+                        value={`${field.value.getHours().toString().padStart(2, "0")}:${field.value.getMinutes().toString().padStart(2, "0")}`}
                         onValueChange={(time) => {
                           const [hours, minutes] = time.split(":").map(Number);
                           const updated = new Date(field.value);
-                          updated.setHours(hours, minutes);
+                          updated.setHours(hours, minutes, 0, 0);
                           field.onChange(updated);
                         }}
                       >
@@ -233,12 +218,8 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
                         <SelectContent>
                           <ScrollArea className="h-60">
                             {Array.from({ length: 96 }).map((_, i) => {
-                              const hour = Math.floor(i / 4)
-                                .toString()
-                                .padStart(2, "0");
-                              const minute = ((i % 4) * 15)
-                                .toString()
-                                .padStart(2, "0");
+                              const hour = Math.floor(i / 4).toString().padStart(2, "0");
+                              const minute = ((i % 4) * 15).toString().padStart(2, "0");
                               return (
                                 <SelectItem key={i} value={`${hour}:${minute}`}>
                                   {hour}:{minute}
@@ -257,11 +238,17 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
           </div>
         </Box>
 
-        <div className="flex justify-between">
-          <Button type="button" variant="outline" onClick={onBack}>
-            Volver
+        <div className="flex justify-end">
+          <Button type="submit" disabled={!isDirty || isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              "Guardar cambios"
+            )}
           </Button>
-          <Button type="submit">Siguiente</Button>
         </div>
       </form>
     </Form>

@@ -14,7 +14,11 @@ type EventMarqueeItem = {
 
 const SPEED = 80; // px/s
 
-export default function EventsMarquee({ events }: { events: EventMarqueeItem[] }) {
+export default function EventsMarquee({
+  events,
+}: {
+  events: EventMarqueeItem[];
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const set2Ref = useRef<HTMLDivElement>(null);
@@ -44,7 +48,9 @@ export default function EventsMarquee({ events }: { events: EventMarqueeItem[] }
 
     return (
       <div key={i} className="flex items-center gap-3 shrink-0">
-        <span className="uppercase whitespace-nowrap font-bold">{event.title}</span>
+        <span className="uppercase whitespace-nowrap font-bold">
+          {event.title}
+        </span>
         {dates && (
           <>
             <span className="opacity-60">·</span>
@@ -63,7 +69,10 @@ export default function EventsMarquee({ events }: { events: EventMarqueeItem[] }
   });
 
   return (
-    <div ref={containerRef} className="w-full overflow-hidden py-2 bg-ey-turquoise">
+    <div
+      ref={containerRef}
+      className="fixed z-9999 shadow-md top-0 w-full overflow-hidden py-2 bg-ey-turquoise"
+    >
       <div
         ref={trackRef}
         className="flex gap-6 font-nebulica items-center will-change-transform"
@@ -72,7 +81,11 @@ export default function EventsMarquee({ events }: { events: EventMarqueeItem[] }
         <div className="flex gap-6 items-center shrink-0">{items}</div>
 
         {/* Second set — identical copy for seamless loop */}
-        <div ref={set2Ref} aria-hidden className="flex gap-6 items-center shrink-0">
+        <div
+          ref={set2Ref}
+          aria-hidden
+          className="flex gap-6 items-center shrink-0"
+        >
           {items}
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  BarChart2,
   CreditCard,
   Image,
   Pencil,
@@ -40,7 +41,7 @@ const ACTION_ITEMS: ActionItem[] = [
   {
     href: "entradas",
     icon: Ticket,
-    label: "Entradas",
+    label: "Tipos de entradas",
     description: "Tipos de entradas y stock",
     ownerOnly: true,
   },
@@ -86,6 +87,13 @@ const ACTION_ITEMS: ActionItem[] = [
     description: "Configurá los métodos de cobro",
     ownerOnly: true,
   },
+  {
+    href: "reportes",
+    icon: BarChart2,
+    label: "Reportes",
+    description: "Estadísticas y resumen de ventas",
+    ownerOnly: true,
+  },
 ];
 
 interface EventActionGridProps {
@@ -98,7 +106,7 @@ export default function EventActionGrid({
   isEventOwner,
 }: EventActionGridProps) {
   const visibleItems = ACTION_ITEMS.filter(
-    (item) => !item.ownerOnly || isEventOwner
+    (item) => !item.ownerOnly || isEventOwner,
   );
 
   return (
