@@ -102,14 +102,14 @@ export default async function Evento({ params }: { params: { slug: string } }) {
   return (
     <>
       <EventsMarquee events={Array(6).fill({ title, dates, city, state })} />
-      <div className="min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white">
-        <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 pt-8">
+      <div className="min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white pt-12">
+        <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 pt-8 mb-3">
           <Link
             href="/eventos"
-            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Volver a eventos
+            <ArrowLeft className="w-3 h-3" />
+            Eventos
           </Link>
         </div>
 

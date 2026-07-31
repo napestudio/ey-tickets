@@ -13,7 +13,6 @@ import TicketTypeBreakdownChart from "./components/ticket-type-breakdown-chart";
 import DailySalesChart from "./components/daily-sales-chart";
 import HourlySalesChart from "./components/hourly-sales-chart";
 import WeekdaySalesChart from "./components/weekday-sales-chart";
-import PaymentMethodsPanel from "./components/payment-methods-panel";
 import ExportCsvButton from "./components/export-csv-button";
 
 interface EventReportPageProps {
@@ -72,15 +71,6 @@ export default async function EventReportPage({ params }: EventReportPageProps) 
         )}
       </div>
 
-      {stats.paymentMethods.length > 0 && (
-        <PaymentMethodsPanel
-          paymentMethods={stats.paymentMethods}
-          totalRevenue={stats.totalRevenue}
-          baseProfit={stats.profit}
-          revenueUntracked={stats.revenueUntracked}
-          ordersUntracked={stats.ordersUntracked}
-        />
-      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import ValidatorsPageHandler from "./handler";
+import Logo from "@/components/ui/Logo";
+import ValidatorsNavbar from "./validators-navbar";
 
 export const metadata: Metadata = {
   title: "Panel de validación",
@@ -13,8 +15,9 @@ export default async function ValidatorPage({
 }) {
   const { eventId } = await params;
   return (
-    <div className="w-full bg-white">
-      <div className="w-[550px] max-w-[95vw] mx-auto">
+    <div className="dark w-full flex flex-col bg-neutral-900">
+      <ValidatorsNavbar eventId={eventId} />
+      <div className="w-137.5 max-w-[95vw] mx-auto h-full">
         <ValidatorsPageHandler eventId={eventId} />;
       </div>
     </div>

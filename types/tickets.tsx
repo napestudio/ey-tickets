@@ -59,6 +59,8 @@ export type TicketOrderType = {
   status: "NOT_VALIDATED" | "VALIDATED";
   isInvitation?: boolean;
   code?: number;
+  validatedAt?: Date | null;
+  validatedBy?: string | null;
   event?: Evento;
   ticketType?: Partial<TicketType>;
 };
@@ -78,6 +80,9 @@ export type TicketOrderTableProps = {
   ticketType?: Partial<TicketType> | undefined;
   createdAt?: Date | undefined;
   isInvitation?: boolean | undefined;
+  validatedAt?: Date | null;
+  validatedBy?: string | null;
+  sessionValidatedAt?: Date | null;
   order?: Order | undefined;
   event?: Evento;
   code?: number;

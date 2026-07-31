@@ -2,13 +2,13 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import DetailsTab from "@/components/dashboard/event-details/details-tab";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
 import { getEventById } from "@/lib/actions";
 import { can } from "@/lib/permissions";
 import { Evento } from "@/types/event";
 import { ArrowLeft } from "lucide-react";
+import { EditEventWizard } from "@/app/(dashboard)/dashboard/components/edit-event-wizard/edit-event-wizard";
 
 export default async function EditarEventoPage({
   params,
@@ -23,7 +23,7 @@ export default async function EditarEventoPage({
 
   if (!evento || !session) return null;
 
-  const isEventOwner = can(session.user, "events:edit");
+  if (!can(session.user, "events:edit")) return null;
 
   return (
     <div className="space-y-6">
@@ -37,10 +37,7 @@ export default async function EditarEventoPage({
           Volver al evento
         </Link>
       </Button>
-      <DetailsTab
-        evento={evento as unknown as Evento}
-        isEventOwner={isEventOwner}
-      />
+      <EditEventWizard evento={evento as unknown as Evento} />
     </div>
   );
 }

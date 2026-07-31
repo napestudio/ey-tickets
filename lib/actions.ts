@@ -52,6 +52,7 @@ import {
 } from "@/lib/cloudinary-upload";
 import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { serialize } from "@/lib/serialize";
 import { jsPDF } from "jspdf";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -167,21 +168,25 @@ export async function deleteEvent(eventId: string) {
 // Para el sitio
 export async function getSingleEventById(eventId: string) {
   const result = await Eventos.getSingleEvent(eventId);
-  return result;
+  return serialize(result);
 }
 
 export async function getSingleEventBySlug(slug: string) {
   const result = await Eventos.getSingleEventBySlug(slug);
-  return result;
+  return serialize(result);
 }
 // Para el dashboard
 export async function getEventById(eventId: string) {
   const result = await Eventos.getEventById(eventId);
-  return result;
+  return serialize(result);
+}
+export async function getEventForOverview(eventId: string) {
+  const result = await Eventos.getEventForOverview(eventId);
+  return serialize(result);
 }
 export async function getEventsByMemberId(userId: string) {
   const result = await Eventos.getEventsByMemberId(userId);
-  return result;
+  return serialize(result);
 }
 
 /** @deprecated Use getEventsByMemberId instead */
@@ -207,7 +212,7 @@ export async function getStats({
 }) {
   try {
     const result = await Eventos.getStats({ ticketTypeId, eventId });
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error trayendo estadisticas");
   }
@@ -216,7 +221,7 @@ export async function getStats({
 export async function getOrdersByEvent(eventId: string) {
   try {
     const result = await Orders.getOrdersByEvent(eventId);
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error");
   }
@@ -225,7 +230,7 @@ export async function getOrdersByEvent(eventId: string) {
 export async function getOrderTicketsByEvent(eventId: string) {
   try {
     const result = await TicketOrders.getOrderTicketsByEvent(eventId);
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error GET order tickets");
   }
@@ -248,7 +253,7 @@ export async function getTicketOrdersByEventId(eventId: string) {
 export async function getTicketTypesByEventId(eventId: string) {
   try {
     const result = await TicketTypes.getTicketTypesByEventId(eventId);
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error en getTicketTypesByEventId");
   }
@@ -256,7 +261,7 @@ export async function getTicketTypesByEventId(eventId: string) {
 
 export async function getTicketTypesWithStatsByEventId(eventId: string) {
   try {
-    return await TicketTypes.getTicketTypesWithStatsByEventId(eventId);
+    return serialize(await TicketTypes.getTicketTypesWithStatsByEventId(eventId));
   } catch (error) {
     throw new Error("Error en getTicketTypesWithStatsByEventId");
   }
@@ -265,7 +270,7 @@ export async function getTicketTypesWithStatsByEventId(eventId: string) {
 export async function getTyicketTypeById(ticketTypeId: string) {
   try {
     const result = await TicketTypes.getTicketTypesById(ticketTypeId);
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error en getTicketTypesByEventId");
   }
@@ -273,7 +278,7 @@ export async function getTyicketTypeById(ticketTypeId: string) {
 
 export async function getTicketTypeWithSoldCount(ticketTypeId: string) {
   try {
-    return await TicketTypes.getTicketTypeWithSoldCount(ticketTypeId);
+    return serialize(await TicketTypes.getTicketTypeWithSoldCount(ticketTypeId));
   } catch (error) {
     throw new Error(
       error instanceof Error
@@ -570,7 +575,7 @@ export async function createCashOrder(data: CreateOrderType) {
 
 export async function getOrderById(orderId: string) {
   try {
-    return await Orders.getOrderById(orderId);
+    return serialize(await Orders.getOrderById(orderId));
   } catch (error) {
     throw new Error("Error get order by id");
   }
@@ -962,23 +967,29 @@ export async function setQrCode(ticketId = "") {
   return `${process.env.BASE_URL}/api/tickets/qr/${ticketId}`;
 }
 
-export async function validateTicketById(ticketId: string, eventId: string) {
-  const status = await TicketOrders.getTicketStatusById(ticketId);
-  if (status?.status === "VALIDATED") {
-    return false;
+export async function validateTicketById(
+  ticketId: string,
+  eventId: string,
+  sessionId: string
+) {
+  const session = await ValidatorToken.getActiveSession(sessionId);
+  if (!session) {
+    throw new Error("Sesión de validación inválida o expirada");
   }
   try {
-    const result = await TicketOrders.validateTicketById(ticketId, eventId);
-    return result;
+    return await TicketOrders.atomicValidateTicket(ticketId, eventId, sessionId);
   } catch (error) {
     throw new Error("Error validando el ticket");
   }
 }
 
-export async function invalidateTicketById(ticketId: string) {
+export async function invalidateTicketById(ticketId: string, sessionId: string) {
+  const session = await ValidatorToken.getActiveSession(sessionId);
+  if (!session) {
+    throw new Error("Sesión de validación inválida o expirada");
+  }
   try {
-    const result = await TicketOrders.invalidateTicketById(ticketId);
-    return result;
+    return await TicketOrders.atomicInvalidateTicket(ticketId, sessionId);
   } catch (error) {
     throw new Error("Error invalidando el ticket");
   }
@@ -1071,13 +1082,50 @@ export async function getDiscountCodeById(eventId: string) {
   }
 }
 
-export async function createValidatorToken(data: any) {
+export async function createValidatorToken(data: {
+  token: string;
+  notes?: string | null;
+  endDate?: Date | null;
+  eventId: string;
+}) {
   try {
-    const result = await ValidatorToken.createValidatorToken(data);
+    await ValidatorToken.createValidatorToken(data);
     revalidatePath(`/dashboard/evento/${data.eventId}`);
   } catch (error) {
     throw new Error("Error validators token");
   }
+}
+
+export async function getValidatorSessionsByEvent(eventId: string) {
+  try {
+    return await ValidatorToken.getSessionsByEvent(eventId);
+  } catch (error) {
+    throw new Error("Error obteniendo sesiones de validadores");
+  }
+}
+
+export async function revokeValidatorSession(sessionId: string) {
+  try {
+    await ValidatorToken.expireSession(sessionId);
+  } catch (error) {
+    throw new Error("Error revocando sesión");
+  }
+}
+
+export async function getValidatorStats(eventId: string, sessionId: string) {
+  const session = await ValidatorToken.getActiveSession(sessionId);
+  if (!session || session.eventId !== eventId) {
+    throw new Error("Sesión inválida o sin acceso a este evento");
+  }
+  const [stats, validatedBySession] = await Promise.all([
+    TicketOrders.getValidatorStatsByEvent(eventId),
+    TicketOrders.getValidatedCountBySession(sessionId),
+  ]);
+  return { ...stats, validatedBySession };
+}
+
+export async function getEventTitle(eventId: string) {
+  return Eventos.getEventTitleById(eventId);
 }
 
 export async function getTokensByEvent(eventId: string) {
@@ -1096,6 +1144,20 @@ export async function deleteTokenById(tokenId: string) {
     return result;
   } catch (error) {
     throw new Error("Error eliminando token de validación");
+  }
+}
+
+export async function updateValidatorToken(
+  tokenId: string,
+  data: { notes?: string | null; isActive?: boolean },
+  eventId: string
+) {
+  try {
+    const result = await ValidatorToken.updateValidatorToken(tokenId, data);
+    revalidatePath(`/dashboard/evento/${eventId}/validadores`);
+    return result;
+  } catch (error) {
+    throw new Error("Error actualizando token de validación");
   }
 }
 
@@ -1422,7 +1484,7 @@ export async function updateInvitationTicketOrders(
 export async function getTicketOrderById(ticketId: string) {
   try {
     const result = await TicketOrders.getTicketOrderById(ticketId);
-    return result;
+    return serialize(result);
   } catch (error) {
     throw new Error("Error trayendo la orden de tickets");
   }
@@ -1569,17 +1631,56 @@ export async function getSoldTicketsPaginatedAction(
   onlyInvitations?: boolean,
   excludeInvitations?: boolean,
 ) {
-  return TicketOrders.getSoldTicketsPaginated(eventId, {
-    page,
-    pageSize,
-    search,
-    onlyInvitations,
-    excludeInvitations,
-  });
+  return serialize(
+    await TicketOrders.getSoldTicketsPaginated(eventId, {
+      page,
+      pageSize,
+      search,
+      onlyInvitations,
+      excludeInvitations,
+    }),
+  );
 }
 
 export async function getAllTicketsForExportAction(eventId: string) {
-  return TicketOrders.getAllTicketsForExport(eventId);
+  return serialize(await TicketOrders.getAllTicketsForExport(eventId));
+}
+
+export async function getSoldTicketsPaginatedValidatorAction(
+  eventId: string,
+  sessionId: string,
+  page: number,
+  pageSize: number,
+  search?: string,
+  onlyInvitations?: boolean,
+  excludeInvitations?: boolean,
+  onlyValidatedBySession?: boolean,
+) {
+  const session = await ValidatorToken.getActiveSession(sessionId);
+  if (!session || session.eventId !== eventId) {
+    throw new Error("Sesión inválida o sin acceso a este evento");
+  }
+  return serialize(
+    await TicketOrders.getSoldTicketsPaginated(eventId, {
+      page,
+      pageSize,
+      search,
+      onlyInvitations,
+      excludeInvitations,
+      validatedBySessionId: onlyValidatedBySession ? sessionId : undefined,
+    }),
+  );
+}
+
+export async function getAllTicketsForExportValidatorAction(
+  eventId: string,
+  sessionId: string,
+) {
+  const session = await ValidatorToken.getActiveSession(sessionId);
+  if (!session || session.eventId !== eventId) {
+    throw new Error("Sesión inválida o sin acceso a este evento");
+  }
+  return serialize(await TicketOrders.getAllTicketsForExport(eventId));
 }
 
 export async function removeMemberAllocationAction(userId: string) {
