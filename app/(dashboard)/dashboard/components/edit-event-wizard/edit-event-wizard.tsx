@@ -107,7 +107,7 @@ export function EditEventWizard({ evento }: EditEventWizardProps) {
       await updateEvent(
         {
           dates: JSON.stringify(data.dateTimeSelections),
-          saleEndDate: data.saleEndDate,
+          saleEndDate: data.saleEndDate.toISOString(),
         },
         evento.id
       );
