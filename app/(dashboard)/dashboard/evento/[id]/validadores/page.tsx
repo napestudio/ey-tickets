@@ -1,10 +1,8 @@
 import NewTokenDialog from "@/app/(dashboard)/dashboard/components/new-token-dialog/new-token-dialog";
-import TokensCard from "@/app/(dashboard)/dashboard/components/tokens-card/tokens-card";
+import ValidatorsTable from "@/app/(dashboard)/dashboard/components/validators-table/validators-table";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { getEventById, getTokensByEvent } from "@/lib/actions";
-import { ValidatorToken } from "@/types/validators";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -39,17 +37,7 @@ export default async function Validators({
         </Button>
         <NewTokenDialog eventId={id} />
       </div>
-      <div className="flex flex-col gap-4">
-        {tokens && tokens.length === 0 && (
-          <Card className="p-6 text-sm text-muted-foreground">
-            No hay tokens de validación creados.
-          </Card>
-        )}
-        {tokens && tokens.length > 0 &&
-          tokens.map((token: ValidatorToken) => (
-            <TokensCard token={token} key={token.id} />
-          ))}
-      </div>
+      <ValidatorsTable tokens={tokens ?? []} eventId={id} />
     </div>
   );
 }

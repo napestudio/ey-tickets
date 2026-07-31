@@ -25,7 +25,7 @@ export default function Navigation({ evento, isEventOwner }: NavigationProps) {
           {evento.status !== "CANCELED" && (
             <Button asChild variant="outline" size="sm">
               <Link
-                href={`${SITE_URL}/eventos/${evento.id}`}
+                href={`${SITE_URL}/eventos/${evento.slug}`}
                 className="flex items-center"
               >
                 <Eye className="md:mr-2 h-4 w-4" />

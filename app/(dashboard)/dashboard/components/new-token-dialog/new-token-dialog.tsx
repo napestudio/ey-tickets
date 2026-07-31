@@ -110,9 +110,9 @@ export default function NewTokenDialog({ eventId }: { eventId: string }) {
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notas</FormLabel>
+                  <FormLabel>Etiqueta</FormLabel>
                   <FormControl>
-                    <Input placeholder="Notas" {...field} />
+                    <Input placeholder="Ej: Puerta 1" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

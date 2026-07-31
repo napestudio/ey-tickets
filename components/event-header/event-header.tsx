@@ -20,7 +20,7 @@ export default function EventHeader({
 
   return (
     <section className="w-full relative">
-      <div className="w-200 max-w-[90vw] mx-auto p-6 md:py-12 md:px-10 z-10 relative">
+      <div className="w-200 max-w-[90vw] mx-auto px-6 pb-6 md:pb-12 md:px-10 z-10 relative">
         <div className="gap-6 flex flex-col mx-auto">
           <div className="space-y-2 w-[20rem] md:w-auto">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-4xl text-ey-turquoise">

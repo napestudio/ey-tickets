@@ -10,7 +10,7 @@ export default async function MinimalEventSalesStats({
 
   return (
     <div>
-      <h4 className="text-sm font-medium mb-2">Ingresos totales</h4>
+      <h4 className="text-sm font-medium mb-2">Ingresos a la fecha</h4>
       <p className="text-2xl font-bold">{formatPrice(stats.totalRevenue)}</p>
     </div>
   );

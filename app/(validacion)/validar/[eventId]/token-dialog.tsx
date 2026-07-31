@@ -55,7 +55,7 @@ export default function TokenDialog({
   }, [dialogRef]);
 
   return (
-    <dialog className="backdrop:bg-gray-50 p-5" ref={dialogRef}>
+    <dialog className="backdrop:bg-black/70 bg-neutral-900 text-neutral-50 rounded-xl p-5" ref={dialogRef}>
       <div className="space-y-5">
         <h4 className="text-2xl">Ingresar Token</h4>
         <Input

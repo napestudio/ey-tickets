@@ -273,10 +273,12 @@ model Event {
   promotion      Promotion[]
   tickets        TicketOrder[]
   ticketTypes    TicketType[]
-  validatorToken ValidatorToken[]
-  eventPayments  EventPayment[]
-  stockMovements TicketStockMovement[]
-  featuredSlots  FeaturedEvent[]
+  validatorToken    ValidatorToken[]
+  eventPayments     EventPayment[]
+  stockMovements    TicketStockMovement[]
+  featuredSlots     FeaturedEvent[]
+  validatorSessions ValidatorSession[]
+  validationEvents  ValidationEvent[]
 
   @@index([producerId])
   @@map("events")
@@ -401,25 +403,30 @@ model Order {
 }
 
 model TicketOrder {
-  id           String            @id @default(cuid())
-  name         String?
-  lastName     String?
-  dni          String?
-  email        String?
-  base64Qr     String?
-  date         DateTime
-  orderId      String
-  eventId      String
-  status       TicketOrderStatus
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  code         Int?              @default(autoincrement())
-  ticketTypeId String?
-  isInvitation Boolean           @default(false)
-  event        Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  order        Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  ticketType   TicketType?       @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  id               String            @id @default(cuid())
+  name             String?
+  lastName         String?
+  dni              String?
+  email            String?
+  base64Qr         String?
+  date             DateTime
+  orderId          String
+  eventId          String
+  status           TicketOrderStatus
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  code             Int?              @default(autoincrement())
+  ticketTypeId     String?
+  isInvitation     Boolean           @default(false)
+  validatedAt      DateTime?
+  validatedBy      String?
+  event            Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ticketType       TicketType?       @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  validatorSession ValidatorSession? @relation(fields: [validatedBy], references: [id], onDelete: SetNull)
+  validationEvents ValidationEvent[]
 
+  @@index([eventId, status])
   @@map("ticket_orders")
 }
 
@@ -431,14 +438,61 @@ model ValidatorToken {
   id        String    @id @default(cuid())
   token     String    @unique
   notes     String?
+  isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   endDate   DateTime?
   eventId   String
-  useCount  Int       @default(0)
-  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event     Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sessions  ValidatorSession[]
 
   @@map("validator_tokens")
+}
+
+model ValidatorSession {
+  id               String    @id @default(cuid())
+  validatorTokenId String
+  eventId          String
+  token            String
+  createdAt        DateTime  @default(now())
+  expiresAt        DateTime
+  lastActivityAt   DateTime  @default(now())
+  isActive         Boolean   @default(true)
+  userAgent        String?
+  platform         String?
+  screenResolution String?
+  timezone         String?
+  language         String?
+  ipAddress        String?
+
+  validatorToken   ValidatorToken    @relation(fields: [validatorTokenId], references: [id], onDelete: Cascade)
+  event            Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  validationEvents ValidationEvent[]
+  ticketOrders     TicketOrder[]
+
+  @@index([validatorTokenId])
+  @@index([eventId])
+  @@index([token])
+  @@index([expiresAt, isActive])
+  @@map("validator_sessions")
+}
+
+model ValidationEvent {
+  id            String           @id @default(cuid())
+  sessionId     String
+  ticketOrderId String
+  eventId       String
+  action        ValidationAction
+  createdAt     DateTime         @default(now())
+
+  session     ValidatorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  ticketOrder TicketOrder      @relation(fields: [ticketOrderId], references: [id], onDelete: Cascade)
+  event       Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([ticketOrderId])
+  @@index([eventId])
+  @@map("validation_events")
 }
 
 model DiscountCode {
@@ -633,6 +687,11 @@ enum TicketPackagePaymentStatus {
 enum StockMovementType {
   INCREASE
   DECREASE
+}
+
+enum ValidationAction {
+  VALIDATE
+  INVALIDATE
 }
 
 enum EventCategory {

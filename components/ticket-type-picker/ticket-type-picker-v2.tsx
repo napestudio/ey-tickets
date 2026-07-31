@@ -19,7 +19,7 @@ type TicketTypePickerV2Props = {
 // Uses only status and endDate — same logic as getTicketDisplayStatus in the form.
 function getMinAvailablePrice(
   tickets: TicketTypeForPicker[],
-  soldTickets?: Record<string, { count: number }>
+  soldTickets?: Record<string, { count: number }>,
 ): number | null {
   const available = tickets.filter((t) => {
     if (
@@ -51,7 +51,7 @@ export default function TicketTypePickerV2({
   const [isOpen, setIsOpen] = useState(false);
 
   const visibleTickets = tickets.filter(
-    (t) => t.status !== "DELETED" && t.status !== "INACTIVE"
+    (t) => t.status !== "DELETED" && t.status !== "INACTIVE",
   );
 
   const minPrice = getMinAvailablePrice(tickets, soldTickets);
@@ -72,7 +72,7 @@ export default function TicketTypePickerV2({
         {/* Expanded sheet */}
         {isOpen && (
           <div className="bg-ey-dark border-t-2 border-ey-turquoise max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-white/10 sticky top-0 bg-ey-dark">
+            <div className="flex items-center max-w-2xl mx-auto justify-between px-4 md:px-8 py-4 border-b border-white/10 sticky top-0 bg-ey-dark">
               <span className="text-ey-turquoise font-bold uppercase tracking-widest text-xs">
                 Seleccioná tu entrada
               </span>
@@ -98,36 +98,38 @@ export default function TicketTypePickerV2({
         )}
 
         {/* Collapsed bar — always visible */}
-        <div className="bg-ey-dark border-t-2 border-ey-turquoise px-4 md:px-8 py-3 flex items-center justify-between gap-4">
-          <div>
-            {minPrice !== null ? (
-              <>
-                <p className="text-white/50 text-xs uppercase tracking-widest leading-none mb-0.5">
-                  Entradas desde
-                </p>
-                <p className="text-white font-bold text-lg leading-none">
-                  {minPrice > 0 ? formatPrice(minPrice) : "GRATIS"}
-                </p>
-              </>
-            ) : hasAnyTicket ? (
-              <p className="text-white/50 text-sm">Ver disponibilidad</p>
-            ) : (
-              <p className="text-white/40 text-sm">Sin entradas</p>
+        <div className="bg-ey-dark  border-t-2 border-ey-turquoise px-4 md:px-8 py-3 ">
+          <div className="flex  items-center gap-4 max-w-2xl mx-auto w-full justify-between">
+            <div>
+              {minPrice !== null ? (
+                <>
+                  <p className="text-white/50 text-xs uppercase tracking-widest leading-none mb-0.5">
+                    Entradas desde
+                  </p>
+                  <p className="text-white font-bold text-lg leading-none">
+                    {minPrice > 0 ? formatPrice(minPrice) : "GRATIS"}
+                  </p>
+                </>
+              ) : hasAnyTicket ? (
+                <p className="text-white/50 text-sm">Ver disponibilidad</p>
+              ) : (
+                <p className="text-white/40 text-sm">Sin entradas</p>
+              )}
+            </div>
+
+            {hasAnyTicket && (
+              <button
+                type="button"
+                onClick={() => setIsOpen((v) => !v)}
+                className="flex items-center gap-2 bg-ey-turquoise text-ey-dark rounded-2xl uppercase font-bold text-sm px-6 py-3 hover:bg-ey-turquoise-dark transition-colors shrink-0"
+              >
+                {isOpen ? "" : "Entradas"}
+                <ChevronUp
+                  className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                />
+              </button>
             )}
           </div>
-
-          {hasAnyTicket && (
-            <button
-              type="button"
-              onClick={() => setIsOpen((v) => !v)}
-              className="flex items-center gap-2 bg-ey-turquoise text-ey-dark rounded-2xl uppercase font-bold text-sm px-6 py-3 hover:bg-ey-turquoise-dark transition-colors shrink-0"
-            >
-              {isOpen ? "Cerrar" : "Ver entradas"}
-              <ChevronUp
-                className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-          )}
         </div>
       </div>
     </>

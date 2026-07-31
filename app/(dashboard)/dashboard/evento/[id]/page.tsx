@@ -1,6 +1,6 @@
-import { getEventById } from "@/lib/actions";
+import { getEventForOverview } from "@/lib/actions";
 import EventOverview from "@/components/dashboard/event-overview";
-import { EventoWithTicketsType } from "@/types/event";
+import { Evento } from "@/types/event";
 
 export default async function EventPage({
   params,
@@ -8,8 +8,8 @@ export default async function EventPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const evento = await getEventById(id);
+  const evento = await getEventForOverview(id);
 
   if (!evento) return null;
-  return <EventOverview evento={evento as unknown as EventoWithTicketsType} />;
+  return <EventOverview evento={evento as unknown as Evento} />;
 }
