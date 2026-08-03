@@ -1,6 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextAuthOptions, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
@@ -150,7 +151,7 @@ export const authOptions: NextAuthOptions = {
             : (dbUser.producerMember?.role ?? null);
         } else {
           // El usuario fue eliminado de la DB — invalidar la sesión
-          return null;
+          return null as unknown as JWT;
         }
       }
 
