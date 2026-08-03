@@ -96,9 +96,7 @@ export default async function Evento({ params }: { params: { slug: string } }) {
       isFree: t.isFree ?? false,
     })) ?? [];
 
-  const hasDiscountCodes = Boolean(
-    evento.discountCode?.some((dc) => dc.status !== "DELETED"),
-  );
+  const hasDiscountCodes = Boolean(evento.discountCode?.length);
 
   return (
     <>
