@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { can } from "@/lib/permissions";
 import { Evento } from "@/types/event";
 import EventOverviewHeader from "./event-overview-header";
@@ -12,7 +11,7 @@ export default async function EventOverview({
 }: {
   evento: Evento;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return null;
 
   if (evento.status === "DELETED") {

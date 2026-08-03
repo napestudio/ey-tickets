@@ -1,11 +1,10 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import {
   getProducerStockSummary,
   getTicketPackagesByProducer,
 } from "@/lib/api/ticket-stock";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import AcquireTicketsDialog from "./components/acquire-tickets-dialog";
 import PackageHistoryTable from "./components/package-history-table";
@@ -20,7 +19,7 @@ export default async function TicketStockPage({
     external_reference?: string;
   }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
 
   const { role, producerId } = session.user;

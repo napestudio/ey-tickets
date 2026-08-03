@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { InviteUserDialog } from "@/components/dashboard/invite-user-dialog";
 import UserInvitationsTable from "@/components/dashboard/user-invitations-table";
@@ -10,10 +10,9 @@ import {
 } from "@/lib/actions";
 
 import { User } from "@/types/user";
-import { getServerSession } from "next-auth";
 
 export default async function UsersPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
 
   const { id: userId, role, producerId } = session.user;

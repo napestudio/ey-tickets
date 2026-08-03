@@ -1,5 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import { redirect } from "next/navigation";
 import ResetForm from "./reset-form";
 import { Title } from "@/components/website/ui/Title";
@@ -7,7 +6,7 @@ import Link from "next/link";
 import Logo from "@/components/ui/LogoFooter";
 
 export default async function Register({ params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (session && session.user) {
     redirect("/dashboard");

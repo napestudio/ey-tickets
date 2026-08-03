@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import LoginForm from "./login-form";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,7 +8,7 @@ import { Title } from "@/components/website/ui/Title";
 import Logo from "@/components/ui/Logo";
 
 export default async function Ingresar() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (session && session.user) {
     redirect("/dashboard");
   }

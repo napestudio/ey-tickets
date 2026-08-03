@@ -1,5 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import { redirect } from "next/navigation";
 import NewPasswordForm from "./new-password-form";
 
@@ -9,7 +8,7 @@ export default async function NewPassword({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (session && session.user) {
     redirect("/dashboard");

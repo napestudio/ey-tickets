@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import NotificationsForm from "../../components/notifications-form/notifications-form";
-
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getAllUserConfiguration } from "@/lib/actions";
 import { UserConfiguration } from "@/types/user-configuration";
 
 export default async function Notificaciones() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
   const id = session.user.id;
   const userConfiguration = (await getAllUserConfiguration(id)) || [];
