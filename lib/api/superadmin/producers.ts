@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { EventCategory, ProducerStatus, VenueType } from "@prisma/client";
+import {
+  EventCategory,
+  Prisma,
+  ProducerStatus,
+  VenueType,
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 import {
   CreateProducerInput,
@@ -9,6 +14,7 @@ import {
   TicketTypeSummary,
 } from "@/types/superadmin";
 import { getProducerStockSummary } from "@/lib/api/ticket-stock";
+import { WELCOME_TICKET_PACKAGE_QUANTITY } from "@/lib/constants";
 
 function generateSlug(name: string): string {
   return name
@@ -21,7 +27,7 @@ function generateSlug(name: string): string {
 }
 
 export async function createSuperadminProducer(
-  input: CreateProducerInput
+  input: CreateProducerInput,
 ): Promise<CreateProducerResult> {
   const { producer, owner } = input;
 
@@ -66,6 +72,19 @@ export async function createSuperadminProducer(
 
     await tx.producerConfiguration.create({
       data: { producerId: newProducer.id },
+    });
+
+    // Paquete de bienvenida
+    await tx.ticketPackage.create({
+      data: {
+        producerId: newProducer.id,
+        quantity: WELCOME_TICKET_PACKAGE_QUANTITY,
+        unitPrice: new Prisma.Decimal(0),
+        totalPrice: new Prisma.Decimal(0),
+        status: "ACTIVE",
+        paymentStatus: "PAID",
+        notes: "Regalo de bienvenida",
+      },
     });
 
     const newUser = await tx.user.create({
@@ -130,7 +149,10 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
   const ticketTypeUsageMap = new Map<string, number>();
   for (const tt of allTicketTypeUsage) {
     const pid = tt.event.producerId;
-    ticketTypeUsageMap.set(pid, (ticketTypeUsageMap.get(pid) ?? 0) + tt.quantity);
+    ticketTypeUsageMap.set(
+      pid,
+      (ticketTypeUsageMap.get(pid) ?? 0) + tt.quantity,
+    );
   }
 
   const memberAllocMap = new Map<string, number>();
@@ -139,7 +161,10 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
   }
 
   return producers.map((p) => {
-    const totalPool = p.ticketPackages.reduce((sum, pkg) => sum + pkg.quantity, 0);
+    const totalPool = p.ticketPackages.reduce(
+      (sum, pkg) => sum + pkg.quantity,
+      0,
+    );
     const usedByTicketTypes = ticketTypeUsageMap.get(p.id) ?? 0;
     const allocatedToMembers = memberAllocMap.get(p.id) ?? 0;
     const availableTickets = totalPool - usedByTicketTypes - allocatedToMembers;
@@ -159,7 +184,7 @@ export async function getSuperadminProducers(): Promise<ProducerSummary[]> {
 }
 
 export async function getSuperadminProducerById(
-  id: string
+  id: string,
 ): Promise<ProducerDetail | null> {
   const [producer, ticketTypesRaw, stockSummary] = await Promise.all([
     prisma.producer.findUnique({
@@ -288,7 +313,7 @@ export async function getSuperadminProducerById(
 
 export async function updateProducerStatus(
   id: string,
-  status: ProducerStatus
+  status: ProducerStatus,
 ): Promise<{ id: string; name: string; status: ProducerStatus }> {
   const existing = await prisma.producer.findUnique({
     where: { id },

@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { Prisma } from "@prisma/client";
 import { sendEmailVerificationEmail } from "@/emails/send";
+import { WELCOME_TICKET_PACKAGE_QUANTITY } from "@/lib/constants";
 
 function generateSlug(name: string): string {
   return name
@@ -19,17 +21,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { producer, owner } = body;
 
-    if (!producer?.name || !producer?.email || !owner?.name || !owner?.email || !owner?.password) {
+    if (
+      !producer?.name ||
+      !producer?.email ||
+      !owner?.name ||
+      !owner?.email ||
+      !owner?.password
+    ) {
       return NextResponse.json(
         { error: "Faltan campos requeridos" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!producer?.eventCategories || producer.eventCategories.length === 0) {
       return NextResponse.json(
         { error: "Debés seleccionar al menos un tipo de evento" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,7 +48,7 @@ export async function POST(req: NextRequest) {
     if (existingProducer) {
       return NextResponse.json(
         { error: "Ya existe una productora con ese email" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,7 +59,7 @@ export async function POST(req: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { error: "Ya existe una cuenta con ese email" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -77,6 +85,19 @@ export async function POST(req: NextRequest) {
       // Crear configuración de la productora
       await tx.producerConfiguration.create({
         data: { producerId: newProducer.id },
+      });
+
+      // Paquete de bienvenida
+      await tx.ticketPackage.create({
+        data: {
+          producerId: newProducer.id,
+          quantity: WELCOME_TICKET_PACKAGE_QUANTITY,
+          unitPrice: new Prisma.Decimal(0),
+          totalPrice: new Prisma.Decimal(0),
+          status: "ACTIVE",
+          paymentStatus: "PAID",
+          notes: "Regalo de bienvenida",
+        },
       });
 
       // Crear usuario owner
@@ -127,7 +148,7 @@ export async function POST(req: NextRequest) {
     console.error("Error registering producer:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

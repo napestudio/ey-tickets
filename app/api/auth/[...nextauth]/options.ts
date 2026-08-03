@@ -161,7 +161,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      if (session?.user) {
+      if (session?.user && token) {
         session.user.id = token.id as string;
         session.user.producerId = token.producerId as string | null;
         session.user.producerStatus = token.producerStatus as string | null;
