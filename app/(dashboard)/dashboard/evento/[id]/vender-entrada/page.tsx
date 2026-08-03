@@ -15,7 +15,7 @@ async function getEventData(id: string) {
   const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
 
   const [soldTickets, cashPaymentMethodId] = await Promise.all([
-    getSoldTicketsByType(evento.tickets),
+    getSoldTicketsByType(evento.id),
     getCashPaymentMethodIdByEvent(id),
   ]);
   return {

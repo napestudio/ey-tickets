@@ -25,10 +25,14 @@ export const mpApi = {
           accessToken: mercadopagoToken,
         });
 
-        updateOrder(orderId, {
+        await updateOrder(orderId, {
           ...orderData,
           paymentMethodId: paymentMethod[0].paymentMethodId,
         });
+
+        // Strip trailing slash to avoid double-slash in constructed URLs
+        const siteUrl = (process.env.MP_SITE_URL ?? "").replace(/\/$/, "");
+
         const preference = await new Preference(mercadopago).create({
           body: {
             items: [
@@ -43,9 +47,11 @@ export const mpApi = {
               orderId: orderId,
             },
             back_urls: {
-              success: process.env.MP_SITE_URL,
+              success: siteUrl,
+              failure: `${siteUrl}/orders/${orderId}`,
+              pending: `${siteUrl}/orders/${orderId}`,
             },
-            notification_url: `${process.env.MP_SITE_URL}/api/mercadopago/pagos?u=${userId}&e=${product.eventId}`,
+            notification_url: `${siteUrl}/api/mercadopago/pagos?u=${userId}&e=${product.eventId}`,
           },
         });
 

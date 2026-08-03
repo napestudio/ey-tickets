@@ -28,6 +28,7 @@ type PickerFormProps = {
   serviceCharge: number;
   hasDiscountCodes: boolean;
   soldTickets?: Record<string, { count: number }>;
+  saleEndDate?: Date | null;
   onClose?: () => void;
 };
 
@@ -35,11 +36,14 @@ type PickerFormProps = {
 // endDate, stock and pricing on submit. Avoids false positives from stale data.
 function getTicketDisplayStatus(
   ticket: TicketTypeForPicker,
-  soldTickets?: Record<string, { count: number }>
+  soldTickets?: Record<string, { count: number }>,
+  saleEndDate?: Date | null
 ): "available" | "soldout" | "ended" {
   if (ticket.status === "SOLDOUT") return "soldout";
   if (ticket.status === "ENDED") return "ended";
   if (ticket.endDate && new Date(ticket.endDate) < new Date()) return "ended";
+  // When no custom endDate is set, fall back to the event's saleEndDate
+  if (!ticket.endDate && saleEndDate && new Date(saleEndDate) < new Date()) return "ended";
   // Cross-check sold count only when soldTickets data is available
   // Use || 1 (not ?? 1) so that buyGet=0 is also treated as 1
   if (soldTickets && ticket.id) {
@@ -56,6 +60,7 @@ export default function TicketTypePickerForm({
   serviceCharge,
   hasDiscountCodes,
   soldTickets,
+  saleEndDate,
   onClose,
 }: PickerFormProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -72,14 +77,14 @@ export default function TicketTypePickerForm({
 
   const selectedTicket = visibleTickets.find((t) => t.id === selectedId);
   const selectedStatus = selectedTicket
-    ? getTicketDisplayStatus(selectedTicket, soldTickets)
+    ? getTicketDisplayStatus(selectedTicket, soldTickets, saleEndDate)
     : "available";
   const selectedUnavailable = selectedStatus !== "available";
 
   const effectiveMaxQty = appliedCode ? 1 : (selectedTicket?.limitPerSale ?? 10);
 
   const handleSelect = (ticket: TicketTypeForPicker) => {
-    if (getTicketDisplayStatus(ticket, soldTickets) !== "available") return;
+    if (getTicketDisplayStatus(ticket, soldTickets, saleEndDate) !== "available") return;
     setSelectedId(ticket.id!);
     setQuantity(1);
     setAppliedCode(undefined);
@@ -159,7 +164,7 @@ export default function TicketTypePickerForm({
       {/* Ticket type cards */}
       <div className="flex flex-col gap-2">
         {visibleTickets.map((ticket) => {
-          const ticketStatus = getTicketDisplayStatus(ticket, soldTickets);
+          const ticketStatus = getTicketDisplayStatus(ticket, soldTickets, saleEndDate);
           const unavailable = ticketStatus !== "available";
           const isSelected = ticket.id === selectedId;
           return (

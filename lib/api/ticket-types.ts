@@ -16,19 +16,15 @@ export async function getTicketTypesById(ticketTypeId: string) {
 }
 
 export async function getTicketTypeWithSoldCount(ticketTypeId: string) {
-  const ticketType = await prisma.ticketType.findUnique({
-    where: { id: ticketTypeId },
-    include: {
-      orders: {
-        where: { status: "PAID", isInvitation: false },
-        select: { quantity: true },
-      },
-    },
-  });
+  const [ticketType, soldAggregate] = await Promise.all([
+    prisma.ticketType.findUnique({ where: { id: ticketTypeId } }),
+    prisma.order.aggregate({
+      _sum: { quantity: true },
+      where: { ticketTypeId, status: "PAID", isInvitation: false },
+    }),
+  ]);
   if (!ticketType) return null;
-  const soldCount = ticketType.orders.reduce((acc, o) => acc + o.quantity, 0);
-  const { orders, ...ticketTypeData } = ticketType;
-  return { ...ticketTypeData, soldCount };
+  return { ...ticketType, soldCount: soldAggregate._sum.quantity ?? 0 };
 }
 export async function getTicketTypesByEventId(eventId: string) {
   return await prisma.ticketType.findMany({
@@ -336,10 +332,14 @@ export async function adjustTicketTypeStock(
   });
 }
 
-export async function getStockMovementsByTicketType(ticketTypeId: string) {
+export async function getStockMovementsByTicketType(
+  ticketTypeId: string,
+  take = 100,
+) {
   return prisma.ticketStockMovement.findMany({
     where: { ticketTypeId },
     orderBy: { createdAt: "desc" },
     include: { performedBy: { select: { id: true, name: true } } },
+    take,
   });
 }

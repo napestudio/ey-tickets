@@ -11,6 +11,7 @@ import { EventDescription } from "@/components/dashboard/event-description";
 import EventsMarquee from "@/components/website/events/EventsMarquee";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { cache } from "react";
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
@@ -52,12 +53,12 @@ export async function generateMetadata(
   };
 }
 
-async function getEventData(slug: string) {
+const getEventData = cache(async function getEventData(slug: string) {
   const evento = await getSingleEventBySlug(slug);
 
   if (!evento) return;
   const serviceCharge = evento.producer?.configuration?.serviceCharge || 0;
-  const soldTickets = await getSoldTicketsByType(evento.tickets);
+  const soldTickets = await getSoldTicketsByType(evento.id);
   const paymentMethod = evento.eventPayments;
 
   return {
@@ -66,7 +67,7 @@ async function getEventData(slug: string) {
     soldTickets,
     paymentMethod,
   };
-}
+})
 
 export default async function Evento({ params }: { params: { slug: string } }) {
   const param = await params;
@@ -125,6 +126,7 @@ export default async function Evento({ params }: { params: { slug: string } }) {
             serviceCharge={serviceCharge ?? 0}
             hasDiscountCodes={hasDiscountCodes}
             soldTickets={soldTickets as Record<string, { count: number }>}
+            saleEndDate={evento.saleEndDate ?? null}
           />
         )}
 
