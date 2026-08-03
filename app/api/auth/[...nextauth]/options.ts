@@ -131,6 +131,7 @@ export const authOptions: NextAuthOptions = {
           where: { id: token.id as string },
           select: {
             isSuperAdmin: true,
+            emailVerified: true,
             producerMember: {
               select: {
                 producerId: true,
@@ -149,6 +150,7 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.isSuperAdmin
             ? "SUPERADMIN"
             : (dbUser.producerMember?.role ?? null);
+          token.emailVerified = dbUser.emailVerified ?? null;
         } else {
           // El usuario fue eliminado de la DB — invalidar la sesión
           return null as unknown as JWT;
@@ -165,6 +167,7 @@ export const authOptions: NextAuthOptions = {
         session.user.producerStatus = token.producerStatus as string | null;
         session.user.role = token.role;
         session.user.isSuperAdmin = token.role === "SUPERADMIN";
+        session.user.emailVerified = token.emailVerified as Date | null;
       }
       return session;
     },
@@ -198,5 +201,5 @@ export const authOptions: NextAuthOptions = {
  * - Crear su Account (OAuth) y UserConfiguration
  *
  * SUPERADMINs (isSuperAdmin: true) no tienen ProducerMember.
- * El JWT incluye: id, isSuperAdmin, producerId, role.
+ * El JWT incluye: id, isSuperAdmin, producerId, role, emailVerified.
  */
