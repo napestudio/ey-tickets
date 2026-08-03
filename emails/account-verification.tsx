@@ -32,7 +32,7 @@ export function AccountVerificationEmail({
         </Text>
         <Button
           href={verificationUrl}
-          className="bg-dark-900 text-white border-4 border-black px-6 py-4 text-base mt-5"
+          className="bg-neutral-900 text-white border-4 border-black px-6 py-4 text-base mt-5"
           style={{ boxShadow: "5px 5px 0px 0 black" }}
         >
           Verificar mi cuenta

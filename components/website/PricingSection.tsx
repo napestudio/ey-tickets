@@ -3,6 +3,9 @@ import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
 import PricePackageCard from "./PackageCard";
 import { Paragraph } from "./ui/Paragraph";
 import { ShapeMask } from "./ShapeMask";
+import GiftIcon from "./ui/icons/GiftIcon";
+import Link from "next/link";
+import { Button } from "./ui/Button";
 
 export default function PricingSection() {
   return (
@@ -57,6 +60,22 @@ export default function PricingSection() {
             También podés comprar otras cantidades y el precio se ajusta
             automáticamente.
           </Paragraph>
+        </div>
+        <div className="border flex items-center gap-2 border-ey-turquoise rounded-full text-center w-max mx-auto py-3 px-6 font-bold mt-10 text-white text-lg lg:text-xl">
+          <GiftIcon className="w-5 h-5" />
+          <p>
+            Registrate y recibí{" "}
+            <span className="text-ey-turquoise">30 entradas</span> de regalo de
+            bienvenida
+          </p>
+        </div>
+        <div className="w-full py-4">
+          <Button
+            className="bg-ey-turquoise mx-auto w-max uppercase rounded-2xl text-ey-dark font-medium hover:bg-ey-turquoise-dark transition-colors text-center"
+            href="/registro/productora"
+          >
+            Regitrar productora
+          </Button>
         </div>
       </div>
     </section>

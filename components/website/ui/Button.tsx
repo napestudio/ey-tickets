@@ -8,28 +8,31 @@ import {
   buttonVariantTokens,
   buttonSizeTokens,
 } from "@/components/website/ui/lib/design-system/tokens";
-import type { ButtonVariant, ButtonSize } from "@/components/website/ui/lib/design-system/types";
+import type {
+  ButtonVariant,
+  ButtonSize,
+} from "@/components/website/ui/lib/design-system/types";
 
 // ─── Variantes ────────────────────────────────────────────────────────────────
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-xl font-bold transition-colors cursor-pointer",
+  "flex items-center justify-center rounded-xl font-bold transition-colors cursor-pointer",
   {
     variants: {
       variant: buttonVariantTokens,
-      size:    buttonSizeTokens,
+      size: buttonSizeTokens,
     },
     defaultVariants: { variant: "primary", size: "md" },
-  }
+  },
 );
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface BaseProps {
-  variant?:   ButtonVariant;
-  size?:      ButtonSize;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   className?: string;
-  children:   React.ReactNode;
+  children: React.ReactNode;
 }
 
 type AsButton = BaseProps &
@@ -46,35 +49,30 @@ export type ButtonProps = AsButton | AsLink;
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-const Button = React.forwardRef<
-  HTMLButtonElement,
-  ButtonProps
->(({ variant, size, className, children, ...rest }, ref) => {
-  const classes = cn(buttonVariants({ variant, size }), className);
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant, size, className, children, ...rest }, ref) => {
+    const classes = cn(buttonVariants({ variant, size }), className);
 
-  if ("href" in rest && rest.href !== undefined) {
-    const { href, ...linkRest } = rest as AsLink;
+    if ("href" in rest && rest.href !== undefined) {
+      const { href, ...linkRest } = rest as AsLink;
+      return (
+        <Link href={href} className={classes} {...linkRest}>
+          {children}
+        </Link>
+      );
+    }
+
     return (
-      <Link
-        href={href}
+      <button
         className={classes}
-        {...linkRest}
+        ref={ref as React.Ref<HTMLButtonElement>}
+        {...(rest as AsButton)}
       >
         {children}
-      </Link>
+      </button>
     );
-  }
-
-  return (
-    <button
-      className={classes}
-      ref={ref as React.Ref<HTMLButtonElement>}
-      {...(rest as AsButton)}
-    >
-      {children}
-    </button>
-  );
-});
+  },
+);
 Button.displayName = "Button";
 
 export { Button };
