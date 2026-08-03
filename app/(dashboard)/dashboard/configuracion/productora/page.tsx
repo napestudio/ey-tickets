@@ -1,14 +1,13 @@
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getProducerById } from "@/lib/api/producers";
 import ProductoraForm from "../../components/productora-form/productora-form";
 import ProducerConfigForm from "../../components/producer-config-form/producer-config-form";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 
 export default async function ProductoraConfigPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (!session?.user?.producerId) {
     redirect("/dashboard");

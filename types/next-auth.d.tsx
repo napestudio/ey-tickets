@@ -14,6 +14,7 @@ declare module "next-auth" {
       producerStatus: string | null;
       role: AppRole | null;
       isSuperAdmin: boolean;
+      emailVerified: Date | null;
     } & DefaultSession;
   }
 
@@ -31,5 +32,6 @@ declare module "next-auth/jwt" {
     producerId: string | null;
     producerStatus: string | null;
     role: AppRole | null;
+    emailVerified: Date | null;
   }
 }

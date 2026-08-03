@@ -6,8 +6,7 @@ import { isOrgAdmin } from "@/lib/permissions";
 import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { redirect } from "next/navigation";
 import { Evento } from "@/types/event";
 import { Metadata } from "next";
@@ -24,7 +23,7 @@ export default async function NewTicketTypePage({
   params,
 }: NewTicketTypePageProps) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
   const evento = await getEventById(id);
   if (!evento) return;

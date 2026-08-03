@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "../../api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import SideBar from "../../../components/dashboard/side-bar";
 import { MobileSidebar } from "@/components/dashboard/mobile-nav";
 import SessionProvider from "@/components/session-provider/session-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { getSidebarNav } from "./lib/config/dashboard-navigation";
 import { getProducerById } from "@/lib/api/producers";
+import UserVerificationToast from "./components/user-verification-toast/user-verification-toast";
 
 export const metadata: Metadata = {
   title: "Eytickets | Administración",
@@ -20,7 +20,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session || !session.user) {
     redirect("/");
   }
@@ -49,6 +49,7 @@ export default async function DashboardLayout({
             />
           </div>
           <div className="flex flex-col md:ml-50 lg:ml-60 flex-1 pb-12 md:pl-10 min-w-0">
+            {!session.user.emailVerified && <UserVerificationToast />}
             {children}
           </div>
         </div>

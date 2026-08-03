@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import { sendEmailVerificationEmail } from "@/emails/send";
 
 function generateSlug(name: string): string {
   return name
@@ -101,6 +103,24 @@ export async function POST(req: NextRequest) {
         data: { userId: newUser.id },
       });
     });
+
+    // Generar token de verificación (24h) y enviar email fuera de la transacción
+    try {
+      const verificationToken = uuidv4();
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      await prisma.verificationToken.create({
+        data: { email: owner.email, token: verificationToken, expires },
+      });
+
+      await sendEmailVerificationEmail({
+        recipientEmail: owner.email,
+        verificationToken,
+      });
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+      // El registro ya fue creado; el superadmin puede verificar manualmente
+    }
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {

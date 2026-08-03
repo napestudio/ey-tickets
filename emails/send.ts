@@ -3,6 +3,7 @@ import { SITE_NAME, SITE_PROD_URL } from "@/lib/constants";
 import { TicketConfirmationEmail } from "./ticket-confirmation";
 import { PasswordResetEmail } from "./password-reset";
 import { UserInvitationEmail } from "./user-invitation";
+import { AccountVerificationEmail } from "./account-verification";
 
 export type { QrTicketEmailData } from "./ticket-confirmation";
 
@@ -35,6 +36,11 @@ export type InvitationEmailPayload = {
   roleLabel: string;
   invitationId: string;
   invitationToken: string;
+};
+
+export type EmailVerificationPayload = {
+  recipientEmail: string;
+  verificationToken: string;
 };
 
 export async function sendTicketConfirmationEmail(
@@ -96,5 +102,22 @@ export async function sendInvitationEmail(
 
   if (error) {
     throw new Error(`Error sending invitation email: ${error.message}`);
+  }
+}
+
+export async function sendEmailVerificationEmail(
+  payload: EmailVerificationPayload
+): Promise<void> {
+  const { recipientEmail, verificationToken } = payload;
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: [recipientEmail],
+    subject: `Verificá tu cuenta en ${SITE_NAME}`,
+    react: AccountVerificationEmail({ verificationToken }),
+  });
+
+  if (error) {
+    throw new Error(`Error sending verification email: ${error.message}`);
   }
 }

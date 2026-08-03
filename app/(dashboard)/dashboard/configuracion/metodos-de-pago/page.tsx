@@ -1,11 +1,10 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { AddPaymentMethodDialog } from "@/components/dashboard/add-payment-method-dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import { getServerSession } from "next-auth";
 import PaymentMethodsLoader from "./methods-loader";
 
 export default async function PaymentMethodsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session?.user.producerId) return;
 
   return (
@@ -17,7 +16,14 @@ export default async function PaymentMethodsPage() {
         />
       </div>
       <div className="w-full space-y-5">
-        <AddPaymentMethodDialog session={session} />
+        {!session.user.emailVerified ? (
+          <div className="text-sm text-neutral-700">
+            Tu cuenta tiene que estar verificada para poder agregar medios de
+            pagos y comenzar a vender entradas.
+          </div>
+        ) : (
+          <AddPaymentMethodDialog session={session} />
+        )}
         <div className="max-w-[95vw]">
           <PaymentMethodsLoader
             producerId={session.user.producerId}

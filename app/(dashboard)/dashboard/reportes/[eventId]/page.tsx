@@ -1,11 +1,10 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { isOrgAdmin } from "@/lib/permissions";
 import {
   getEventDetailedStats,
   getEventDetailedStatsForMember,
 } from "@/lib/api/reportes";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import EventDetailHeader from "./components/event-detail-header";
 import EventStatsSummary from "./components/event-stats-summary";
@@ -20,7 +19,7 @@ interface EventReportPageProps {
 }
 
 export default async function EventReportPage({ params }: EventReportPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
 
   const { role, producerId, id: userId } = session.user;

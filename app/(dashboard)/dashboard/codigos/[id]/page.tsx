@@ -1,7 +1,6 @@
 import { getDiscountCodeById } from "@/lib/actions";
 import { getAccessibleEvents } from "@/lib/api/eventos";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 
 import EditCodeForm from "@/app/(dashboard)/dashboard/components/edit-discount-code/edit-discount-code-form";
 import { DiscountCode } from "@/types/discount-code";
@@ -9,7 +8,7 @@ import { Evento } from "@/types/event";
 
 export default async function EditCode({ params }: { params: Promise<{ id: string }> }) {
   const { id: codeId } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
   const { id, producerId, role } = session.user;
   const discountCode = await getDiscountCodeById(codeId);

@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 
 import CreateCodeForm from "../components/create-discount-code/create-discount-code";
 import { getAccessibleEvents } from "@/lib/api/eventos";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Evento } from "@/types/event";
 
 export default async function NewCode() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
   const { id, producerId, role } = session.user;
   const events = await getAccessibleEvents({ id, producerId, role });

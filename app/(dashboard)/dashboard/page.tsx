@@ -1,9 +1,10 @@
-import { getServerSession } from "next-auth";
 import Link from "next/link";
-import { CalendarDays, BarChart2, Ticket, Settings } from "lucide-react";
+import { CalendarDays, BarChart2, Ticket, Settings, Plus } from "lucide-react";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
+import { Button } from "@/components/ui/button";
+import NewEventButton from "./components/new-event-button/new-event-button";
 
 const navItems = [
   {
@@ -33,8 +34,10 @@ const navItems = [
 ];
 
 export default async function Dashboard() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
+
+  const role = session.user.role;
 
   return (
     <div className="flex flex-col gap-8">
@@ -42,6 +45,8 @@ export default async function Dashboard() {
         title="Panel de administración"
         subtitle="Administra tus eventos y venta de tickets"
       />
+
+      {role !== "SELLER" && <NewEventButton />}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {navItems.map(({ href, icon: Icon, label, description }) => (
