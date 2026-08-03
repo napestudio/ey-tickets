@@ -148,6 +148,9 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.isSuperAdmin
             ? "SUPERADMIN"
             : (dbUser.producerMember?.role ?? null);
+        } else {
+          // El usuario fue eliminado de la DB — invalidar la sesión
+          return null;
         }
       }
 

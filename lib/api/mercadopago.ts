@@ -11,11 +11,11 @@ export const mpApi = {
       product: any,
       orderData: any,
       orderId: string,
-      userId: string
+      userId: string,
     ) {
       // const mercadopagoToken = await getMercadoPagoTokenByUser(userId);
       const paymentMethod = await getDigitalPaymentMethodKeyByEvent(
-        product.eventId
+        product.eventId,
       );
 
       if (paymentMethod && paymentMethod[0].paymentMethod.apiKey) {
@@ -47,7 +47,7 @@ export const mpApi = {
               orderId: orderId,
             },
             back_urls: {
-              success: siteUrl,
+              success: `${siteUrl}/eventos}`,
               failure: `${siteUrl}/orders/${orderId}`,
               pending: `${siteUrl}/orders/${orderId}`,
             },
