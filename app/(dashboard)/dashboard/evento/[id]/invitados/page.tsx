@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
 import Link from "next/link";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import InvitadosTab from "@/components/dashboard/event-details/invitados-tab";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ export default async function InvitadosPage({
   const { id } = await params;
   const [evento, session] = await Promise.all([
     getEventById(id),
-    getServerSession(authOptions),
+    getSession(),
   ]);
 
   if (!evento || !session) return null;

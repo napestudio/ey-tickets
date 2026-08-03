@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
 import Link from "next/link";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import EventImagesManager from "@/components/dashboard/event-details/event-images-manager";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ export default async function ImagenesEventoPage({
   const { id } = await params;
   const [evento, session] = await Promise.all([
     getEventById(id),
-    getServerSession(authOptions),
+    getSession(),
   ]);
 
   if (!evento || !session) return null;

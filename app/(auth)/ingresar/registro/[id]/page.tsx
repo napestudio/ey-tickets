@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import RegisterForm from "./register-form";
 import { getInvitationsById } from "@/lib/actions";
 import { isExpired } from "@/lib/utils";
@@ -30,7 +29,7 @@ function ExpiredMsg() {
 
 export default async function Register({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (session && session.user) {
     redirect("/dashboard");

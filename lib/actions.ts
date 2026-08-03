@@ -54,8 +54,7 @@ import { TicketOrder } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { serialize } from "@/lib/serialize";
 import { jsPDF } from "jspdf";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 
 // Type temporal
 export type Evento = {
@@ -327,7 +326,7 @@ export async function getUsedInvitesByProducer(producerId: string) {
 }
 
 export async function createTicketType(data: TicketType) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   const createdById = session?.user?.id ?? null;
 
   const dataWithCreator = { ...data, createdById };
@@ -372,7 +371,7 @@ export async function adjustTicketStock(
   delta: number,
   reason?: string,
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("No autorizado.");
 
   const { id: performedById, producerId } = session.user;
@@ -1378,7 +1377,7 @@ export async function inviteUserToEvent(
   data: InvitationMethodInput,
 ): Promise<{ customizationToken?: string }> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession();
     if (!session?.user?.id) {
       throw new Error("No autenticado");
     }

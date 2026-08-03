@@ -16,20 +16,23 @@ export function AccountVerificationEmail({
     <EmailLayout>
       <Section className="bg-white p-5 text-center border-b border-gray-200">
         <Text className="uppercase text-black m-0 text-2xl">
-          <span className="font-extrabold">¡Bienvenido! </span>
+          <span className="font-extrabold">
+            ¡Gracias por registrarte en EyTickets!{" "}
+          </span>
           <span className="font-normal">{subject}</span>
         </Text>
       </Section>
       <Section className="p-5 text-center">
         <Text className="text-xl leading-none text-black">
-          Para activar tu cuenta, hacé click en el siguiente enlace.
+          Para activar tu cuenta y comenzar a vender entradas, hacé click en el
+          siguiente enlace.
         </Text>
         <Text className="text-sm text-gray-600 mt-2">
           Este enlace es válido por 24 horas.
         </Text>
         <Button
           href={verificationUrl}
-          className="bg-accent text-white border-4 border-black px-6 py-4 text-base mt-5"
+          className="bg-dark-900 text-white border-4 border-black px-6 py-4 text-base mt-5"
           style={{ boxShadow: "5px 5px 0px 0 black" }}
         >
           Verificar mi cuenta

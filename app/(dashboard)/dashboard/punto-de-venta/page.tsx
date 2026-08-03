@@ -1,12 +1,11 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { AddPuntoDeVentaDialog } from "@/components/dashboard/add-punto-de-venta-dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { getUsersByType } from "@/lib/actions";
-import { getServerSession } from "next-auth";
 import PosLoader from "./pos-loader";
 
 export default async function PuntoDeVentaPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session?.user.producerId) return;
   const sellers = await getUsersByType(session.user.producerId, "SELLER");
 

@@ -2,15 +2,14 @@ import { Button } from "@/components/ui/button";
 
 import { getDiscountCodeByUserId } from "@/lib/api/descuento-code";
 import { Plus } from "lucide-react";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth/get-session";
 import Link from "next/link";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 import { DiscountCode } from "@/types/discount-code";
 import CodeCard from "../components/code-card/code-card";
 
 export default async function Codes() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
   const id = session.user.id;
   const discountCode = await getDiscountCodeByUserId(id);

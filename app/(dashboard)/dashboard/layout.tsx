@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "../../api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import SideBar from "../../../components/dashboard/side-bar";
 import { MobileSidebar } from "@/components/dashboard/mobile-nav";
 import SessionProvider from "@/components/session-provider/session-provider";
@@ -21,7 +20,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session || !session.user) {
     redirect("/");
   }

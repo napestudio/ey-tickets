@@ -1,6 +1,4 @@
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { getProducerById } from "@/lib/api/producers";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +12,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default async function Perfil() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return null;
 
   const { name, email, image, role, producerId } = session.user;

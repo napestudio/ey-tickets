@@ -5,8 +5,7 @@ import { TabsContent } from "../../ui/tabs";
 import { can } from "@/lib/permissions";
 
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSession } from "@/lib/auth/get-session";
 import { getSoldTicketCountsByTypeAction } from "@/lib/actions";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
@@ -56,7 +55,7 @@ export default async function EventDetails({
   evento: EventoWithTicketsType;
   tab?: string;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return;
 
   if (evento.status === "DELETED") {
