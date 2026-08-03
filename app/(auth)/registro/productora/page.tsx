@@ -52,6 +52,7 @@ export default function ProducerRegistrationPage() {
   const [error, setError] = useState<string | null>(null);
   const [stepOneError, setStepOneError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [form, setForm] = useState({
     producerName: "",
@@ -64,6 +65,7 @@ export default function ProducerRegistrationPage() {
     userName: "",
     userEmail: "",
     userPassword: "",
+    userConfirmPassword: "",
   });
 
   function handleChange(
@@ -106,8 +108,14 @@ export default function ProducerRegistrationPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
+
+    if (form.userPassword !== form.userConfirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const res = await fetch("/api/registro/productora", {
@@ -346,6 +354,33 @@ export default function ProducerRegistrationPage() {
                       tabIndex={-1}
                     >
                       {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="userConfirmPassword">Repetir contraseña</Label>
+                  <div className="relative">
+                    <Input
+                      id="userConfirmPassword"
+                      name="userConfirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      minLength={8}
+                      value={form.userConfirmPassword}
+                      onChange={handleChange}
+                      className={`${inputClass} pr-12`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5" />
                       ) : (
                         <Eye className="h-5 w-5" />
