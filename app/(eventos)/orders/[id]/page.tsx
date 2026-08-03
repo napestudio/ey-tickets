@@ -1,10 +1,8 @@
 import UserDataForm from "@/components/client-data-form/client-data-form";
-import EventHeader from "@/components/event-header/event-header";
 import OrderTimeOut from "@/components/order-time-out/order-time-out";
 import OrderTotal from "@/components/order-total/order-total";
 import EventsMarquee from "@/components/website/events/EventsMarquee";
 import { getOrderById, getServiceCharge } from "@/lib/actions";
-import { GetSingleEventResponse } from "@/lib/api/eventos";
 import { datesFormater } from "@/lib/utils";
 import { Order } from "@/types/order";
 import { TicketType } from "@/types/tickets";

@@ -13,6 +13,7 @@ type TicketTypePickerV2Props = {
   serviceCharge: number;
   hasDiscountCodes: boolean;
   soldTickets?: Record<string, { count: number }>;
+  saleEndDate?: Date | null;
 };
 
 // Returns the lowest price among tickets that appear purchasable.
@@ -20,6 +21,7 @@ type TicketTypePickerV2Props = {
 function getMinAvailablePrice(
   tickets: TicketTypeForPicker[],
   soldTickets?: Record<string, { count: number }>,
+  saleEndDate?: Date | null,
 ): number | null {
   const available = tickets.filter((t) => {
     if (
@@ -30,6 +32,7 @@ function getMinAvailablePrice(
     )
       return false;
     if (t.endDate && new Date(t.endDate) < new Date()) return false;
+    if (!t.endDate && saleEndDate && new Date(saleEndDate) < new Date()) return false;
     if (soldTickets && t.id) {
       const bGet = t.buyGet || 1; // || 1 so buyGet=0 is treated as 1 (no promotion)
       const sold = soldTickets[t.id]?.count ?? 0;
@@ -47,6 +50,7 @@ export default function TicketTypePickerV2({
   serviceCharge,
   hasDiscountCodes,
   soldTickets,
+  saleEndDate,
 }: TicketTypePickerV2Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -54,7 +58,7 @@ export default function TicketTypePickerV2({
     (t) => t.status !== "DELETED" && t.status !== "INACTIVE",
   );
 
-  const minPrice = getMinAvailablePrice(tickets, soldTickets);
+  const minPrice = getMinAvailablePrice(tickets, soldTickets, saleEndDate);
   const hasAnyTicket = visibleTickets.length > 0;
 
   return (
@@ -91,6 +95,7 @@ export default function TicketTypePickerV2({
                 serviceCharge={serviceCharge}
                 hasDiscountCodes={hasDiscountCodes}
                 soldTickets={soldTickets}
+                saleEndDate={saleEndDate}
                 onClose={() => setIsOpen(false)}
               />
             </div>

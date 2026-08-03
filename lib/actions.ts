@@ -865,15 +865,11 @@ type MpPaymentData = {
 
 export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
   try {
-    const order = await getOrderById(orderId);
-    if (!order || order.status === "PAID") return;
-
-    const dates = JSON.parse(order.ticketType.dates!);
-    const is2x1 = order.ticketType.buyGet === 2;
-    order.quantity = is2x1 ? order.quantity * 2 : order.quantity;
-
-    await updateOrder(
-      {
+    // Atomic check-and-update: only proceeds if order is currently PENDING.
+    // Prevents duplicate ticket creation from concurrent webhook retries.
+    const updated = await prisma.order.updateMany({
+      where: { id: orderId, status: "PENDING" },
+      data: {
         status: "PAID",
         ...(mpData && {
           mpPaymentId: mpData.mpPaymentId,
@@ -884,12 +880,20 @@ export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
           mpAuthorizationCode: mpData.mpAuthorizationCode,
         }),
       },
-      orderId,
-    );
+    });
+
+    if (updated.count === 0) return;
+
+    const order = await getOrderById(orderId);
+    if (!order) return;
+
+    const dates = JSON.parse(order.ticketType.dates!);
+    const is2x1 = order.ticketType.buyGet === 2;
+    const quantity = is2x1 ? order.quantity * 2 : order.quantity;
 
     const ticketsData: TicketOrderType[] = [];
     dates.forEach((dateObj: DatesType) => {
-      for (let i = 0; i < order.quantity; i++) {
+      for (let i = 0; i < quantity; i++) {
         ticketsData.push({
           name: order.name!,
           lastName: order.lastName!,
@@ -918,8 +922,8 @@ export async function createFreeTicket(
   userId: string,
 ) {
   try {
-    updateOrder(orderData, orderId);
-    payOrderHandler(orderId);
+    await updateOrder(orderData, orderId);
+    await payOrderHandler(orderId);
   } catch (error) {
     throw new Error("Error creando free ticket");
   }
@@ -1308,25 +1312,22 @@ export async function getTicketAmountByTicketTypeId(ticketTypeId: string) {
   }
 }
 
-// export async function getSoldTicketsByType(eventId: string) {
-export async function getSoldTicketsByType(tickets: any[]) {
+export async function getSoldTicketsByType(eventId: string) {
   try {
-    let ticketCounts: Record<
-      string,
-      { id?: string; title?: string; count: number }
-    > = {};
-
-    tickets.forEach((ticket) => {
-      if (!ticketCounts[ticket.ticketType.id]) {
-        ticketCounts[ticket.ticketType.id] = {
-          id: ticket.ticketType.id,
-          title: ticket.ticketType.title,
-          count: 1,
-        };
-      } else {
-        ticketCounts[ticket.ticketType.id].count++;
-      }
+    const orders = await prisma.order.groupBy({
+      by: ["ticketTypeId"],
+      where: { eventId, status: "PAID" },
+      _sum: { quantity: true },
     });
+
+    const ticketCounts: Record<string, { count: number }> = {};
+    for (const order of orders) {
+      if (order.ticketTypeId) {
+        ticketCounts[order.ticketTypeId] = {
+          count: order._sum.quantity ?? 0,
+        };
+      }
+    }
 
     return ticketCounts;
   } catch (error) {

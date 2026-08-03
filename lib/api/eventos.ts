@@ -149,26 +149,32 @@ export const getSingleEventBySlug = cache(async (slug: string) => {
       },
       ticketTypes: {
         where: { status: { not: "DELETED" } },
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          discount: true,
+          limitPerSale: true,
+          buyGet: true,
+          status: true,
+          endDate: true,
+          dates: true,
+          quantity: true,
+          isFree: true,
+        },
       },
       eventPayments: {
         where: { paymentMethod: { type: "DIGITAL" } },
         include: {
           paymentMethod: {
-            select: { type: true, apiKey: true },
+            select: { type: true },
           },
         },
       },
       discountCode: {
         where: { status: { not: "DELETED" } },
+        select: { id: true },
       },
-      tickets: {
-        select: {
-          ticketType: {
-            select: { title: true, id: true },
-          },
-        },
-      },
-      validatorToken: true,
     },
   });
 });

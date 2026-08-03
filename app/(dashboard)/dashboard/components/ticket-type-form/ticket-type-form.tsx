@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, TrashIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -54,8 +54,10 @@ export default function TycketTypeForm({
   const { toast } = useToast();
   const router = useRouter();
   const parsedEventDates = JSON.parse(evento.dates);
+  const isSingleDate = parsedEventDates.length === 1;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasDiscount, setHasDiscount] = useState<boolean>(false);
+  const [hasCustomEndDate, setHasCustomEndDate] = useState<boolean>(false);
   const FormSchema = z.object({
     selectedDates: z
       .array(z.string())
@@ -79,7 +81,7 @@ export default function TycketTypeForm({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      selectedDates: [],
+      selectedDates: isSingleDate ? [parsedEventDates[0].date] : [],
       title: "",
       description: "",
       price: 0,
@@ -202,42 +204,59 @@ export default function TycketTypeForm({
                       <div className="mb-4"></div>
                       <FormLabel>Fecha(s)</FormLabel>
                       <div className="border p-2">
-                        {parsedEventDates.map((item: DatesType) => (
-                          <FormField
-                            key={item.id}
-                            control={form.control}
-                            name="selectedDates"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={item.id}
-                                  className="flex flex-row items-center space-x-3 space-y-0 p-2"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(item.date)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([
-                                              ...field.value,
-                                              item.date,
-                                            ])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== item.date,
-                                              ),
-                                            );
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="text-sm font-medium">
-                                    {format(item.date, "dd/MM/yyyy")}
-                                  </FormLabel>
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}
+                        {isSingleDate ? (
+                          <>
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-2">
+                              <Checkbox
+                                checked
+                                disabled
+                              />
+                              <FormLabel className="text-sm font-medium">
+                                {format(parsedEventDates[0].date, "dd/MM/yyyy")}
+                              </FormLabel>
+                            </FormItem>
+                            <p className="text-xs text-muted-foreground px-2 pb-1">
+                              Este evento tiene una sola fecha. Si agregás más fechas al evento podrás editarlo.
+                            </p>
+                          </>
+                        ) : (
+                          parsedEventDates.map((item: DatesType) => (
+                            <FormField
+                              key={item.id}
+                              control={form.control}
+                              name="selectedDates"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={item.id}
+                                    className="flex flex-row items-center space-x-3 space-y-0 p-2"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(item.date)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([
+                                                ...field.value,
+                                                item.date,
+                                              ])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== item.date,
+                                                ),
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="text-sm font-medium">
+                                      {format(item.date, "dd/MM/yyyy")}
+                                    </FormLabel>
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          ))
+                        )}
                         <FormMessage />
                       </div>
                     </FormItem>
@@ -301,36 +320,75 @@ export default function TycketTypeForm({
                   name="endDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Disponible hasta</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-60 pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP", { locale: es })
-                              ) : (
-                                <span>Seleccionar fecha</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Disponible hasta</FormLabel>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-sm font-normal text-muted-foreground">
+                            Personalizar fecha
+                          </Label>
+                          <Switch
+                            checked={hasCustomEndDate}
+                            onCheckedChange={(checked) => {
+                              setHasCustomEndDate(checked);
+                              if (!checked) field.onChange(undefined);
+                            }}
                           />
-                        </PopoverContent>
-                      </Popover>
+                        </div>
+                      </div>
+                      {hasCustomEndDate ? (
+                        <div className="flex items-center gap-2">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-60 pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground",
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP", { locale: es })
+                                  ) : (
+                                    <span>Seleccionar fecha</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date < new Date() ||
+                                  (!!evento.saleEndDate &&
+                                    date > new Date(evento.saleEndDate))
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          {field.value && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => field.onChange(undefined)}
+                              aria-label="Quitar fecha límite"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          {evento.saleEndDate
+                            ? `La fecha de vencimiento será: ${format(new Date(evento.saleEndDate), "dd/MM/yyyy", { locale: es })}`
+                            : "Sin fecha de fin de venta definida."}
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

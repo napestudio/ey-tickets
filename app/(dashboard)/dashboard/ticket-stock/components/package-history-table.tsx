@@ -3,7 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
-import { TicketPackagePaymentStatus, TicketPackageStatus } from "@/types/ticket-stock";
+import {
+  TicketPackagePaymentStatus,
+  TicketPackageStatus,
+} from "@/types/ticket-stock";
 
 interface PackageRow {
   id: string;
@@ -31,7 +34,10 @@ const STATUS_MAP: Record<
 
 const PAYMENT_STATUS_MAP: Record<
   TicketPackagePaymentStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+  {
+    label: string;
+    variant: "default" | "secondary" | "destructive" | "outline";
+  }
 > = {
   PAID: { label: "Pagado", variant: "default" },
   PENDING: { label: "Pendiente", variant: "outline" },
@@ -69,8 +75,8 @@ export default function PackageHistoryTable({
                   <th className="text-right py-2 font-medium text-muted-foreground">
                     Total
                   </th>
-                  <th className="text-left py-2 font-medium text-muted-foreground">
-                    Pago
+                  <th className="text-center py-2 font-medium text-muted-foreground">
+                    Estado de pago
                   </th>
                   <th className="text-left py-2 font-medium text-muted-foreground">
                     Notas
@@ -94,7 +100,7 @@ export default function PackageHistoryTable({
                       <td className="py-3 text-right font-medium">
                         {formatPrice(pkg.totalPrice)}
                       </td>
-                      <td className="py-3">
+                      <td className="py-3  text-center">
                         <Badge variant={paymentBadge.variant}>
                           {paymentBadge.label}
                         </Badge>
