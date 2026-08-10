@@ -30,14 +30,16 @@ interface Step4LocationProps {
   initialData: WizardStep4Data | null;
   onComplete: (data: WizardStep4Data) => void;
   onBack: () => void;
+  producerState?: string;
+  producerCity?: string;
 }
 
-export function Step4Location({ initialData, onComplete, onBack }: Step4LocationProps) {
+export function Step4Location({ initialData, onComplete, onBack, producerState, producerCity }: Step4LocationProps) {
   const form = useForm<Step4Schema>({
     resolver: zodResolver(step4Schema),
     defaultValues: {
-      state: initialData?.state ?? "",
-      city: initialData?.city ?? "",
+      state: initialData?.state || producerState || "",
+      city: initialData?.city || producerCity || "",
       address: initialData?.address ?? "",
       venue: initialData?.venue ?? "",
     },

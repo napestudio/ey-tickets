@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { uploadImage } from "@/lib/image-actions";
-import { createEventAndReturnId } from "@/lib/actions";
+import { createEventAndReturnId, assignPaymentMethodsToEvent } from "@/lib/actions";
 import { WizardStepper } from "./wizard-stepper";
 import { Step1EventData } from "./step-1-event-data";
 import { Step2EventType } from "./step-2-event-type";
@@ -13,6 +13,12 @@ import { Step4Location } from "./step-4-location";
 import { Step3EventImage } from "./step-3-event-image";
 import { Step4TicketType } from "./step-7-ticket-type";
 import { Step7PaymentMethods } from "./step-7-payment-methods";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
 import {
   WizardState,
   WizardStep,
@@ -80,9 +86,11 @@ function clearPersistedState() {
 
 interface CreateEventWizardProps {
   producerId: string;
+  producerState?: string;
+  producerCity?: string;
 }
 
-export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
+export function CreateEventWizard({ producerId, producerState, producerCity }: CreateEventWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isCompletingRef = useRef(false);
@@ -96,6 +104,7 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
     new Set((saved?.completedSteps ?? []) as WizardStep[])
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const [wizardState, setWizardState] = useState<WizardState>({
     step1: saved?.step1 ?? null,
@@ -144,16 +153,21 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
     advance({ ...wizardState, step4: data }, 4, 5);
   }
 
-  async function handleStep5Complete(data: WizardStep5Data) {
+  function handleStep5Complete(data: WizardStep5Data) {
+    advance({ ...wizardState, step5: data }, 5, 6);
+  }
+
+  async function handleStep6Complete(selectedMethodIds: string[]) {
     setIsTransitioning(true);
 
-    let finalImageUrl = data.uploadedImageUrl;
-    let finalImagePublicId = data.imagePublicId;
+    const step5 = wizardState.step5;
+    let finalImageUrl = step5?.uploadedImageUrl ?? "";
+    let finalImagePublicId = step5?.imagePublicId ?? null;
 
-    if (data.fileUpdated && data.files.length > 0) {
+    if (step5?.fileUpdated && step5.files.length > 0) {
       try {
         const formData = new FormData();
-        formData.append("file", data.files[0]);
+        formData.append("file", step5.files[0]);
         const res = await uploadImage(formData, "events");
         if (!res || "ok" in res) {
           throw new Error("Error subiendo la imagen");
@@ -204,16 +218,22 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
         producerId,
       });
 
+      if (selectedMethodIds.length > 0) {
+        await assignPaymentMethodsToEvent({
+          eventId,
+          paymentMethodIds: selectedMethodIds,
+        });
+      }
+
       const newState: WizardState = {
         ...wizardState,
-        step5: {
-          ...data,
-          uploadedImageUrl: finalImageUrl,
-          imagePublicId: finalImagePublicId,
-        },
         createdEventId: eventId,
       };
-      advance(newState, 5, 6);
+      setWizardState(newState);
+      const newCompleted = new Set([...completedSteps, 6 as WizardStep]);
+      setCompletedSteps(newCompleted);
+      persistState(newState, 7, newCompleted);
+      setShowSuccessDialog(true);
     } catch {
       toast({
         variant: "destructive",
@@ -225,16 +245,9 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
     }
   }
 
-  function handleStep6Complete() {
-    const newCompleted = new Set([...completedSteps, 6 as WizardStep]);
-    setCompletedSteps(newCompleted);
+  function handleContinueToTickets() {
+    setShowSuccessDialog(false);
     setCurrentStep(7);
-    persistState(wizardState, 7, newCompleted);
-  }
-
-  function handleStep6Skip() {
-    setCurrentStep(7);
-    persistState(wizardState, 7, completedSteps);
   }
 
   function finish() {
@@ -298,6 +311,8 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
           initialData={wizardState.step4}
           onComplete={handleStep4Complete}
           onBack={handleBack}
+          producerState={producerState}
+          producerCity={producerCity}
         />
       )}
       {currentStep === 5 && (
@@ -305,15 +320,15 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
           initialData={wizardState.step5}
           onComplete={handleStep5Complete}
           onBack={handleBack}
-          isLoading={isTransitioning}
+          isLoading={false}
         />
       )}
-      {currentStep === 6 && wizardState.createdEventId && (
+      {currentStep === 6 && (
         <Step7PaymentMethods
-          eventId={wizardState.createdEventId}
           producerId={producerId}
+          isLoading={isTransitioning}
           onComplete={handleStep6Complete}
-          onSkip={handleStep6Skip}
+          onBack={handleBack}
         />
       )}
       {currentStep === 7 && wizardState.createdEventId && (
@@ -325,6 +340,32 @@ export function CreateEventWizard({ producerId }: CreateEventWizardProps) {
           onSkip={handleStep7Skip}
         />
       )}
+
+      <Dialog open={showSuccessDialog} onOpenChange={() => {}}>
+        <DialogContent
+          className="sm:max-w-md text-center"
+          onInteractOutside={(e) => e.preventDefault()}
+          hideClose
+        >
+          <div className="flex flex-col items-center gap-5 py-4">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 animate-ping opacity-30" />
+              <div className="relative h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <CheckCircle2 className="h-9 w-9 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold">¡Evento creado!</h2>
+              <p className="text-sm text-muted-foreground">
+                Tu evento fue creado con éxito. Ahora podés agregar las entradas.
+              </p>
+            </div>
+            <Button onClick={handleContinueToTickets} className="w-full">
+              Continuar a la creación de entradas
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

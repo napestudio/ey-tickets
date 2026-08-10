@@ -8,6 +8,7 @@ import { can } from "@/lib/permissions";
 import { Evento } from "@/types/event";
 import { ArrowLeft } from "lucide-react";
 import { EditEventWizard } from "@/app/(dashboard)/dashboard/components/edit-event-wizard/edit-event-wizard";
+import { getProducerById } from "@/lib/api/producers";
 
 export default async function EditarEventoPage({
   params,
@@ -24,6 +25,9 @@ export default async function EditarEventoPage({
 
   if (!can(session.user, "events:edit")) return null;
 
+  const producerId = (evento as unknown as Evento).producerId;
+  const producer = producerId ? await getProducerById(producerId) : null;
+
   return (
     <div className="space-y-6">
       <DashboardHeader
@@ -36,7 +40,11 @@ export default async function EditarEventoPage({
           Volver al evento
         </Link>
       </Button>
-      <EditEventWizard evento={evento as unknown as Evento} />
+      <EditEventWizard
+        evento={evento as unknown as Evento}
+        producerState={producer?.state ?? undefined}
+        producerCity={producer?.city ?? undefined}
+      />
     </div>
   );
 }

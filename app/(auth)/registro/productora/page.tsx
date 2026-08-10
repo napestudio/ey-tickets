@@ -98,10 +98,6 @@ export default function ProducerRegistrationPage() {
       setStepOneError("Completá todos los campos requeridos.");
       return;
     }
-    if (form.producerEventCategories.length === 0) {
-      setStepOneError("Seleccioná al menos un tipo de evento.");
-      return;
-    }
 
     setStep(2);
   }
@@ -265,7 +261,7 @@ export default function ProducerRegistrationPage() {
                   <Label>
                     Tipos de eventos que realizás{" "}
                     <span className="text-muted-foreground font-normal">
-                      (al menos uno)
+                      (opcional)
                     </span>
                   </Label>
                   <div className="flex flex-wrap gap-2 mt-4">

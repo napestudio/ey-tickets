@@ -27,6 +27,7 @@ export default function Navigation({ evento, isEventOwner }: NavigationProps) {
               <Link
                 href={`${SITE_URL}/eventos/${evento.slug}`}
                 className="flex items-center"
+                target="_blank"
               >
                 <Eye className="md:mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Ver en la web</span>
