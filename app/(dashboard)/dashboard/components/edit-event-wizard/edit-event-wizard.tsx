@@ -55,9 +55,11 @@ function initState(evento: Evento): WizardEventState {
 
 interface EditEventWizardProps {
   evento: Evento;
+  producerState?: string;
+  producerCity?: string;
 }
 
-export function EditEventWizard({ evento }: EditEventWizardProps) {
+export function EditEventWizard({ evento, producerState, producerCity }: EditEventWizardProps) {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<EditWizardStep>(1);
   const [savedSteps, setSavedSteps] = useState<Set<EditWizardStep>>(new Set());
@@ -170,7 +172,12 @@ export function EditEventWizard({ evento }: EditEventWizardProps) {
         <EditStep3Fechas initialData={state.step3} onSave={handleSaveStep3} />
       )}
       {currentStep === 4 && (
-        <EditStep4Lugar initialData={state.step4} onSave={handleSaveStep4} />
+        <EditStep4Lugar
+          initialData={state.step4}
+          onSave={handleSaveStep4}
+          producerState={producerState}
+          producerCity={producerCity}
+        />
       )}
       {currentStep === 5 && (
         <EditStep5Image

@@ -40,11 +40,13 @@ export default function EventOverviewHeader({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start md:items-center flex-wrap gap-2">
+      <div className="flex items-start md:items-center justify-between gap-2">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/eventos">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Eventos
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden ml-4 md:inline-block">
+              Volver a Eventos
+            </span>
           </Link>
         </Button>
 
@@ -54,6 +56,7 @@ export default function EventOverviewHeader({
               <Link
                 href={`${SITE_URL}/eventos/${evento.slug}`}
                 className="flex items-center"
+                target="_blank"
               >
                 <Eye className="md:mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Ver en la web</span>

@@ -61,7 +61,7 @@ export default function PricingSection() {
             automáticamente.
           </Paragraph>
         </div>
-        <div className="border flex md:flex-row flex-col items-center gap-2 border-ey-turquoise rounded-md text-center md:w-max mx-auto py-3 px-6 font-bold mt-10 text-white text-lg lg:text-xl">
+        <div className="flex md:flex-row flex-col items-center gap-2 bg-linear-to-tl from-ey-turquoise/50 to-ey-dark shadow-[-1px_-1px_0.5px_0px_#3addbe90,1px_1px_0.5px_0px_#3addbe75] rounded-md text-center md:w-max mx-auto py-5 px-7 font-bold mt-10 text-white text-lg lg:text-xl">
           <GiftIcon className="w-5 h-5" />
           <p>
             Registrate y recibí{" "}
