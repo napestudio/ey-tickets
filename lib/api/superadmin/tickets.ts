@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma, TicketPackageStatus } from "@prisma/client";
+import { Prisma, TicketPackagePaymentStatus, TicketPackageStatus } from "@prisma/client";
 import {
   AdjustProducerStockInput,
   AdjustProducerStockResult,
@@ -46,6 +46,7 @@ export async function createTicketPackage(
       quantity: data.quantity,
       unitPrice: data.unitPrice,
       totalPrice: data.totalPrice,
+      paymentStatus: TicketPackagePaymentStatus.PAID,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
       notes: data.notes ?? null,
     },
