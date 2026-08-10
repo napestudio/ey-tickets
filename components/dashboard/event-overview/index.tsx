@@ -24,7 +24,7 @@ export default async function EventOverview({
     <div className="space-y-6">
       <EventOverviewHeader evento={evento} isEventOwner={isEventOwner} />
       <EventActionGrid
-        baseHref={`/dashboard/evento/${evento.id}`}
+        eventId={evento.id}
         isEventOwner={isEventOwner}
       />
     </div>

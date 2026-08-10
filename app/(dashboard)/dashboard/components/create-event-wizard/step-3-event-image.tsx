@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Info } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Box from "@/components/dashboard/box";
 import { FileUploader } from "@/app/(dashboard)/dashboard/components/file-uploader/file-uploader";
 import { WizardStep5Data } from "./types";
@@ -63,13 +63,6 @@ export function Step3EventImage({
         </div>
       </Box>
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-3">
-        <Info className="h-4 w-4 shrink-0" />
-        <span>
-          Al hacer clic en &quot;Siguiente&quot;, el evento será creado con toda la información ingresada.
-        </span>
-      </div>
-
       <div className="flex justify-between">
         <Button
           type="button"
@@ -83,7 +76,7 @@ export function Step3EventImage({
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creando evento...
+              Guardando...
             </>
           ) : (
             "Siguiente"

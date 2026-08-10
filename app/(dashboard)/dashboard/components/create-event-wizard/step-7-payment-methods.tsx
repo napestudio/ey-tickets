@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Landmark, CreditCard, Banknote } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Landmark, CreditCard, Banknote, Plus } from "lucide-react";
 import Box from "@/components/dashboard/box";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  getPaymentMethodsByProducerId,
-  assignPaymentMethodsToEvent,
-  unassignPaymentMethodFromEvent,
-} from "@/lib/actions";
+import { getPaymentMethodsByProducerId } from "@/lib/actions";
 
 type PaymentType = "CASH" | "DIGITAL" | "TRANSFER";
 
@@ -59,22 +56,21 @@ function PaymentMethodIcon({ type }: { type: PaymentType }) {
 }
 
 interface Step7PaymentMethodsProps {
-  eventId: string;
   producerId: string;
-  onComplete: () => void;
-  onSkip: () => void;
+  isLoading: boolean;
+  onComplete: (selectedMethodIds: string[]) => void;
+  onBack: () => void;
 }
 
 export function Step7PaymentMethods({
-  eventId,
   producerId,
+  isLoading,
   onComplete,
-  onSkip,
+  onBack,
 }: Step7PaymentMethodsProps) {
   const { toast } = useToast();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
-  const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
-  const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
@@ -91,35 +87,16 @@ export function Step7PaymentMethods({
       .finally(() => setIsFetching(false));
   }, [producerId, toast]);
 
-  async function handleToggle(method: PaymentMethod) {
-    const isAssigned = assignedIds.has(method.id);
-    setLoadingIds((prev) => new Set([...prev, method.id]));
-
-    try {
-      if (isAssigned) {
-        await unassignPaymentMethodFromEvent({ eventId, paymentMethodId: method.id });
-        setAssignedIds((prev) => {
-          const next = new Set(prev);
-          next.delete(method.id);
-          return next;
-        });
+  function toggleMethod(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
       } else {
-        await assignPaymentMethodsToEvent({ eventId, paymentMethodIds: [method.id] });
-        setAssignedIds((prev) => new Set([...prev, method.id]));
+        next.add(id);
       }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: isAssigned ? "Error quitando método de pago" : "Error asignando método de pago",
-        description: error instanceof Error ? error.message : undefined,
-      });
-    } finally {
-      setLoadingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(method.id);
-        return next;
-      });
-    }
+      return next;
+    });
   }
 
   return (
@@ -129,7 +106,7 @@ export function Step7PaymentMethods({
           <div>
             <h2 className="font-bold">Métodos de pago</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Seleccioná los métodos de pago habilitados para este evento.
+              Seleccioná los métodos de pago habilitados para este evento. Podés modificarlos después.
             </p>
           </div>
 
@@ -138,27 +115,33 @@ export function Step7PaymentMethods({
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : methods.length === 0 ? (
-            <div className="text-center py-8 text-sm text-muted-foreground">
-              No tenés métodos de pago configurados.{" "}
-              <span className="block mt-1">
-                Podés agregarlos desde{" "}
-                <span className="font-medium">Configuración → Métodos de pago</span>.
-              </span>
+            <div className="text-center py-6 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                No tenés métodos de pago configurados.
+              </p>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/configuracion/metodos-de-pago" target="_blank">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Agregar método de pago
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Se abrirá en una nueva pestaña. Volvé aquí una vez que lo hayas configurado.
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
               {methods.map((method) => {
-                const isAssigned = assignedIds.has(method.id);
-                const isLoading = loadingIds.has(method.id);
+                const isSelected = selectedIds.has(method.id);
 
                 return (
                   <button
                     key={method.id}
                     type="button"
-                    onClick={() => handleToggle(method)}
+                    onClick={() => toggleMethod(method.id)}
                     disabled={isLoading}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 text-left transition-all ${
-                      isAssigned
+                      isSelected
                         ? "border-ey-turquoise bg-ey-turquoise/5"
                         : "border-border hover:border-muted-foreground/40"
                     }`}
@@ -174,17 +157,13 @@ export function Step7PaymentMethods({
                         {method.cbu && ` · CBU: ${method.cbu}`}
                       </p>
                     </div>
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
-                    ) : (
-                      <div
-                        className={`h-5 w-5 rounded-full border-2 shrink-0 transition-colors ${
-                          isAssigned
-                            ? "bg-ey-turquoise border-ey-turquoise"
-                            : "border-muted-foreground/40"
-                        }`}
-                      />
-                    )}
+                    <div
+                      className={`h-5 w-5 rounded-full border-2 shrink-0 transition-colors ${
+                        isSelected
+                          ? "bg-ey-turquoise border-ey-turquoise"
+                          : "border-muted-foreground/40"
+                      }`}
+                    />
                   </button>
                 );
               })}
@@ -194,11 +173,22 @@ export function Step7PaymentMethods({
       </Box>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={onSkip}>
-          Saltar
+        <Button type="button" variant="outline" onClick={onBack} disabled={isLoading}>
+          Volver
         </Button>
-        <Button type="button" onClick={onComplete}>
-          Finalizar
+        <Button
+          type="button"
+          onClick={() => onComplete(Array.from(selectedIds))}
+          disabled={isLoading || isFetching}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creando evento...
+            </>
+          ) : (
+            "Crear evento"
+          )}
         </Button>
       </div>
     </div>

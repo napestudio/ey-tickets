@@ -19,7 +19,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Loader2, TrashIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  Loader2,
+  TrashIcon,
+  Ticket,
+  ShoppingCart,
+} from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -31,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 import { Evento } from "@/types/event";
 import { createTicketType } from "@/lib/actions";
 import { DatesType, TicketType } from "@/types/tickets";
@@ -139,9 +146,46 @@ export default function TycketTypeForm({
     }
   }
 
+  const hasNoTickets = remainingTickets === 0;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex items-center justify-between rounded-lg border px-4 py-3 w-max">
+          <div className="flex items-center gap-2 text-sm">
+            <Ticket className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span>
+              Disponible:{" "}
+              <strong>{remainingTickets.toLocaleString("es-AR")}</strong>{" "}
+              tickets
+            </span>
+          </div>
+          {hasNoTickets && (
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/ticket-stock">
+                <ShoppingCart className="mr-2 h-3.5 w-3.5" />
+                Adquirir tickets
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {hasNoTickets && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 px-4 py-3">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              No tenés tickets disponibles para asignar. Adquirí un paquete
+              desde{" "}
+              <Link
+                href="/dashboard/ticket-stock"
+                className="font-medium underline"
+              >
+                Stock de tickets
+              </Link>{" "}
+              y volvé a esta página.
+            </p>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-5">
           <div className="col-span-2 space-y-8">
             <Box>
@@ -207,16 +251,14 @@ export default function TycketTypeForm({
                         {isSingleDate ? (
                           <>
                             <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-2">
-                              <Checkbox
-                                checked
-                                disabled
-                              />
+                              <Checkbox checked disabled />
                               <FormLabel className="text-sm font-medium">
                                 {format(parsedEventDates[0].date, "dd/MM/yyyy")}
                               </FormLabel>
                             </FormItem>
                             <p className="text-xs text-muted-foreground px-2 pb-1">
-                              Este evento tiene una sola fecha. Si agregás más fechas al evento podrás editarlo.
+                              Este evento tiene una sola fecha. Si agregás más
+                              fechas al evento podrás editarlo.
                             </p>
                           </>
                         ) : (
@@ -233,7 +275,9 @@ export default function TycketTypeForm({
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(item.date)}
+                                        checked={field.value?.includes(
+                                          item.date,
+                                        )}
                                         onCheckedChange={(checked) => {
                                           return checked
                                             ? field.onChange([
@@ -242,7 +286,8 @@ export default function TycketTypeForm({
                                               ])
                                             : field.onChange(
                                                 field.value?.filter(
-                                                  (value) => value !== item.date,
+                                                  (value) =>
+                                                    value !== item.date,
                                                 ),
                                               );
                                         }}
@@ -356,7 +401,10 @@ export default function TycketTypeForm({
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}

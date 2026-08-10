@@ -31,16 +31,18 @@ type Schema = z.infer<typeof schema>;
 interface Props {
   initialData: WizardStep4Data;
   onSave: (data: WizardStep4Data) => Promise<void>;
+  producerState?: string;
+  producerCity?: string;
 }
 
-export function EditStep4Lugar({ initialData, onSave }: Props) {
+export function EditStep4Lugar({ initialData, onSave, producerState, producerCity }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
     defaultValues: {
-      state: initialData.state,
-      city: initialData.city,
+      state: initialData.state || producerState || "",
+      city: initialData.city || producerCity || "",
       address: initialData.address,
       venue: initialData.venue,
     },

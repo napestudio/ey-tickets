@@ -34,13 +34,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!producer?.eventCategories || producer.eventCategories.length === 0) {
-      return NextResponse.json(
-        { error: "Debés seleccionar al menos un tipo de evento" },
-        { status: 400 },
-      );
-    }
-
     // Verificar email de productora no existe
     const existingProducer = await prisma.producer.findUnique({
       where: { email: producer.email },
@@ -77,7 +70,10 @@ export async function POST(req: NextRequest) {
           state: producer.state ?? null,
           city: producer.city ?? null,
           venueType: producer.venueType ?? null,
-          eventCategories: producer.eventCategories ?? [],
+          eventCategories:
+            producer.eventCategories && producer.eventCategories.length > 0
+              ? producer.eventCategories
+              : ["OTHER"],
           createdFrom: "WEBSITE",
         },
       });
