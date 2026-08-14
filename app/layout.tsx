@@ -1,5 +1,6 @@
 import "./global.css";
 import type { Metadata } from "next";
+import { GoogleTagManager } from "@/components/google-tag-manager/google-tag-manager";
 
 import NavBar from "@/components/nav-bar/nav-bar";
 
@@ -115,6 +116,9 @@ export default async function RootLayout({
       <body
         className={`${nebulica.variable} ${baseNeue.variable} ${montserrat.className} bg-background text-foreground font-nebulica`}
       >
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+        )}
         {children}
       </body>
     </html>
