@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockSummary } from "@/types/ticket-stock";
-import { ShoppingCart, Calendar, Ticket } from "lucide-react";
+import { Calendar, Ticket } from "lucide-react";
 
 interface StockOverviewCardsProps {
   summary: StockSummary;
@@ -23,20 +23,14 @@ export default function StockOverviewCards({
       description: "Asignados pero no vendidos",
       icon: Calendar,
     },
-    {
-      title: "Vendidos",
-      value: summary.soldTickets,
-      description: "Consumo permanente del pool",
-      icon: ShoppingCart,
-    },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       {cards.map((card) => (
         <Card
           key={card.title}
-          className={`${card.highlight ? "border-destructive" : "first:bg-ey-turquoise nth-[2]:bg-amber-300 last:bg-neutral-900 last:text-white"}`}
+          className={`${card.highlight ? "border-destructive" : "first:bg-ey-turquoise last:bg-amber-300"}`}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{card.title}</CardTitle>

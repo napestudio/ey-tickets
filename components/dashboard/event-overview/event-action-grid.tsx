@@ -14,6 +14,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { ElementType } from "react";
+import { EventType } from "@/types/event";
 
 interface ActionItem {
   href: (eventId: string) => string;
@@ -21,6 +22,8 @@ interface ActionItem {
   label: string;
   description: string;
   ownerOnly: boolean;
+  /** Item is hidden for PRIVATE events */
+  publicOnly?: boolean;
 }
 
 const ACTION_ITEMS: ActionItem[] = [
@@ -29,6 +32,13 @@ const ACTION_ITEMS: ActionItem[] = [
     icon: Pencil,
     label: "Editar evento",
     description: "Actualizá los datos del evento",
+    ownerOnly: true,
+  },
+  {
+    href: (id) => `/dashboard/evento/${id}/invitados`,
+    icon: UserPlus,
+    label: "Invitaciones",
+    description: "Emitir y gestionar invitaciones",
     ownerOnly: true,
   },
   {
@@ -45,13 +55,13 @@ const ACTION_ITEMS: ActionItem[] = [
     description: "Imagen principal y miniatura",
     ownerOnly: true,
   },
-
   {
     href: (id) => `/dashboard/evento/${id}/vender-entrada`,
     icon: ShoppingCart,
     label: "Vender entrada",
     description: "Emitir una entrada manualmente",
     ownerOnly: false,
+    publicOnly: true,
   },
   {
     href: (id) => `/dashboard/evento/${id}/ventas`,
@@ -59,13 +69,7 @@ const ACTION_ITEMS: ActionItem[] = [
     label: "Entradas vendidas",
     description: "Consultá las ventas realizadas",
     ownerOnly: true,
-  },
-  {
-    href: (id) => `/dashboard/evento/${id}/invitados`,
-    icon: UserPlus,
-    label: "Invitaciones",
-    description: "Emitir y gestionar invitaciones",
-    ownerOnly: true,
+    publicOnly: true,
   },
   {
     href: (id) => `/dashboard/evento/${id}/validadores`,
@@ -80,6 +84,7 @@ const ACTION_ITEMS: ActionItem[] = [
     label: "Códigos de descuento",
     description: "Creá y editá códigos de descuento",
     ownerOnly: true,
+    publicOnly: true,
   },
   {
     href: (id) => `/dashboard/evento/${id}/metodos-de-pago`,
@@ -87,6 +92,7 @@ const ACTION_ITEMS: ActionItem[] = [
     label: "Métodos de pago",
     description: "Configurá los métodos de cobro",
     ownerOnly: true,
+    publicOnly: true,
   },
   {
     href: (id) => `/dashboard/evento/${id}/reportes`,
@@ -100,15 +106,21 @@ const ACTION_ITEMS: ActionItem[] = [
 interface EventActionGridProps {
   eventId: string;
   isEventOwner: boolean;
+  eventType?: EventType | null;
 }
 
 export default function EventActionGrid({
   eventId,
   isEventOwner,
+  eventType,
 }: EventActionGridProps) {
-  const visibleItems = ACTION_ITEMS.filter(
-    (item) => !item.ownerOnly || isEventOwner,
-  );
+  const isPrivate = eventType === "PRIVATE";
+
+  const visibleItems = ACTION_ITEMS.filter((item) => {
+    if (item.ownerOnly && !isEventOwner) return false;
+    if (item.publicOnly && isPrivate) return false;
+    return true;
+  });
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -116,7 +128,7 @@ export default function EventActionGrid({
         <Link
           key={href(eventId)}
           href={href(eventId)}
-          className="flex flex-col items-center gap-3 rounded-xl bg-linear-to-tl from-neutral-950 to-ey-dark/75 text-neutral-50 border-ey-turquoise hover:from-ey-turquoise-dark hover:text-neutral-50 border-2 p-3 text-center shadow-sm transition-colors"
+          className="flex flex-col items-center gap-3 rounded-xl bg-linear-to-tl from-neutral-950 to-ey-dark/75 text-neutral-50 border-ey-turquoise hover:from-neutral-800 hover:text-neutral-50 border-2 p-3 text-center shadow-sm transition-colors"
         >
           <Icon className="h-6 w-6" strokeWidth={1.5} />
           <div>

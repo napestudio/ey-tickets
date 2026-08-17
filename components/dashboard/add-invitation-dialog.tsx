@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { isBefore } from "date-fns";
-import { Copy, Check, Link2 } from "lucide-react";
+import { Check, Copy, Link2, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,19 +20,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "../ui/form";
-
 import {
   Select,
   SelectContent,
@@ -42,61 +38,19 @@ import {
 } from "../ui/select";
 
 import { InvitationMethodInput, inviteUserToEvent } from "@/lib/actions";
-
+import { BulkInvitationImport } from "./bulk-invitation-import";
 import { Evento } from "@/types/event";
 import { toast } from "../ui/use-toast";
 import { TicketType } from "@/types/tickets";
 
-const invitationSchema = z
-  .object({
-    isCustomizable: z.boolean(),
-    quantity: z
-      .string({
-        required_error: "Por favor seleccioná una cantidad",
-      })
-      .min(1, { message: "Este campo es obligatorio" }),
-    ticketType: z
-      .string({
-        required_error: "Por favor seleccioná un tipo de entrada",
-      })
-      .min(1, { message: "Este campo es obligatorio" }),
-    email: z.string().default(""),
-    name: z.string().default(""),
-    lastName: z.string().default(""),
-    dni: z.string().default(""),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.isCustomizable) {
-      if (!z.string().email().min(5).safeParse(data.email).success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["email"],
-          message: "Debe ser un email válido",
-        });
-      }
-      if (data.name.length < 2) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["name"],
-          message: "Debe tener al menos 2 caracteres",
-        });
-      }
-      if (data.lastName.length < 2) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["lastName"],
-          message: "Debe tener al menos 2 caracteres",
-        });
-      }
-      if (data.dni.length < 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dni"],
-          message: "Este campo es obligatorio",
-        });
-      }
-    }
-  });
+const invitationSchema = z.object({
+  email: z.string().email("Email inválido"),
+  name: z.string().optional(),
+  lastName: z.string().optional(),
+  dni: z.string().optional(),
+  quantity: z.string().min(1, { message: "Este campo es obligatorio" }),
+  ticketType: z.string().min(1, { message: "Este campo es obligatorio" }),
+});
 
 type InvitationForm = z.infer<typeof invitationSchema>;
 
@@ -128,18 +82,16 @@ export function AddInvitationDialog({
   const form = useForm<InvitationForm>({
     resolver: zodResolver(invitationSchema),
     defaultValues: {
-      isCustomizable: false,
       email: "",
       name: "",
       lastName: "",
       dni: "",
-      quantity: "0",
+      quantity: "1",
       ticketType: "",
     },
   });
 
   const { watch } = form;
-  const isCustomizable = watch("isCustomizable");
 
   const handleClose = () => {
     form.reset();
@@ -165,30 +117,31 @@ export function AddInvitationDialog({
         isInvitation: true,
         status: "PAID",
         eventId: evento?.id,
-        name: data.name,
-        lastName: data.lastName,
-        dni: data.dni,
+        name: data.name || undefined,
+        lastName: data.lastName || undefined,
+        dni: data.dni || undefined,
         totalPrice: 0,
-        isCustomizable: data.isCustomizable,
       };
 
       const result = await inviteUserToEvent(payload);
 
-      if (data.isCustomizable && result.customizationToken) {
+      if (result.customizationToken) {
         const link = `${window.location.origin}/invitaciones/${result.customizationToken}`;
         setGeneratedLink(link);
       } else {
         handleClose();
         toast({
           title: "Invitación creada",
-          description: "La invitación fue creada exitosamente.",
+          description: "La invitación fue creada y enviada al invitado.",
         });
       }
     } catch (error) {
-      console.error("Error creando invitación", error);
       toast({
         title: "Error",
-        description: "No se pudo crear la invitación. Intentá de nuevo.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No se pudo crear la invitación.",
         variant: "destructive",
       });
     } finally {
@@ -209,22 +162,21 @@ export function AddInvitationDialog({
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-150 max-h-[85vh] overflow-hidden flex flex-col">
         {generatedLink ? (
           <>
             <DialogHeader className="text-left">
               <DialogTitle>Link generado</DialogTitle>
               <DialogDescription>
-                Compartí este link con tu invitado para que complete sus datos.
+                Compartí este link con tu invitado. También le enviamos un email
+                con el link.
               </DialogDescription>
             </DialogHeader>
 
             <div className="py-4 space-y-4">
               <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
                 <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm break-all flex-1">
-                  {generatedLink}
-                </span>
+                <span className="text-sm break-all flex-1">{generatedLink}</span>
               </div>
               <Button className="w-full" onClick={copyLink} variant="outline">
                 {copied ? (
@@ -240,8 +192,8 @@ export function AddInvitationDialog({
                 )}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                El link solo puede usarse una vez. Una vez que el invitado
-                complete sus datos, no podrá modificarlos.
+                El link es de uso único. Una vez que el invitado complete sus
+                datos, no podrá modificarlos.
               </p>
             </div>
 
@@ -250,54 +202,67 @@ export function AddInvitationDialog({
             </DialogFooter>
           </>
         ) : (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col flex-1 overflow-hidden"
-              autoComplete="off"
-            >
-              <DialogHeader className="text-left">
-                <DialogTitle>Crear invitación</DialogTitle>
-                <DialogDescription>
-                  Invitación para el evento {evento?.title}
-                </DialogDescription>
-              </DialogHeader>
+          <>
+            <DialogHeader className="text-left shrink-0">
+              <DialogTitle>Agregar invitado</DialogTitle>
+              <DialogDescription>Invitación para {evento?.title}</DialogDescription>
+            </DialogHeader>
 
-              <div className="py-4 space-y-4 overflow-y-auto pr-1">
-                <FormField
-                  control={form.control}
-                  name="isCustomizable"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-3 rounded-lg border p-3">
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium cursor-pointer">
-                          Invitación personalizable
-                        </FormLabel>
-                        <FormDescription className="text-xs">
-                          Generá un link para que el invitado complete sus
-                          propios datos
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
+            <Tabs defaultValue="individual" className="flex flex-col flex-1 overflow-hidden">
+              <TabsList className="grid grid-cols-2 shrink-0">
+                <TabsTrigger value="individual">Individual</TabsTrigger>
+                <TabsTrigger value="bulk">
+                  <Users className="mr-1.5 h-3.5 w-3.5" />
+                  Importar CSV
+                </TabsTrigger>
+              </TabsList>
 
-                <Card>
-                  <CardContent className="space-y-4 mt-4">
-                    {!isCustomizable && (
-                      <>
+              {/* Individual tab */}
+              <TabsContent
+                value="individual"
+                className="flex flex-col flex-1 overflow-hidden mt-0 pt-4"
+              >
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-col flex-1 overflow-hidden"
+                    autoComplete="off"
+                  >
+                    <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+                      {/* Email — required */}
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Email del invitado{" "}
+                              <span className="text-destructive">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="invitado@gmail.com"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Optional identity fields */}
+                      <div className="grid grid-cols-2 gap-3">
                         <FormField
                           control={form.control}
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Nombre del invitado</FormLabel>
+                              <FormLabel>
+                                Nombre{" "}
+                                <span className="text-muted-foreground text-xs font-normal">
+                                  (opcional)
+                                </span>
+                              </FormLabel>
                               <FormControl>
                                 <Input placeholder="Juan" {...field} />
                               </FormControl>
@@ -310,7 +275,12 @@ export function AddInvitationDialog({
                           name="lastName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Apellido del invitado</FormLabel>
+                              <FormLabel>
+                                Apellido{" "}
+                                <span className="text-muted-foreground text-xs font-normal">
+                                  (opcional)
+                                </span>
+                              </FormLabel>
                               <FormControl>
                                 <Input placeholder="Perez" {...field} />
                               </FormControl>
@@ -318,150 +288,149 @@ export function AddInvitationDialog({
                             </FormItem>
                           )}
                         />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="dni"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              DNI{" "}
+                              <span className="text-muted-foreground text-xs font-normal">
+                                (opcional)
+                              </span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder="12345678" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Hint — shown when name/lastName missing */}
+                      {!watch("name") && !watch("lastName") && (
+                        <p className="text-xs text-muted-foreground rounded-md bg-muted/50 px-3 py-2">
+                          Si no completás nombre y apellido, se generará un link
+                          para que el invitado complete sus datos.
+                        </p>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-3">
                         <FormField
                           control={form.control}
-                          name="dni"
+                          name="quantity"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>DNI del invitado</FormLabel>
-                              <FormControl>
-                                <Input placeholder="12345678" {...field} />
-                              </FormControl>
+                              <FormLabel>Cantidad</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {["1","2","3","4","5","6","7","8","9","10"].map(
+                                    (v) => (
+                                      <SelectItem key={v} value={v}>
+                                        {v}
+                                      </SelectItem>
+                                    ),
+                                  )}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
+
                         <FormField
                           control={form.control}
-                          name="email"
+                          name="ticketType"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email del invitado</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="invitado@gmail.com"
-                                  {...field}
-                                />
-                              </FormControl>
+                              <FormLabel>Tipo de entrada</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccionar" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {evento?.ticketTypes
+                                    ?.filter(
+                                      (ticket: Partial<TicketType>) =>
+                                        ticket.status !== "DELETED" &&
+                                        ticket.status !== "INACTIVE",
+                                    )
+                                    .map((ticket, i) => {
+                                      const available =
+                                        ticket.quantity! -
+                                        (soldTickets
+                                          ? (soldTickets[ticket.id!]?.count ?? 0)
+                                          : 0);
+                                      const ticketSoldOut =
+                                        available <= 0 ||
+                                        available <
+                                          parseInt(watch("quantity") || "1");
+                                      return (
+                                        <SelectItem
+                                          key={i}
+                                          value={ticket?.id!}
+                                          disabled={
+                                            ticketSoldOut ||
+                                            ticket.status === "SOLDOUT" ||
+                                            (ticket.endDate
+                                              ? isPastEndDate(ticket.endDate)
+                                              : false)
+                                          }
+                                        >
+                                          {ticket?.title}
+                                        </SelectItem>
+                                      );
+                                    })}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                      </>
-                    )}
+                      </div>
+                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name="quantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cantidad de entradas</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar cantidad de entradas" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {[
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6",
-                                "7",
-                                "8",
-                                "9",
-                                "10",
-                              ].map((v) => (
-                                <SelectItem key={v} value={v}>
-                                  {v}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <DialogFooter className="shrink-0 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleClose}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? "Creando..." : "Crear invitación"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </TabsContent>
 
-                    <FormField
-                      control={form.control}
-                      name="ticketType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tipo de entrada</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar tipo de entrada" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {evento?.ticketTypes
-                                ?.filter(
-                                  (ticket: Partial<TicketType>) =>
-                                    ticket.status !== "DELETED" &&
-                                    ticket.status !== "INACTIVE",
-                                )
-                                .map((ticket, i) => {
-                                  const soldTicketCount =
-                                    ticket.quantity! -
-                                    (soldTickets
-                                      ? (soldTickets[ticket.id!]?.count ?? 0)
-                                      : 0);
-                                  const ticketSoldOut =
-                                    soldTicketCount <= 0 ||
-                                    soldTicketCount <
-                                      parseInt(watch("quantity"));
-                                  return (
-                                    <SelectItem
-                                      key={i}
-                                      value={ticket?.id!}
-                                      disabled={
-                                        ticketSoldOut ||
-                                        ticket.status === "INACTIVE" ||
-                                        ticket.status === "SOLDOUT" ||
-                                        (ticket.endDate
-                                          ? isPastEndDate(ticket.endDate)
-                                          : false)
-                                      }
-                                    >
-                                      {ticket?.title}
-                                    </SelectItem>
-                                  );
-                                })}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-
-              <DialogFooter className="shrink-0 pt-2">
-                <Button type="button" variant="outline" onClick={handleClose}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? "Creando..."
-                    : isCustomizable
-                      ? "Generar link"
-                      : "Enviar invitación"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+              {/* Bulk import tab */}
+              <TabsContent value="bulk" className="flex-1 overflow-y-auto mt-0 pt-4">
+                <BulkInvitationImport
+                  evento={evento!}
+                  soldTickets={soldTickets}
+                  onSuccess={handleClose}
+                />
+              </TabsContent>
+            </Tabs>
+          </>
         )}
       </DialogContent>
     </Dialog>
