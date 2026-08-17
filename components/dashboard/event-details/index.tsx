@@ -103,6 +103,10 @@ export default async function EventDetails({
                 evento={evento}
                 isEventOwner={isEventOwner}
                 soldTickets={soldTickets}
+                showList={false}
+                initialTickets={null}
+                totalCount={0}
+                eventId={evento.id}
               />
             </TabsContent>
             <TabsContent value="paymentMethods" className="space-y-6">
