@@ -10,7 +10,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { EventDescription } from "@/components/dashboard/event-description";
 import EventsMarquee from "@/components/website/events/EventsMarquee";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { cache } from "react";
 
 export async function generateMetadata(
@@ -80,6 +80,7 @@ export default async function Evento({ params }: { params: { slug: string } }) {
 
   const groupedDates = datesFormater(evento?.dates as string);
   const { title, dates, city, state } = evento;
+  const isPrivate = evento.eventType === "PRIVATE";
 
   const ticketsForPicker: TicketTypeForPicker[] =
     evento.ticketTypes?.map((t) => ({
@@ -117,15 +118,31 @@ export default async function Evento({ params }: { params: { slug: string } }) {
           dates={groupedDates}
         />
 
-        {paymentMethod.length > 0 && evento?.ticketTypes && (
-          <TicketTypePickerV2
-            tickets={ticketsForPicker}
-            eventId={evento.id}
-            serviceCharge={serviceCharge ?? 0}
-            hasDiscountCodes={hasDiscountCodes}
-            soldTickets={soldTickets as Record<string, { count: number }>}
-            saleEndDate={evento.saleEndDate ?? null}
-          />
+        {isPrivate ? (
+          <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 py-10">
+            <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-5">
+              <Lock className="w-5 h-5 text-ey-turquoise shrink-0" />
+              <div>
+                <p className="font-semibold text-white">Evento privado</p>
+                <p className="text-sm text-neutral-400 mt-0.5">
+                  Este evento es solo por invitación. Si recibiste una
+                  invitación, accedé a través del link que te enviaron.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          paymentMethod.length > 0 &&
+          evento?.ticketTypes && (
+            <TicketTypePickerV2
+              tickets={ticketsForPicker}
+              eventId={evento.id}
+              serviceCharge={serviceCharge ?? 0}
+              hasDiscountCodes={hasDiscountCodes}
+              soldTickets={soldTickets as Record<string, { count: number }>}
+              saleEndDate={evento.saleEndDate ?? null}
+            />
+          )
         )}
 
         <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative pb-28">

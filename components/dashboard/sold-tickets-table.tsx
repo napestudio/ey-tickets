@@ -76,7 +76,9 @@ export default function SoldTicketsTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showOnlyInvitations, setShowOnlyInvitations] = useState(initialOnlyInvitations ?? false);
+  const [showOnlyInvitations, setShowOnlyInvitations] = useState(
+    initialOnlyInvitations ?? false,
+  );
   const [loading, setLoading] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const isFirstRender = useRef(true);
@@ -249,14 +251,21 @@ export default function SoldTicketsTable({
                   <TableCell>
                     <div className="flex items-start flex-col gap-1">
                       <div className="font-bold">
-                        {ticket.name} {ticket.lastName}
+                        {ticket.name ||
+                          ticket.order?.email?.split("@")[0] ||
+                          "—"}{" "}
+                        {ticket.lastName ?? ""}
                       </div>
-                      <div className="text-xs">{ticket.email}</div>
+                      <div className="text-xs">
+                        {ticket.email || ticket.order?.email || "—"}
+                      </div>
                       {ticket.isInvitation &&
                         ticket.order?.customizationToken && (
                           <Badge
                             variant={
-                              ticket.order.customizedAt ? "default" : "secondary"
+                              ticket.order.customizedAt
+                                ? "default"
+                                : "secondary"
                             }
                             className="text-xs"
                           >
@@ -292,7 +301,7 @@ export default function SoldTicketsTable({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="w-full inline-flex gap-1 items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md cursor-pointer"
+                                className="inline-flex gap-1 items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md cursor-pointer"
                                 onClick={() =>
                                   copyCustomizationLink(
                                     ticket.order!.customizationToken!,

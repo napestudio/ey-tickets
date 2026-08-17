@@ -1,13 +1,12 @@
 import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import {
-  getProducerStockSummary,
-  getTicketPackagesByProducer,
-} from "@/lib/api/ticket-stock";
+import { getProducerStockSummary } from "@/lib/api/ticket-stock";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
 import AcquireTicketsDialog from "./components/acquire-tickets-dialog";
-import PackageHistoryTable from "./components/package-history-table";
 import StockOverviewCards from "./components/stock-overview-cards";
 import StockPaymentAlert from "./components/stock-payment-alert";
 
@@ -48,26 +47,7 @@ export default async function TicketStockPage({
     }
   }
 
-  const [summary, rawPackages] = await Promise.all([
-    getProducerStockSummary(pid),
-    getTicketPackagesByProducer(pid),
-  ]);
-
-  // Serializar Decimal → number para poder pasar a Client Components
-  const packages = rawPackages.map((pkg) => ({
-    ...pkg,
-    unitPrice: parseFloat(pkg.unitPrice.toString()),
-    totalPrice: parseFloat(pkg.totalPrice.toString()),
-    mpTransactionAmount: pkg.mpTransactionAmount
-      ? parseFloat(pkg.mpTransactionAmount.toString())
-      : null,
-    mpNetReceivedAmount: pkg.mpNetReceivedAmount
-      ? parseFloat(pkg.mpNetReceivedAmount.toString())
-      : null,
-    mpFeeAmount: pkg.mpFeeAmount
-      ? parseFloat(pkg.mpFeeAmount.toString())
-      : null,
-  }));
+  const summary = await getProducerStockSummary(pid);
 
   return (
     <div className="flex flex-col gap-8">
@@ -78,14 +58,18 @@ export default async function TicketStockPage({
           title="Stock de Tickets"
           subtitle="Podés comprar por paquete o la cantidad que necesites. Los tipos de ticket consumen directamente del pool."
         />
-        <div className="pt-1 shrink-0">
+        <div className="flex items-center gap-2 pt-1 shrink-0">
+          <Button asChild variant="outline">
+            <Link href="/dashboard/ticket-stock/historial">
+              <History className="h-4 w-4 mr-2" />
+              Historial de compra
+            </Link>
+          </Button>
           <AcquireTicketsDialog producerId={pid} />
         </div>
       </div>
 
       <StockOverviewCards summary={summary} />
-
-      <PackageHistoryTable packages={packages} />
     </div>
   );
 }

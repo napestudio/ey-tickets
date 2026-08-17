@@ -26,6 +26,7 @@ export default async function EventOverview({
       <EventActionGrid
         eventId={evento.id}
         isEventOwner={isEventOwner}
+        eventType={evento.eventType}
       />
     </div>
   );

@@ -69,22 +69,30 @@ export function CustomizationConfirmView({
               <CardTitle className="text-base">Tus entradas</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1">
+              <div className="space-y-4">
                 {order.tickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="flex justify-between text-sm py-1 border-b last:border-0"
+                    className="flex flex-col items-center gap-3 py-3 border-b last:border-0"
                   >
-                    <span className="text-muted-foreground">
-                      {new Date(ticket.date).toLocaleDateString("es-AR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                    <span className="font-mono font-medium">
-                      #{String(ticket.code ?? 0).padStart(5, "0")}
-                    </span>
+                    <div className="flex justify-between w-full text-sm">
+                      <span className="text-muted-foreground">
+                        {new Date(ticket.date).toLocaleDateString("es-AR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="font-mono font-medium">
+                        #{String(ticket.code ?? 0).padStart(5, "0")}
+                      </span>
+                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/api/tickets/qr/${ticket.id}`}
+                      alt={`QR entrada #${String(ticket.code ?? 0).padStart(5, "0")}`}
+                      className="w-48 h-48"
+                    />
                   </div>
                 ))}
               </div>

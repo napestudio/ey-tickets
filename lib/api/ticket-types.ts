@@ -50,7 +50,7 @@ export async function getTicketTypesWithStatsByEventId(eventId: string) {
     include: {
       createdBy: { select: { id: true, name: true } },
       orders: {
-        where: { status: "PAID", isInvitation: false },
+        where: { status: "PAID" },
         select: { quantity: true },
       },
     },
@@ -261,10 +261,10 @@ export async function adjustTicketTypeStock(
     const previousQuantity = current.quantity;
     const newQuantity = previousQuantity + delta;
 
-    // Floor: cannot go below sold count
+    // Floor: cannot go below the total of all PAID orders (regular + invitations)
     const soldResult = await tx.order.aggregate({
       _sum: { quantity: true },
-      where: { ticketTypeId, status: "PAID", isInvitation: false },
+      where: { ticketTypeId, status: "PAID" },
     });
     const soldCount = soldResult._sum.quantity ?? 0;
 

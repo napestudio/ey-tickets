@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -9,9 +10,8 @@ import { Evento } from "@/types/event";
 import { EventoWithTicketsType } from "@/types/event";
 import SoldTicketsTable from "@/components/dashboard/sold-tickets-table";
 import { AddInvitationDialog } from "@/components/dashboard/add-invitation-dialog";
-import { getSoldTicketsPaginated } from "@/lib/api/ticket-orders";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
+import { List, User } from "lucide-react";
 
 interface InvitadosTabProps {
   evento: EventoWithTicketsType;
@@ -24,19 +24,21 @@ interface InvitadosTabProps {
       count?: number | undefined;
     }
   >;
+  initialTickets: unknown[] | null;
+  totalCount: number;
+  showList: boolean;
+  eventId: string;
 }
 
-export default async function InvitadosTab({
+export default function InvitadosTab({
   evento,
   isEventOwner,
   soldTickets,
+  initialTickets,
+  totalCount,
+  showList,
+  eventId,
 }: InvitadosTabProps) {
-  const { tickets, total } = await getSoldTicketsPaginated(evento.id, {
-    page: 1,
-    pageSize: 10,
-    onlyInvitations: true,
-  });
-
   return (
     <Card className="max-w-[90vw]">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -61,17 +63,36 @@ export default async function InvitadosTab({
           </Button>
         </AddInvitationDialog>
       </CardHeader>
+
       <CardContent>
-        <SoldTicketsTable
-          initialTickets={tickets}
-          totalCount={total}
-          eventId={evento.id}
-          eventTitle={evento.title}
-          eventAddress={evento.address}
-          initialOnlyInvitations={true}
-          showInvitationsToggle={false}
-          emptyMessage="No hay invitados."
-        />
+        {showList && initialTickets !== null ? (
+          <SoldTicketsTable
+            initialTickets={initialTickets as Parameters<typeof SoldTicketsTable>[0]["initialTickets"]}
+            totalCount={totalCount}
+            eventId={evento.id}
+            eventTitle={evento.title}
+            eventAddress={evento.address}
+            initialOnlyInvitations={true}
+            showInvitationsToggle={false}
+            emptyMessage="No hay invitados."
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <List className="h-8 w-8 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium">Lista de invitados</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Cargá la lista cuando la necesites para evitar consultas
+                innecesarias.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/dashboard/evento/${eventId}/invitados?lista=1`}>
+                Cargar lista
+              </Link>
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
