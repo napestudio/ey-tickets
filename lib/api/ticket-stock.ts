@@ -49,7 +49,6 @@ export async function getProducerStockSummary(
         _sum: { quantity: true },
         where: {
           status: "PAID",
-          isInvitation: false,
           event: { producerId },
         },
       }),

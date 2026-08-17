@@ -179,6 +179,10 @@ export const getSingleEventBySlug = cache(async (slug: string) => {
   });
 });
 
+export type GetSingleEventBySlugResponse = Prisma.PromiseReturnType<
+  typeof getSingleEventBySlug
+>;
+
 export const getEventById = cache(async (eventId: string) => {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
@@ -228,6 +232,7 @@ export const getEventForOverview = cache(async (eventId: string) => {
       image: true,
       dates: true,
       status: true,
+      eventType: true,
       venue: true,
       startDate: true,
       saleEndDate: true,
@@ -276,6 +281,7 @@ export async function getAllActiveEvents() {
   return prisma.event.findMany({
     where: {
       status: "ACTIVE",
+      eventType: "PUBLIC",
       saleEndDate: { not: { lte: new Date() } },
     },
     include: { producer: true },

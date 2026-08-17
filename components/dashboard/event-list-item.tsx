@@ -2,7 +2,7 @@
 import { Evento } from "@/types/event";
 import { TableCell, TableRow } from "../ui/table";
 import Image from "next/image";
-import { datesFormater, formatPrice } from "@/lib/utils";
+import { datesFormater } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import {
   DropdownMenu,
@@ -14,22 +14,8 @@ import {
 import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { getStats } from "@/lib/actions";
-import { useCallback, useEffect, useState } from "react";
 
 export default function EventListItem({ evento }: { evento: Evento }) {
-  const [total, setTotal] = useState<any>();
-
-  const fetchData = useCallback(async () => {
-    const res = await getStats({ eventId: evento.id });
-
-    setTotal(res.totalRevenue);
-  }, [evento.id]);
-
-  useEffect(() => {
-    fetchData().catch(console.error);
-  }, [fetchData]);
-
   const renderStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; color: string }> = {
       ACTIVE: {
@@ -79,17 +65,18 @@ export default function EventListItem({ evento }: { evento: Evento }) {
       </TableCell>
       <TableCell className="font-medium">{evento.title}</TableCell>
       <TableCell>{formattedDate}</TableCell>
-      <TableCell className="max-w-45 truncate">{evento.venue}</TableCell>
+      <TableCell className="max-w-45 truncate">
+        {evento?.venue || evento.address}
+      </TableCell>
       <TableCell>{evento.producer?.name}</TableCell>
 
       <TableCell>{renderStatusBadge(evento.status || "")}</TableCell>
       <TableCell>
-        <div className="w-25 space-y-1">
-          <div className="text-xs font-bold">
-            {total !== undefined ? formatPrice(total) : "-"}
-          </div>
-          {/* <Progress value={soldPercentage} className="h-2" /> */}
-        </div>
+        {evento.eventType === "PUBLIC"
+          ? "Público"
+          : evento.eventType === "PRIVATE"
+            ? "Privado"
+            : "-"}
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>

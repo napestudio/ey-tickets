@@ -367,6 +367,7 @@ export async function getSoldTicketsPaginated(
         ticketType: { select: { title: true, dates: true } },
         order: {
           select: {
+            email: true,
             customizationToken: true,
             customizedAt: true,
             event: { select: { title: true, venue: true, address: true } },

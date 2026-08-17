@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
 import { SITE_URL } from "@/lib/constants";
 import { datesFormater } from "@/lib/utils";
-import { ArrowLeft, Eye, MapPin } from "lucide-react";
+import { ArrowLeft, Eye, Lock, MapPin } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 
@@ -77,6 +77,15 @@ export default function EventOverviewHeader({
           {statusInfo && (
             <Badge className={statusInfo.color} variant="secondary">
               {statusInfo.label}
+            </Badge>
+          )}
+          {evento.eventType === "PRIVATE" && (
+            <Badge
+              variant="secondary"
+              className="bg-violet-500/20 text-violet-700 hover:bg-violet-500/20 flex items-center gap-1"
+            >
+              <Lock className="h-3 w-3" />
+              Privado
             </Badge>
           )}
         </div>

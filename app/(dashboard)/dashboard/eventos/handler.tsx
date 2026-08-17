@@ -144,7 +144,7 @@ export default function EventsHandler({
                 <TableHead>Ubicación</TableHead>
                 <TableHead>Organizador</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Recaudación</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>

@@ -32,6 +32,7 @@ import bcrypt from "bcryptjs";
 import {
   sendTicketConfirmationEmail,
   sendPasswordResetEmail,
+  sendEventInvitationEmail,
   type QrTicketEmailData,
 } from "@/emails/send";
 import { generatePasswordResetToken } from "./tokens";
@@ -42,7 +43,6 @@ import {
 } from "./api/reset-password-token";
 import { stat } from "fs";
 import { getPaidOrdersDataByEvent } from "@/lib/api/orders";
-import { substractTicketQuantity } from "@/lib/api/ticket-orders";
 import { User, OrganizationRole } from "@/types/user";
 import { UserConfiguration } from "@/types/user-configuration";
 
@@ -55,6 +55,7 @@ import { prisma } from "@/lib/prisma";
 import { serialize } from "@/lib/serialize";
 import { jsPDF } from "jspdf";
 import { getSession } from "@/lib/auth/get-session";
+import { SITE_URL } from "@/lib/constants";
 
 // Type temporal
 export type Evento = {
@@ -1366,11 +1367,24 @@ export type InvitationMethodInput = {
   isInvitation: boolean;
   status: string;
   eventId: string | undefined;
-  name: string;
-  lastName: string;
-  dni: string;
+  name?: string;
+  lastName?: string;
+  dni?: string;
   totalPrice: number;
-  isCustomizable?: boolean;
+};
+
+export type BulkInvitationRow = {
+  email: string;
+  name?: string;
+  lastName?: string;
+  dni?: string;
+  ticketTypeId: string;
+  quantity: number;
+};
+
+export type BulkInvitationResult = {
+  success: number;
+  errors: Array<{ row: number; email: string; message: string }>;
 };
 
 export async function inviteUserToEvent(
@@ -1382,14 +1396,39 @@ export async function inviteUserToEvent(
       throw new Error("No autenticado");
     }
 
-    const customizationToken = data.isCustomizable ? randomUUID() : undefined;
+    const hasFullIdentity = Boolean(data.name && data.lastName);
+    const isCustomizable = !hasFullIdentity;
+    const customizationToken = isCustomizable ? randomUUID() : undefined;
+
+    // Capacity check: ensure the ticket type has enough remaining slots.
+    // Invitations are no longer deducted from ticketType.quantity; instead they
+    // are counted directly as consumed capacity (like regular sales).
+    const [ticketTypeCapacity, usedCapacity] = await Promise.all([
+      prisma.ticketType.findUniqueOrThrow({
+        where: { id: data.ticketTypeId },
+        select: { quantity: true },
+      }),
+      prisma.order.aggregate({
+        _sum: { quantity: true },
+        where: { ticketTypeId: data.ticketTypeId, status: "PAID" },
+      }),
+    ]);
+    const consumed = usedCapacity._sum.quantity ?? 0;
+    if (ticketTypeCapacity.quantity < consumed + data.quantity) {
+      throw new Error(
+        `Sin capacidad: solo quedan ${ticketTypeCapacity.quantity - consumed} lugares disponibles.`,
+      );
+    }
 
     const orderPayload = {
       quantity: data.quantity,
-      email: data.isCustomizable ? null : data.email,
-      name: data.isCustomizable ? null : data.name,
-      lastName: data.isCustomizable ? null : data.lastName,
-      dni: data.isCustomizable ? null : data.dni,
+      // For customizable invitations we still store the recipient email so it
+      // can be displayed in the dashboard list (name/lastName/dni stay null
+      // until the guest fills the customization form).
+      email: data.email || null,
+      name: isCustomizable ? null : (data.name ?? null),
+      lastName: isCustomizable ? null : (data.lastName ?? null),
+      dni: isCustomizable ? null : (data.dni ?? null),
       ticketTypeId: data.ticketTypeId,
       isInvitation: true,
       status: data.status,
@@ -1408,10 +1447,10 @@ export async function inviteUserToEvent(
       dates.forEach((dateObj: DatesType) => {
         for (let i = 0; i < result.quantity; i++) {
           ticketsData.push({
-            name: data.isCustomizable ? "" : result.name!,
-            lastName: data.isCustomizable ? "" : result.lastName!,
-            dni: data.isCustomizable ? "" : result.dni!,
-            email: data.isCustomizable ? "" : result.email!,
+            name: isCustomizable ? "" : result.name!,
+            lastName: isCustomizable ? "" : result.lastName!,
+            dni: isCustomizable ? "" : result.dni!,
+            email: isCustomizable ? "" : result.email!,
             base64Qr: "code",
             date: new Date(dateObj.date),
             orderId: result.id,
@@ -1424,10 +1463,45 @@ export async function inviteUserToEvent(
       });
       await TicketOrders.createTicketOrder(ticketsData);
 
-      const newQuantity = ticketsData.length;
-      await substractTicketQuantity(result.ticketTypeId, newQuantity, session.user.id);
-
       revalidatePath(`/dashboard/evento/${result.eventId}`);
+      revalidatePath(`/dashboard/evento/ticket-types/${result.eventId}`);
+
+      if (data.email) {
+        const event = await Eventos.getEventById(result.eventId);
+        if (event) {
+          const eventDates = event.dates
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(event.dates) as DatesType[];
+                  return parsed[0]?.date
+                    ? new Date(parsed[0].date).toLocaleDateString("es-AR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "";
+                } catch {
+                  return "";
+                }
+              })()
+            : "";
+
+          const baseUrl = SITE_URL.replace(/\/$/, "");
+          const customizationUrl = customizationToken
+            ? `${baseUrl}/invitaciones/${customizationToken}`
+            : undefined;
+
+          await sendEventInvitationEmail({
+            recipientEmail: data.email,
+            eventTitle: event.title,
+            eventDate: eventDates,
+            eventLocation: event.address,
+            customizationUrl,
+          }).catch(() => {
+            // Email failure should not block invitation creation
+          });
+        }
+      }
 
       return { customizationToken };
     }
@@ -1436,6 +1510,46 @@ export async function inviteUserToEvent(
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Error creando la invitacion: ${message}`);
   }
+}
+
+export async function bulkInviteUsersToEvent(
+  eventId: string,
+  rows: BulkInvitationRow[],
+): Promise<BulkInvitationResult> {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    throw new Error("No autenticado");
+  }
+
+  const result: BulkInvitationResult = { success: 0, errors: [] };
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    try {
+      await inviteUserToEvent({
+        quantity: row.quantity,
+        email: row.email,
+        ticketTypeId: row.ticketTypeId,
+        isInvitation: true,
+        status: "PAID",
+        eventId,
+        name: row.name,
+        lastName: row.lastName,
+        dni: row.dni,
+        totalPrice: 0,
+      });
+      result.success++;
+    } catch (error) {
+      result.errors.push({
+        row: i + 1,
+        email: row.email,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  revalidatePath(`/dashboard/evento/${eventId}`);
+  return result;
 }
 
 export async function submitCustomizationForm(

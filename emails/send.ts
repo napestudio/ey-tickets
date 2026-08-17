@@ -4,6 +4,7 @@ import { TicketConfirmationEmail } from "./ticket-confirmation";
 import { PasswordResetEmail } from "./password-reset";
 import { UserInvitationEmail } from "./user-invitation";
 import { AccountVerificationEmail } from "./account-verification";
+import { EventInvitationEmail } from "./event-invitation";
 
 export type { QrTicketEmailData } from "./ticket-confirmation";
 
@@ -41,6 +42,14 @@ export type InvitationEmailPayload = {
 export type EmailVerificationPayload = {
   recipientEmail: string;
   verificationToken: string;
+};
+
+export type EventInvitationEmailPayload = {
+  recipientEmail: string;
+  eventTitle: string;
+  eventDate: string;
+  eventLocation: string;
+  customizationUrl?: string;
 };
 
 export async function sendTicketConfirmationEmail(
@@ -102,6 +111,29 @@ export async function sendInvitationEmail(
 
   if (error) {
     throw new Error(`Error sending invitation email: ${error.message}`);
+  }
+}
+
+export async function sendEventInvitationEmail(
+  payload: EventInvitationEmailPayload
+): Promise<void> {
+  const { recipientEmail, eventTitle, eventDate, eventLocation, customizationUrl } =
+    payload;
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: [recipientEmail],
+    subject: `Tenés una invitación para ${eventTitle}`,
+    react: EventInvitationEmail({
+      eventTitle,
+      eventDate,
+      eventLocation,
+      customizationUrl,
+    }),
+  });
+
+  if (error) {
+    throw new Error(`Error sending event invitation email: ${error.message}`);
   }
 }
 
