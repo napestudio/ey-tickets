@@ -58,8 +58,9 @@ export default function EventListItem({ evento }: { evento: Evento }) {
           <Image
             src={evento.image || "/placeholder.svg"}
             alt={evento.title}
-            fill
-            className="rounded object-cover"
+            width={60}
+            height={60}
+            className="rounded w-full h-full object-cover"
           />
         </div>
       </TableCell>

@@ -1,15 +1,13 @@
-import { Title } from "./ui/Title";
 import { PACKAGE_CATALOG } from "@/lib/ticket-stock-catalog";
 import PricePackageCard from "./PackageCard";
-import { Paragraph } from "./ui/Paragraph";
-import { ShapeMask } from "./ShapeMask";
-import GiftIcon from "./ui/icons/GiftIcon";
-import Link from "next/link";
 import { Button } from "./ui/Button";
+import GiftIcon from "./ui/icons/GiftIcon";
+import { Paragraph } from "./ui/Paragraph";
+import { Title } from "./ui/Title";
 
 export default function PricingSection() {
   return (
-    <section className="relative pt-20 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark font-nebulica">
+    <section className="relative h-full pt-32 px-4 bg-linear-to-b from-ey-turquoise-darker to-ey-dark font-nebulica">
       <div className="absolute inset-0 bg-[url('/images/tkt-sm-pattern.png')] bg-repeat bg-top bg-cover opacity-50 z-0" />
       <div className="relative container mx-auto">
         <Title className="font-bold uppercase text-[clamp(2.5rem,8vw,4rem)] leading-none text-white text-center pb-10">

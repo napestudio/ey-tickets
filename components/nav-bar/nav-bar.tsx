@@ -83,15 +83,17 @@ export default function NavBar() {
 
           {/* Desktop nav + botón agrupados a la derecha */}
           <nav className="ml-auto hidden md:flex items-center gap-6">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Button
-                key={href}
-                className="text-sm font-medium hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
-                href={href}
-              >
-                {label}
-              </Button>
-            ))}
+            <div className="flex items-center gap-3">
+              {NAV_LINKS.map(({ href, label }) => (
+                <Button
+                  key={href}
+                  className="text-sm font-medium px-2 hover:underline underline-offset-4 hover:text-ey-turquoise hover:bg-transparent transition-colors"
+                  href={href}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
             <Button
               href="/registro/productora"
               variant="primary"

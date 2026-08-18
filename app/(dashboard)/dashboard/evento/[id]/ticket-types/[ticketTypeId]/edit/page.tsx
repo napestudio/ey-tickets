@@ -74,6 +74,7 @@ export default async function EditTicketTypePage({
         } as unknown as TicketType}
         eventId={id}
         soldCount={ticketType.soldCount}
+        invitationCount={ticketType.invitationCount}
         stockMovements={stockMovements}
         maxAddable={stockSummary.available}
       />

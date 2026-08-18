@@ -25,9 +25,8 @@ export default async function TicketTypePage({
 
   if (!evento) return null;
 
-  const [rawTicketTypes, remainingTickets] = await Promise.all([
+  const [rawTicketTypes] = await Promise.all([
     getTicketTypesWithStatsByEventId(eventId),
-    getRemainingTicketsForEvent(eventId, evento?.producerId || ""),
   ]);
 
   const ticketTypes = rawTicketTypes.map((t) => ({
@@ -38,9 +37,6 @@ export default async function TicketTypePage({
     dates: t.dates ?? null,
     price: Number(t.price),
     isFree: t.isFree,
-    endDate: t.endDate ?? null,
-    quantity: t.quantity,
-    totalSold: t.orders.reduce((sum, o) => sum + o.quantity, 0),
     eventId: t.eventId,
   }));
 
@@ -57,18 +53,6 @@ export default async function TicketTypePage({
             Volver al Evento
           </Link>
         </Button>
-        <div className="flex items-center gap-3">
-          <div className="flex flex-nowrap items-center gap-2 px-4 py-2 leading-none text-sm">
-            Disponibles <span className="font-bold">{remainingTickets}</span>
-            <Ticket className="w-4 h-4" />
-          </div>
-          <Button asChild>
-            <Link href={`/dashboard/evento/${eventId}/ticket-types/new`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo tipo de ticket
-            </Link>
-          </Button>
-        </div>
       </div>
       <TicketTypesTable ticketTypes={ticketTypes} />
     </div>

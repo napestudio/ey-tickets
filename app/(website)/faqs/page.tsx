@@ -21,6 +21,43 @@ export default function FAQS() {
 
           <div className="mb-6">
             <Title className="text-2xl text-white font-semibold mb-4">
+              PARA ORGANIZADORES
+            </Title>
+            <Paragraph className="text-xl text-white  mb-6">
+              <strong>1. ¿Cómo vendo tickets en EyTickets?</strong>
+              <br />
+              Regístrate como Organizador, configura tu evento (fecha, precio,
+              capacidad) y publica. Los pagos se reciben directamente en tu
+              cuenta de Mercado Pago.
+              <br />
+              <br />
+              <strong>2. ¿Qué comisión cobra EyTickets?</strong>
+              <br />
+              EyTickets no cobra comisiones, ni cargos adicionales.
+              <br />
+              <br />
+              <strong>3. ¿Puedo cancelar o modificar un evento?</strong>
+              <br />
+              Sí, pero debes gestionar directamente con los compradores
+              cualquier reembolso o cambio. EyTickets no se responsabiliza por
+              reclamos derivados.
+              <br />
+              <br />
+              <strong>4. ¿Cómo evito la reventa?</strong>
+              <br />
+              Los tickets emitidos en EyTickets tienen un QR vinculado al DNI
+              del comprador, lo que garantiza su autenticidad y evita reventas.
+              <br />
+              <br />
+              <strong>5. ¿Qué datos de los compradores recibo?</strong>
+              <br />
+              Solo los necesarios para el evento: nombre, DNI y email. Estos
+              datos son privados y no pueden ser compartidos con terceros.
+            </Paragraph>
+          </div>
+
+          <div className="mb-6">
+            <Title className="text-2xl text-white font-semibold mb-4">
               PARA COMPRADORES
             </Title>
             <Paragraph className="text-xl text-white mb-6">
@@ -55,43 +92,6 @@ export default function FAQS() {
               <br />
               Al llegar al evento, presenta: El QR recibido por email (válido
               solo con el DNI registrado).
-            </Paragraph>
-          </div>
-
-          <div className="mb-6">
-            <Title className="text-2xl text-white font-semibold mb-4">
-              PARA ORGANIZADORES
-            </Title>
-            <Paragraph className="text-xl text-white  mb-6">
-              <strong>1. ¿Cómo vendo tickets en EyTickets?</strong>
-              <br />
-              Regístrate como Organizador, configura tu evento (fecha, precio,
-              capacidad) y publica. Los pagos se reciben directamente en tu
-              cuenta de Mercado Pago.
-              <br />
-              <br />
-              <strong>2. ¿Qué comisión cobra EyTickets?</strong>
-              <br />
-              EyTickets no cobra comisiones, ni cargos adicionales.
-              <br />
-              <br />
-              <strong>3. ¿Puedo cancelar o modificar un evento?</strong>
-              <br />
-              Sí, pero debes gestionar directamente con los compradores
-              cualquier reembolso o cambio. EyTickets no se responsabiliza por
-              reclamos derivados.
-              <br />
-              <br />
-              <strong>4. ¿Cómo evito la reventa?</strong>
-              <br />
-              Los tickets emitidos en EyTickets tienen un QR vinculado al DNI
-              del comprador, lo que garantiza su autenticidad y evita reventas.
-              <br />
-              <br />
-              <strong>5. ¿Qué datos de los compradores recibo?</strong>
-              <br />
-              Solo los necesarios para el evento: nombre, DNI y email. Estos
-              datos son privados y no pueden ser compartidos con terceros.
             </Paragraph>
           </div>
 

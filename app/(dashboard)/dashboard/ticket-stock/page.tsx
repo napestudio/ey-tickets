@@ -9,6 +9,7 @@ import { History } from "lucide-react";
 import AcquireTicketsDialog from "./components/acquire-tickets-dialog";
 import StockOverviewCards from "./components/stock-overview-cards";
 import StockPaymentAlert from "./components/stock-payment-alert";
+import GetTicketsCards from "./components/get-tickets-cards";
 
 export default async function TicketStockPage({
   searchParams,
@@ -56,20 +57,28 @@ export default async function TicketStockPage({
       <div className="flex flex-col md:flex-row items-start justify-between gap-4">
         <DashboardHeader
           title="Stock de Tickets"
-          subtitle="Podés comprar por paquete o la cantidad que necesites. Los tipos de ticket consumen directamente del pool."
+          subtitle="Podés comprar por paquete o la cantidad que necesites. Los tipos de ticket consumen directamente del stock."
         />
-        <div className="flex items-center gap-2 pt-1 shrink-0">
-          <Button asChild variant="outline">
-            <Link href="/dashboard/ticket-stock/historial">
-              <History className="h-4 w-4 mr-2" />
-              Historial de compra
-            </Link>
-          </Button>
-          <AcquireTicketsDialog producerId={pid} />
-        </div>
       </div>
 
       <StockOverviewCards summary={summary} />
+      <section className="p-4 border">
+        <h3 className="text-xl font-bold">Adquirir tickets</h3>
+        <p>
+          Seleccioná un paquete o ingresá una cantidad personalizada para
+          agregar tickets a tu stock.
+        </p>
+        <GetTicketsCards producerId={pid} />
+      </section>
+      <div className="flex items-center gap-2 pt-1 shrink-0">
+        <Button asChild variant="outline">
+          <Link href="/dashboard/ticket-stock/historial">
+            <History className="h-4 w-4 mr-2" />
+            Historial de compra
+          </Link>
+        </Button>
+        {/* <AcquireTicketsDialog producerId={pid} /> */}
+      </div>
     </div>
   );
 }

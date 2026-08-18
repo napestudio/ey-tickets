@@ -242,6 +242,27 @@ export default function TycketTypeForm({
                 />
                 <FormField
                   control={form.control}
+                  name="isFree"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between gap-2">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Gratis</FormLabel>
+                        <FormDescription>
+                          Los clientes obtienen la entrada sin costo. Esto
+                          descuenta tickets del stock.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="selectedDates"
                   render={() => (
                     <FormItem>
@@ -514,27 +535,7 @@ export default function TycketTypeForm({
                     </div>
                   )}
                 </div>
-                <FormField
-                  control={form.control}
-                  name="isFree"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 gap-2">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Gratis</FormLabel>
-                        <FormDescription>
-                          Al seleccionar este ticket, las entradas llegaran al
-                          email del cliente sin confirmación de pago.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="multi"

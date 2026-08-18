@@ -142,6 +142,9 @@ export const getSingleEventBySlug = cache(async (slug: string) => {
     include: {
       producer: {
         select: {
+          name: true,
+          logo: true,
+          email: true,
           configuration: {
             select: { serviceCharge: true },
           },

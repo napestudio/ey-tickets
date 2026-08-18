@@ -25,6 +25,7 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { DateTimeSelection } from "./types";
 import AcquireTicketsDialog from "@/app/(dashboard)/dashboard/ticket-stock/components/acquire-tickets-dialog";
+import { useProducerStockStore } from "@/store/producer-stock-store";
 
 const FALLBACK_MAX = 999999;
 
@@ -59,6 +60,7 @@ export function Step4TicketType({
   onSkip,
 }: Step4TicketTypeProps) {
   const { toast } = useToast();
+  const refreshStock = useProducerStockStore((s) => s.refresh);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingCount, setIsFetchingCount] = useState(true);
   const [remainingTickets, setRemainingTickets] =
@@ -130,6 +132,7 @@ export function Step4TicketType({
         isFree: values.isFree,
       });
       toast({ title: "Tipo de ticket creado!" });
+      refreshStock();
       onComplete();
     } catch {
       toast({
