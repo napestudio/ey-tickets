@@ -62,6 +62,7 @@ import { es } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import Box from "@/components/dashboard/box";
 import StockMovementLog from "@/app/(dashboard)/dashboard/components/stock-movement-log/stock-movement-log";
+import { useProducerStockStore } from "@/store/producer-stock-store";
 
 type MovementType = "INCREASE" | "DECREASE";
 
@@ -70,6 +71,7 @@ export default function EditTycketTypeForm({
   ticket,
   eventId,
   soldCount,
+  invitationCount,
   stockMovements,
   maxAddable,
 }: {
@@ -77,6 +79,7 @@ export default function EditTycketTypeForm({
   ticket: TicketType;
   eventId: string;
   soldCount: number;
+  invitationCount: number;
   stockMovements: TicketStockMovement[];
   maxAddable: number;
 }) {
@@ -99,6 +102,7 @@ export default function EditTycketTypeForm({
 
   const { toast } = useToast();
   const router = useRouter();
+  const refreshStock = useProducerStockStore((s) => s.refresh);
   const backHref = `/dashboard/evento/ticket-types/${eventId}`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const isSingleDate = parsedEventDates.length === 1;
@@ -108,7 +112,9 @@ export default function EditTycketTypeForm({
   const [hasDiscount, setHasDiscount] = useState<boolean>(
     ticket.discount !== 0 ? true : false,
   );
-  const [hasCustomEndDate, setHasCustomEndDate] = useState<boolean>(!!ticket.endDate);
+  const [hasCustomEndDate, setHasCustomEndDate] = useState<boolean>(
+    !!ticket.endDate,
+  );
 
   // Stock dialog state
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
@@ -125,7 +131,7 @@ export default function EditTycketTypeForm({
     stockMovements.length > 0
       ? stockMovements[stockMovements.length - 1].previousQuantity
       : currentStock;
-  const available = currentStock - soldCount;
+  const available = currentStock - soldCount - invitationCount;
   const previewQuantity =
     movementType === "INCREASE"
       ? currentStock + stockAmount
@@ -177,6 +183,7 @@ export default function EditTycketTypeForm({
       setStockAmount(0);
       setStockReason("");
       router.refresh();
+      refreshStock();
     } catch (error) {
       toast({
         variant: "destructive",
@@ -446,6 +453,33 @@ export default function EditTycketTypeForm({
                   />
                   <FormField
                     control={form.control}
+                    name="isFree"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between gap-2">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Gratis</FormLabel>
+                          <FormDescription>
+                            Los clientes obtienen la entrada sin costo. Esto
+                            descuenta tickets del stock.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (checked) {
+                                setHasDiscount(false);
+                                form.setValue("discount", undefined);
+                              }
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="selectedDates"
                     render={() => (
                       <FormItem>
@@ -465,7 +499,8 @@ export default function EditTycketTypeForm({
                                 </FormLabel>
                               </FormItem>
                               <p className="text-xs text-muted-foreground px-2 pb-1">
-                                Este evento tiene una sola fecha. Si agregás más fechas al evento podrás editarlo.
+                                Este evento tiene una sola fecha. Si agregás más
+                                fechas al evento podrás editarlo.
                               </p>
                             </>
                           ) : (
@@ -481,7 +516,9 @@ export default function EditTycketTypeForm({
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(item.date)}
+                                        checked={field.value?.includes(
+                                          item.date,
+                                        )}
                                         onCheckedChange={(checked) =>
                                           checked
                                             ? field.onChange([
@@ -490,7 +527,8 @@ export default function EditTycketTypeForm({
                                               ])
                                             : field.onChange(
                                                 field.value?.filter(
-                                                  (value) => value !== item.date,
+                                                  (value) =>
+                                                    value !== item.date,
                                                 ),
                                               )
                                         }
@@ -750,33 +788,7 @@ export default function EditTycketTypeForm({
                       </div>
                     )}
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="isFree"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 gap-2">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Gratis</FormLabel>
-                          <FormDescription>
-                            Al seleccionar este ticket, las entradas llegaran al
-                            email del cliente sin confirmación de pago.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (checked) {
-                                setHasDiscount(false);
-                                form.setValue("discount", undefined);
-                              }
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+
                   <FormField
                     control={form.control}
                     name="multi"

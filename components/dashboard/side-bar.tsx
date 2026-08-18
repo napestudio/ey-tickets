@@ -23,20 +23,22 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Logo from "../ui/Logo";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
+import { ProducerStockWidget } from "./producer-stock-widget";
 
 const ICON_MAP: Record<string, JSX.Element> = {
   dashboard: <LayoutDashboard className="mr-2 h-4 w-4" />,
-  calendar:  <Calendar        className="mr-2 h-4 w-4" />,
-  ticket:    <Ticket          className="mr-2 h-4 w-4" />,
-  sales:     <CreditCard      className="mr-2 h-4 w-4" />,
-  users:     <Users           className="mr-2 h-4 w-4" />,
-  chart:     <TrendingUp      className="mr-2 h-4 w-4" />,
-  settings:  <Settings        className="mr-2 h-4 w-4" />,
+  calendar: <Calendar className="mr-2 h-4 w-4" />,
+  ticket: <Ticket className="mr-2 h-4 w-4" />,
+  sales: <CreditCard className="mr-2 h-4 w-4" />,
+  users: <Users className="mr-2 h-4 w-4" />,
+  chart: <TrendingUp className="mr-2 h-4 w-4" />,
+  settings: <Settings className="mr-2 h-4 w-4" />,
 };
 
 interface DashboardNavProps {
   session: Session;
   producerName: string | null;
+  producerImage: string | null;
   items: NavItem[];
 }
 
@@ -44,6 +46,7 @@ export default function SideBar({
   items,
   session,
   producerName,
+  producerImage,
 }: DashboardNavProps) {
   const path = usePathname();
 
@@ -67,7 +70,7 @@ export default function SideBar({
     cn(
       base,
       active
-        ? "bg-ey-turquoise hover:bg-ey-turquoise font-medium"
+        ? "bg-ey-turquoise text-neutral-900 hover:bg-ey-turquoise font-medium"
         : "font-normal hover:bg-ey-turquoise-dark",
     );
 
@@ -92,7 +95,7 @@ export default function SideBar({
                     variant={hasActiveChild ? "secondary" : "ghost"}
                     className={navItemClass(
                       hasActiveChild,
-                      "w-full justify-start cursor-pointer transition-colors",
+                      "w-full justify-start cursor-pointer transition-colors hover:text-neutral-900 active:text-neutral-900",
                     )}
                     onClick={() => toggleSection(item.title)}
                   >
@@ -115,7 +118,7 @@ export default function SideBar({
                             href={child.href}
                             className={navItemClass(
                               isActive,
-                              "flex w-full items-center px-4 py-2 rounded-md text-sm transition-colors",
+                              "flex w-full items-center px-4 py-2 rounded-md text-sm transition-colors hover:text-neutral-900 active:text-neutral-900",
                             )}
                           >
                             {child.title}
@@ -138,7 +141,7 @@ export default function SideBar({
                 href={item.href!}
                 className={navItemClass(
                   isActive,
-                  "flex w-full items-center gap-2 px-4 py-2 rounded-md text-sm transition-colors",
+                  "flex w-full items-center gap-2 px-4 py-2 rounded-md text-sm transition-colors hover:text-neutral-900 active:text-neutral-900",
                 )}
               >
                 {ICON_MAP[item.icon] ?? null}
@@ -149,27 +152,43 @@ export default function SideBar({
         </nav>
       </div>
 
-      <div className="flex items-center gap-2 px-4">
-        <Avatar className="h-9 w-9 shrink-0">
-          <AvatarImage alt="@shadcn" src={session.user?.image as string} />
-          <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col min-w-0">
-          {producerName && (
-            <span className="text-xs text-neutral-100 truncate">
-              {producerName}
-            </span>
-          )}
-          <span className="text-sm font-medium truncate">
-            {session.user?.name}
-          </span>
-          <Button
-            onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
-            variant={"link"}
-            className="h-auto p-0 text-neutral-50 text-xs justify-start"
-          >
-            Cerrar sesión
-          </Button>
+      <div className="flex flex-col gap-5 px-4">
+        <div>
+          <ProducerStockWidget />
+        </div>
+        <div className="flex items-center gap-2 px-4">
+          <Avatar className="h-9 w-9 shrink-0">
+            <AvatarImage
+              alt={producerName ?? session.user?.name ?? ""}
+              src={producerImage ?? (session.user?.image as string)}
+            />
+            <AvatarFallback>
+              {producerName?.charAt(0) ?? session.user?.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col min-w-0">
+            {producerName && (
+              <Link
+                href="/dashboard/configuracion/productora"
+                className="text-xs text-neutral-100 truncate hover:underline"
+              >
+                {producerName}
+              </Link>
+            )}
+            <Link
+              href="/dashboard/configuracion/perfil"
+              className="text-sm font-medium truncate"
+            >
+              {session.user?.name}
+            </Link>
+            <Button
+              onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
+              variant={"link"}
+              className="h-auto p-0 text-neutral-50 text-xs justify-start"
+            >
+              Cerrar sesión
+            </Button>
+          </div>
         </div>
       </div>
     </div>

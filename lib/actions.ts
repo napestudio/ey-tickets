@@ -1461,45 +1461,50 @@ export async function inviteUserToEvent(
           });
         }
       });
-      await TicketOrders.createTicketOrder(ticketsData);
+      const createdTickets = await TicketOrders.createTicketOrder(ticketsData);
 
       revalidatePath(`/dashboard/evento/${result.eventId}`);
       revalidatePath(`/dashboard/evento/ticket-types/${result.eventId}`);
 
       if (data.email) {
-        const event = await Eventos.getEventById(result.eventId);
-        if (event) {
-          const eventDates = event.dates
-            ? (() => {
-                try {
-                  const parsed = JSON.parse(event.dates) as DatesType[];
-                  return parsed[0]?.date
-                    ? new Date(parsed[0].date).toLocaleDateString("es-AR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "";
-                } catch {
-                  return "";
-                }
-              })()
-            : "";
+        if (!isCustomizable) {
+          // Complete invitation: send ticket confirmation with QR codes
+          await sendTicketMail(
+            createdTickets as unknown as TicketOrderType[]
+          ).catch(() => {});
+        } else {
+          const event = await Eventos.getEventById(result.eventId);
+          if (event) {
+            const eventDates = event.dates
+              ? (() => {
+                  try {
+                    const parsed = JSON.parse(event.dates) as DatesType[];
+                    return parsed[0]?.date
+                      ? new Date(parsed[0].date).toLocaleDateString("es-AR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "";
+                  } catch {
+                    return "";
+                  }
+                })()
+              : "";
 
-          const baseUrl = SITE_URL.replace(/\/$/, "");
-          const customizationUrl = customizationToken
-            ? `${baseUrl}/invitaciones/${customizationToken}`
-            : undefined;
+            const baseUrl = SITE_URL.replace(/\/$/, "");
+            const customizationUrl = `${baseUrl}/invitaciones/${customizationToken}`;
 
-          await sendEventInvitationEmail({
-            recipientEmail: data.email,
-            eventTitle: event.title,
-            eventDate: eventDates,
-            eventLocation: event.address,
-            customizationUrl,
-          }).catch(() => {
-            // Email failure should not block invitation creation
-          });
+            await sendEventInvitationEmail({
+              recipientEmail: data.email,
+              eventTitle: event.title,
+              eventDate: eventDates,
+              eventLocation: event.address,
+              customizationUrl,
+            }).catch(() => {
+              // Email failure should not block invitation creation
+            });
+          }
         }
       }
 
@@ -1576,6 +1581,22 @@ export async function submitCustomizationForm(
     dni: firstTicket.dni,
     email: firstTicket.email,
   });
+
+  // Send ticket confirmation with QR codes after guest completes their data
+  if (firstTicket.email && order.event) {
+    await sendTicketConfirmationEmail({
+      recipientEmail: firstTicket.email,
+      eventTitle: order.event.title,
+      eventLocation: order.event.venue ?? order.event.city ?? "",
+      eventAddress: order.event.address,
+      tickets: order.tickets.map((t) => ({
+        code: t.code ?? 0,
+        ticketId: t.id,
+        date: t.date,
+        ticketType: { title: order.ticketType?.title ?? "" },
+      })),
+    }).catch(() => {});
+  }
 }
 
 export async function getInvitationByToken(token: string) {
@@ -1800,6 +1821,12 @@ export async function getAllTicketsForExportValidatorAction(
 export async function removeMemberAllocationAction(userId: string) {
   await TicketStock.removeMemberTicketAllocation(userId);
   revalidatePath("/dashboard/ticket-stock");
+}
+
+export async function getProducerStockSummaryAction() {
+  const session = await getSession();
+  if (!session?.user?.producerId) return null;
+  return TicketStock.getProducerStockSummary(session.user.producerId);
 }
 
 export async function getActiveFeaturedEvents() {

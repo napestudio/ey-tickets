@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Pencil } from "lucide-react";
@@ -35,9 +34,6 @@ type TicketRow = {
   dates: string | null;
   price: number;
   isFree: boolean;
-  endDate: Date | null;
-  quantity: number;
-  totalSold: number;
   eventId: string;
 };
 
@@ -107,8 +103,6 @@ export default function TicketTypesTable({
             <TableHead>Creado por</TableHead>
             <TableHead>Fecha(s)</TableHead>
             <TableHead>Precio</TableHead>
-            <TableHead>Disponible hasta</TableHead>
-            <TableHead>Asignadas / Vendidas</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -116,7 +110,7 @@ export default function TicketTypesTable({
           {filtered.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={5}
                 className="text-center text-muted-foreground py-10"
               >
                 No hay tipos de ticket que coincidan con los filtros.
@@ -124,11 +118,6 @@ export default function TicketTypesTable({
             </TableRow>
           ) : (
             filtered.map((ticket) => {
-              const soldPct =
-                ticket.quantity > 0
-                  ? Math.round((ticket.totalSold / ticket.quantity) * 100)
-                  : 0;
-
               let parsedDates: DatesType[] = [];
               try {
                 if (ticket.dates) parsedDates = JSON.parse(ticket.dates);
@@ -174,31 +163,6 @@ export default function TicketTypesTable({
                     {ticket.isFree
                       ? "Gratis"
                       : formatPrice(Number(ticket.price))}
-                  </TableCell>
-
-                  <TableCell className="text-sm">
-                    {ticket.endDate ? (
-                      format(new Date(ticket.endDate), "dd MMM yyyy", {
-                        locale: es,
-                      })
-                    ) : (
-                      <span className="text-muted-foreground">Sin límite</span>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="space-y-1 min-w-36">
-                      <div className="flex justify-between text-sm">
-                        <span>{ticket.totalSold} vendidas</span>
-                        <span className="text-muted-foreground">
-                          / {ticket.quantity}
-                        </span>
-                      </div>
-                      <Progress value={soldPct} className="h-1.5" />
-                      <p className="text-xs text-muted-foreground">
-                        {soldPct}% vendido
-                      </p>
-                    </div>
                   </TableCell>
 
                   <TableCell className="text-right">

@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "../ui/Logo";
+import { ProducerStockWidget } from "./producer-stock-widget";
 
 interface MobileSidebarProps {
   items: NavItem[];
@@ -218,6 +219,10 @@ export function MobileSidebar({
               </Link>
             );
           })}
+        </div>
+
+        <div className="px-0 pb-2">
+          <ProducerStockWidget />
         </div>
 
         <div className="p-4 mt-2 border-t border-neutral-700">

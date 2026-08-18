@@ -31,10 +31,7 @@ interface ParsedRow {
 
 interface BulkInvitationImportProps {
   evento: Evento;
-  soldTickets?: Record<
-    string,
-    { id?: string; title?: string; count?: number }
-  >;
+  soldTickets?: Record<string, { id?: string; title?: string; count?: number }>;
   onSuccess?: () => void;
 }
 
@@ -152,7 +149,10 @@ export function BulkInvitationImport({
       return;
     }
     if (validRows.length === 0) {
-      toast({ title: "No hay filas válidas para importar", variant: "destructive" });
+      toast({
+        title: "No hay filas válidas para importar",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -353,8 +353,8 @@ export function BulkInvitationImport({
           disabled={isSubmitting || !ticketTypeId}
         >
           {isSubmitting
-            ? "Importando..."
-            : `Importar ${validRows.length} invitación${validRows.length !== 1 ? "es" : ""}`}
+            ? "Enviando..."
+            : `Enviar ${validRows.length} invitación${validRows.length !== 1 ? "es" : ""}`}
         </Button>
       )}
 
