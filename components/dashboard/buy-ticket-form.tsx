@@ -42,6 +42,7 @@ export type TicketType = {
   startDate: Date | null;
   endDate: Date;
   quantity: number;
+  limitPerSale?: number | null;
   position: number;
   dates: { id: number; date: string }[];
   createdAt: Date;
@@ -96,6 +97,7 @@ export default function BuyTicketForm({
 }) {
   const [discountOpen, setDiscountOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [maxQty, setMaxQty] = useState<number>(10);
   const [discountInput, setDiscountInput] = useState("");
   const [discount, setDiscount] = useState(false);
   const [addedCode, setaddedCode] = useState<string | undefined>("");
@@ -114,7 +116,7 @@ export default function BuyTicketForm({
     let discountAmt = 0;
     if (discount && discountCode?.length && addedCode) {
       const appliedDiscount = discountCode.find(
-        (code) => code.id === addedCode
+        (code) => code.id === addedCode,
       );
       if (appliedDiscount && appliedDiscount.discount) {
         discountAmt = baseTotal * (appliedDiscount.discount / 100);
@@ -198,7 +200,7 @@ export default function BuyTicketForm({
 
     event.preventDefault();
     const matchingCode = discountCode?.find(
-      (discount) => discount.code === discountInput
+      (discount) => discount.code === discountInput,
     );
 
     if (matchingCode) {
@@ -228,7 +230,7 @@ export default function BuyTicketForm({
 
   useEffect(() => {
     const selectedTicket = tickets.find(
-      (ticket: any) => ticket.id === form.getValues().ticketType
+      (ticket: any) => ticket.id === form.getValues().ticketType,
     );
     const quantity = parseInt(form.getValues().quantity || "0");
 
@@ -252,13 +254,26 @@ export default function BuyTicketForm({
                       onValueChange={(value) => {
                         field.onChange(value);
                         const selectedTicket = tickets.find(
-                          (ticket: any) => ticket.id === value
+                          (ticket: any) => ticket.id === value,
                         );
                         if (selectedTicket) {
-                          calculateTotal(
-                            selectedTicket.price,
-                            parseInt(form.getValues().quantity || "0")
+                          const bGet = selectedTicket.buyGet || 1;
+                          // @ts-ignore
+                          const soldCount = soldTickets?.[value]?.count ?? 0;
+                          const available = Math.max(
+                            0,
+                            Math.floor(
+                              selectedTicket.quantity - soldCount / bGet,
+                            ),
                           );
+                          const limit =
+                            selectedTicket.limitPerSale &&
+                            selectedTicket.limitPerSale > 0
+                              ? selectedTicket.limitPerSale
+                              : available;
+                          setMaxQty(Math.min(available, limit));
+                          form.setValue("quantity", "1");
+                          calculateTotal(selectedTicket.price, 1);
                         }
                       }}
                       defaultValue={field.value}
@@ -275,7 +290,7 @@ export default function BuyTicketForm({
                           .filter(
                             (ticket: Partial<TicketType>) =>
                               ticket.status !== "DELETED" &&
-                              ticket.status !== "INACTIVE"
+                              ticket.status !== "INACTIVE",
                           )
                           .map((ticket: Partial<TicketType>) => {
                             const bGet = ticket.buyGet || 1;
@@ -323,7 +338,7 @@ export default function BuyTicketForm({
                         field.onChange(value);
                         const selectedTicket = tickets.find(
                           (ticket: any) =>
-                            ticket.id === form.getValues().ticketType
+                            ticket.id === form.getValues().ticketType,
                         );
                         if (selectedTicket) {
                           calculateTotal(selectedTicket.price, parseInt(value));
@@ -340,20 +355,14 @@ export default function BuyTicketForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        {!discount && (
-                          <>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5</SelectItem>
-                            <SelectItem value="6">6</SelectItem>
-                            <SelectItem value="7">7</SelectItem>
-                            <SelectItem value="8">8</SelectItem>
-                            <SelectItem value="9">9</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
-                          </>
-                        )}
+                        {Array.from(
+                          { length: discount ? 1 : maxQty },
+                          (_, i) => i + 1,
+                        ).map((n) => (
+                          <SelectItem key={n} value={String(n)}>
+                            {n}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
 
@@ -496,9 +505,7 @@ export default function BuyTicketForm({
                   <div className="">
                     <p>
                       SUBTOTAL:{" "}
-                      <span className="">
-                        {formatPrice(subtotal)}
-                      </span>
+                      <span className="">{formatPrice(subtotal)}</span>
                     </p>
                   </div>
                   {discount && (
@@ -513,14 +520,18 @@ export default function BuyTicketForm({
                   )}
                 </>
               ))}
-            <p className="">
+            {/* <p className="">
               TOTAL: <span className="">{formatPrice(total)}</span>
-            </p>
+            </p> */}
           </div>
 
-          <Button className="w-full" type="submit" disabled={isLoading}>
+          <Button
+            className="w-full py-6 shadow-md bg-ey-turquoise  text-neutral-900 font-bold hover:bg-ey-turquoise/70 transition-colors cursor-pointer duration-500"
+            type="submit"
+            disabled={isLoading}
+          >
             <span className={`${isLoading ? "hidden" : "block"} `}>
-              Emitir tickets
+              Emitir tickets <span>{formatPrice(total)}</span>
             </span>
             <span className={`${!isLoading ? "hidden" : "block"} `}>
               Emitiendo...

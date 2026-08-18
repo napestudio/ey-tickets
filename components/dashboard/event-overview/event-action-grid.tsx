@@ -12,6 +12,7 @@ import {
   Tag,
   Ticket,
   UserPlus,
+  Zap,
 } from "lucide-react";
 import { ElementType } from "react";
 import { EventType } from "@/types/event";
@@ -35,13 +36,6 @@ const ACTION_ITEMS: ActionItem[] = [
     ownerOnly: true,
   },
   {
-    href: (id) => `/dashboard/evento/${id}/invitados`,
-    icon: UserPlus,
-    label: "Invitaciones",
-    description: "Emitir y gestionar invitaciones",
-    ownerOnly: true,
-  },
-  {
     href: (id) => `/dashboard/evento/ticket-types/${id}`,
     icon: Ticket,
     label: "Tipos de entradas",
@@ -49,10 +43,10 @@ const ACTION_ITEMS: ActionItem[] = [
     ownerOnly: true,
   },
   {
-    href: (id) => `/dashboard/evento/${id}/imagenes`,
-    icon: Image,
-    label: "Imágenes",
-    description: "Imagen principal y miniatura",
+    href: (id) => `/dashboard/evento/${id}/invitados`,
+    icon: UserPlus,
+    label: "Invitaciones",
+    description: "Emitir y gestionar invitaciones",
     ownerOnly: true,
   },
   {
@@ -63,6 +57,22 @@ const ACTION_ITEMS: ActionItem[] = [
     ownerOnly: false,
     publicOnly: true,
   },
+  {
+    href: (id) => `/dashboard/evento/${id}/venta-rapida`,
+    icon: Zap,
+    label: "Venta Rápida",
+    description: "Venta en puerta sin datos personales",
+    ownerOnly: false,
+    publicOnly: true,
+  },
+  {
+    href: (id) => `/dashboard/evento/${id}/imagenes`,
+    icon: Image,
+    label: "Imágenes",
+    description: "Imagen principal y miniatura",
+    ownerOnly: true,
+  },
+
   {
     href: (id) => `/dashboard/evento/${id}/ventas`,
     icon: Receipt,
