@@ -67,8 +67,7 @@ export default function TicketTypesTable({
       const matchesSearch = t.title
         .toLowerCase()
         .includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "ALL" || t.status === statusFilter;
+      const matchesStatus = statusFilter === "ALL" || t.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [ticketTypes, search, statusFilter]);
@@ -130,12 +129,6 @@ export default function TicketTypesTable({
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="font-medium">{ticket.title}</span>
-                      <Badge
-                        variant={STATUS_VARIANTS[ticket.status] ?? "outline"}
-                        className="w-fit text-xs"
-                      >
-                        {STATUS_LABELS[ticket.status] ?? ticket.status}
-                      </Badge>
                     </div>
                   </TableCell>
 

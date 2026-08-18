@@ -573,6 +573,84 @@ export async function createCashOrder(data: CreateOrderType) {
   }
 }
 
+export async function createQuickSaleOrder(input: {
+  ticketTypeId: string;
+  quantity: number;
+  eventId: string;
+  paymentMethodId?: string;
+}): Promise<{ ticketIds: string[]; generatedAt: string }> {
+  const event = await Eventos.getEventById(input.eventId);
+  if (!event) {
+    throw new Error("Evento no encontrado");
+  }
+  if (!event.producer?.email) {
+    throw new Error("La productora no tiene email configurado");
+  }
+
+  const ticketType = event.ticketTypes.find(
+    (tt) => tt.id === input.ticketTypeId
+  );
+  const totalPrice = ticketType ? ticketType.price * input.quantity : 0;
+
+  const orderData: CreateOrderType = {
+    ticketTypeId: input.ticketTypeId,
+    status: "PAID",
+    quantity: input.quantity,
+    eventId: input.eventId,
+    hasCode: false,
+    discountCode: undefined,
+    totalPrice,
+    name: "Venta Puerta",
+    lastName: event.title,
+    email: event.producer.email,
+    dni: "12345678",
+    paymentMethodId: input.paymentMethodId,
+  };
+
+  const result = await Orders.createOrder(orderData);
+  if (!result) {
+    throw new Error("Error creando la orden");
+  }
+
+  const generatedAt = new Date();
+  const dates: DatesType[] = JSON.parse(result.ticketType.dates!);
+  const is2x1 = result.ticketType.buyGet === 2;
+  const actualQuantity = is2x1 ? result.quantity * 2 : result.quantity;
+
+  const ticketsData: TicketOrderType[] = [];
+  dates.forEach((dateObj) => {
+    for (let i = 0; i < actualQuantity; i++) {
+      ticketsData.push({
+        name: "Venta Puerta",
+        lastName: event.title,
+        dni: "12345678",
+        email: event.producer!.email,
+        base64Qr: "code",
+        date: new Date(dateObj.date),
+        orderId: result.id,
+        eventId: result.eventId,
+        status: "NOT_VALIDATED",
+        ticketTypeId: result.ticketTypeId,
+        isInvitation: false,
+      });
+    }
+  });
+
+  const createdTickets = await TicketOrders.createTicketOrder(ticketsData);
+
+  if (createdTickets.length > 0) {
+    const stats = await getStats({ ticketTypeId: result.ticketTypeId });
+    if (stats.totalSold >= createdTickets[0].ticketType?.quantity!) {
+      updateTicketType({ status: "SOLDOUT" }, result.ticketTypeId);
+    }
+  }
+
+  return {
+    ticketIds: createdTickets.map((t) => t.id),
+    generatedAt: generatedAt.toISOString(),
+  };
+}
+
 export async function getOrderById(orderId: string) {
   try {
     return serialize(await Orders.getOrderById(orderId));
