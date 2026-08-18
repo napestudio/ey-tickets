@@ -62,7 +62,6 @@ const ALL_NAV_ITEMS: RawNavItem[] = [
     icon: "settings",
     requires: "settings:view",
     children: [
-      { title: "Perfil", href: "/dashboard/configuracion/perfil" },
       {
         title: "Productora",
         href: "/dashboard/configuracion/productora",
@@ -73,6 +72,7 @@ const ALL_NAV_ITEMS: RawNavItem[] = [
         href: "/dashboard/configuracion/usuarios",
         requires: "settings:producer",
       },
+      { title: "Perfil", href: "/dashboard/configuracion/perfil" },
     ],
   },
 ];
@@ -87,7 +87,9 @@ export function getSidebarNav(role: AppRole | null): NavItem[] {
       ...(children
         ? {
             children: children
-              .filter((child) => !child.requires || permissions.has(child.requires))
+              .filter(
+                (child) => !child.requires || permissions.has(child.requires),
+              )
               .map(({ requires: _r, ...childRest }) => childRest),
           }
         : {}),

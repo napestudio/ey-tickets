@@ -16,6 +16,7 @@ import { Step7PaymentMethods } from "./step-7-payment-methods";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
@@ -347,6 +348,7 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
           onInteractOutside={(e) => e.preventDefault()}
           hideClose
         >
+          <DialogTitle className="sr-only">Evento creado</DialogTitle>
           <div className="flex flex-col items-center gap-5 py-4">
             <div className="relative flex items-center justify-center">
               <div className="absolute h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 animate-ping opacity-30" />

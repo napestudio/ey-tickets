@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { getSidebarNav } from "./lib/config/dashboard-navigation";
 import { getProducerById } from "@/lib/api/producers";
 import UserVerificationToast from "./components/user-verification-toast/user-verification-toast";
+import { ProducerStockInitializer } from "@/components/dashboard/producer-stock-initializer";
 
 export const metadata: Metadata = {
   title: "Eytickets | Administración",
@@ -34,6 +35,7 @@ export default async function DashboardLayout({
   return (
     <>
       <SessionProvider session={session}>
+        <ProducerStockInitializer />
         <MobileSidebar
           items={sidebarNav}
           session={session}
@@ -46,9 +48,10 @@ export default async function DashboardLayout({
               session={session}
               items={sidebarNav}
               producerName={producer?.name ?? null}
+              producerImage={producer?.logo ?? null}
             />
           </div>
-          <div className="flex flex-col md:ml-50 lg:ml-60 flex-1 pb-12 md:pl-10 min-w-0">
+          <div className="flex flex-col md:ml-55 lg:ml-60  flex-1 pb-12 md:pl-10 min-w-0">
             {!session.user.emailVerified && <UserVerificationToast />}
             {children}
           </div>

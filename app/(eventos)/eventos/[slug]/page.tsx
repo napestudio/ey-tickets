@@ -12,6 +12,7 @@ import EventsMarquee from "@/components/website/events/EventsMarquee";
 import Link from "next/link";
 import { ArrowLeft, Lock } from "lucide-react";
 import { cache } from "react";
+import EventProducerInfo from "@/components/event-producer-info/event-producer-info";
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
@@ -67,7 +68,7 @@ const getEventData = cache(async function getEventData(slug: string) {
     soldTickets,
     paymentMethod,
   };
-})
+});
 
 export default async function Evento({ params }: { params: { slug: string } }) {
   const param = await params;
@@ -102,78 +103,98 @@ export default async function Evento({ params }: { params: { slug: string } }) {
   return (
     <>
       <EventsMarquee events={Array(6).fill({ title, dates, city, state })} />
-      <div className="min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white pt-12">
-        <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 pt-8 mb-3">
-          <Link
-            href="/eventos"
-            className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            Eventos
-          </Link>
-        </div>
-
-        <EventHeader
-          evento={evento as GetSingleEventResponse}
-          dates={groupedDates}
-        />
-
-        {isPrivate ? (
-          <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 py-10">
-            <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-5">
-              <Lock className="w-5 h-5 text-ey-turquoise shrink-0" />
-              <div>
-                <p className="font-semibold text-white">Evento privado</p>
-                <p className="text-sm text-neutral-400 mt-0.5">
-                  Este evento es solo por invitación. Si recibiste una
-                  invitación, accedé a través del link que te enviaron.
-                </p>
-              </div>
-            </div>
+      <div className="flex flex-col justify-between min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white pt-12">
+        <div>
+          <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 pt-8 mb-3">
+            <Link
+              href="/eventos"
+              className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Eventos
+            </Link>
           </div>
-        ) : (
-          paymentMethod.length > 0 &&
-          evento?.ticketTypes && (
-            <TicketTypePickerV2
-              tickets={ticketsForPicker}
-              eventId={evento.id}
-              serviceCharge={serviceCharge ?? 0}
-              hasDiscountCodes={hasDiscountCodes}
-              soldTickets={soldTickets as Record<string, { count: number }>}
-              saleEndDate={evento.saleEndDate ?? null}
+
+          <EventHeader
+            evento={evento as unknown as GetSingleEventResponse}
+            dates={groupedDates}
+          />
+
+          {!isPrivate && evento.producer && (
+            <EventProducerInfo
+              name={evento.producer.name}
+              logo={evento.producer.logo}
             />
-          )
-        )}
-
-        <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative pb-28">
-          {evento?.ageRestriction && (
-            <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-4 py-3 my-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
-                {evento?.ageRestriction}+
-              </div>
-              <p className="text-sm text-neutral-400">
-                Edad mínima para ingresar al evento
-              </p>
-            </div>
           )}
+          {(isPrivate || evento.ageRestriction || evento.legalText) && (
+            <section className="w-200 max-w-[90vw] mx-auto p-6 pt-14 md:py-12 md:px-10 z-10 relative pb-28 h-full">
+              {isPrivate && (
+                <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 py-10">
+                  <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-5">
+                    <Lock className="w-5 h-5 text-ey-turquoise shrink-0" />
+                    <div>
+                      <p className="font-semibold text-white">Evento privado</p>
+                      <p className="text-sm text-neutral-400 mt-0.5">
+                        Este evento es solo por invitación. Si recibiste una
+                        invitación, accedé a través del link que te enviaron.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {evento?.ageRestriction && (
+                <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-4 py-3 my-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
+                    {evento?.ageRestriction}+
+                  </div>
+                  <p className="text-sm text-neutral-400">
+                    Edad mínima para ingresar al evento
+                  </p>
+                </div>
+              )}
 
-          <div className="flex flex-col gap-2 my-4">
-            <ul className="flex flex-wrap gap-2">
-              {evento?.restrictions?.map((tag) => (
-                <li
-                  key={tag}
-                  className="inline-block bg-ey-turquoise text-gray-800 text-sm font-semibold mr-2 px-5 py-2.5 rounded"
-                >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          </div>
+              <div className="flex flex-col gap-2 my-4">
+                <ul className="flex flex-wrap gap-2">
+                  {evento?.restrictions?.map((tag) => (
+                    <li
+                      key={tag}
+                      className="inline-block bg-ey-turquoise text-gray-800 text-sm font-semibold mr-2 px-5 py-2.5 rounded"
+                    >
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          <div className="flex items-center gap-4 text-[.5rem] font-medium text-neutral-400 text-balance">
-            <EventDescription html={evento?.legalText ?? ""} />
-          </div>
-        </section>
+              <div className="flex items-center gap-4 text-[.5rem] font-medium text-neutral-400 text-balance">
+                <EventDescription html={evento?.legalText ?? ""} />
+              </div>
+            </section>
+          )}
+        </div>
+        <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 py-10 relative mt-auto">
+          {!isPrivate && evento.producer?.email && (
+            <p className="mt-8 text-xs text-neutral-500">
+              Por reclamos sobre el evento o devoluciones contactar a{" "}
+              <a
+                href={`mailto:${evento.producer.email}`}
+                className="text-neutral-400 underline underline-offset-2 hover:text-white transition-colors"
+              >
+                {evento.producer.email}
+              </a>
+            </p>
+          )}
+        </div>
+        {!isPrivate && paymentMethod.length > 0 && evento?.ticketTypes && (
+          <TicketTypePickerV2
+            tickets={ticketsForPicker}
+            eventId={evento.id}
+            serviceCharge={serviceCharge ?? 0}
+            hasDiscountCodes={hasDiscountCodes}
+            soldTickets={soldTickets as Record<string, { count: number }>}
+            saleEndDate={evento.saleEndDate ?? null}
+          />
+        )}
       </div>
     </>
   );
