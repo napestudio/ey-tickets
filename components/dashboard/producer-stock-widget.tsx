@@ -12,12 +12,6 @@ const FLASH_RED = "#f87171";
 const FLASH_GREEN = "#4ade80";
 const TRANSLATE_Y = 45;
 
-function getFinalColor(val: number): string {
-  if (val === 0) return "#f87171";
-  if (val <= 29) return "#fdba74";
-  return "#33c1a6";
-}
-
 export function ProducerStockWidget() {
   const { summary, isLoading } = useProducerStockStore();
   const [displayValue, setDisplayValue] = useState<number | null>(null);
@@ -113,7 +107,7 @@ export function ProducerStockWidget() {
           <p
             ref={valueCloneRef}
             className={cn(
-              "text-xl font-semibold leading-none absolute top-0 text-white",
+              "text-xl font-semibold leading-none absolute top-0 text-white/0",
             )}
           >
             {displayValue !== null

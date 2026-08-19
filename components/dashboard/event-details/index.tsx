@@ -6,7 +6,6 @@ import { can } from "@/lib/permissions";
 
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/get-session";
-import { getSoldTicketCountsByTypeAction } from "@/lib/actions";
 import TicketsTab from "./tickets-tab";
 import ValidatorsTab from "./validators-tab";
 import DetailsTab from "./details-tab";
@@ -65,8 +64,6 @@ export default async function EventDetails({
   const isEventOwner = can(session.user, "events:edit");
   const activeTab = resolveTab(tab, isEventOwner);
 
-  const soldTickets = await getSoldTicketCountsByTypeAction(evento.id);
-
   return (
     <div className="space-y-6">
       <div>
@@ -101,8 +98,6 @@ export default async function EventDetails({
             <TabsContent value="invitados" className="space-y-6">
               <InvitadosTab
                 evento={evento}
-                isEventOwner={isEventOwner}
-                soldTickets={soldTickets}
                 showList={false}
                 initialTickets={null}
                 totalCount={0}

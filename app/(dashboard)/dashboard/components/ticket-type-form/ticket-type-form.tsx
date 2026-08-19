@@ -151,25 +151,6 @@ export default function TycketTypeForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex items-center justify-between rounded-lg border px-4 py-3 w-max">
-          <div className="flex items-center gap-2 text-sm">
-            <Ticket className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span>
-              Disponible:{" "}
-              <strong>{remainingTickets.toLocaleString("es-AR")}</strong>{" "}
-              tickets
-            </span>
-          </div>
-          {hasNoTickets && (
-            <Button asChild variant="outline" size="sm">
-              <Link href="/dashboard/ticket-stock">
-                <ShoppingCart className="mr-2 h-3.5 w-3.5" />
-                Adquirir tickets
-              </Link>
-            </Button>
-          )}
-        </div>
-
         {hasNoTickets && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 px-4 py-3">
             <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -333,6 +314,7 @@ export default function TycketTypeForm({
             <Box>
               <div className="space-y-8">
                 <h3 className="font-bold">Disponibilidad</h3>
+
                 <FormField
                   control={form.control}
                   name="quantity"
@@ -348,6 +330,20 @@ export default function TycketTypeForm({
                           }
                         />
                       </FormControl>
+                      <span className="text-sm text-muted-foreground">
+                        Disponibles para asignar:{" "}
+                        <strong>
+                          {remainingTickets.toLocaleString("es-AR")}
+                        </strong>
+                      </span>
+                      {hasNoTickets && (
+                        <Button asChild variant="outline" size="sm">
+                          <Link href="/dashboard/ticket-stock">
+                            <ShoppingCart className="mr-2 h-3.5 w-3.5" />
+                            Adquirir tickets
+                          </Link>
+                        </Button>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

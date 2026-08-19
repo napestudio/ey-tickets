@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { getEventById, getSoldTicketCountsByTypeAction } from "@/lib/actions";
 import { getSoldTicketsPaginated } from "@/lib/api/ticket-orders";
 import { can } from "@/lib/permissions";
-import { EventoWithTicketsType } from "@/types/event";
-import { ArrowLeft } from "lucide-react";
+import { Evento, EventoWithTicketsType } from "@/types/event";
+import { ArrowLeft, User } from "lucide-react";
+import { AddInvitationDialog } from "@/components/dashboard/add-invitation-dialog";
 
 export default async function InvitadosPage({
   params,
@@ -43,16 +44,31 @@ export default async function InvitadosPage({
         title="Invitaciones"
         subtitle={`Gestión de invitaciones para ${evento.title}`}
       />
-      <Button variant="outline" size="sm" asChild>
-        <Link href={`/dashboard/evento/${id}`}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver al evento
-        </Link>
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/dashboard/evento/${id}`}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver al evento
+          </Link>
+        </Button>
+
+        <AddInvitationDialog
+          evento={evento as unknown as Evento}
+          soldTickets={soldTickets}
+          isEventOwner={isEventOwner}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={evento.status === "CANCELED"}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Agregar invitado
+          </Button>
+        </AddInvitationDialog>
+      </div>
       <InvitadosTab
         evento={evento as unknown as EventoWithTicketsType}
-        isEventOwner={isEventOwner}
-        soldTickets={soldTickets}
         initialTickets={listData?.tickets ?? null}
         totalCount={listData?.total ?? 0}
         showList={showList}

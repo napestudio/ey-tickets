@@ -53,6 +53,12 @@ export default async function TicketTypePage({
             Volver al Evento
           </Link>
         </Button>
+        <Button size="sm" asChild>
+          <Link href={`/dashboard/evento/${eventId}/ticket-types/new`}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo tipo de ticket
+          </Link>
+        </Button>
       </div>
       <TicketTypesTable ticketTypes={ticketTypes} />
     </div>

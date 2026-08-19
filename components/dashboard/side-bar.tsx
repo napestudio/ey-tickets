@@ -75,7 +75,7 @@ export default function SideBar({
     );
 
   return (
-    <div className="flex flex-col justify-between h-full gap-4 py-6">
+    <div className="flex flex-col justify-between h-full gap-4 pb-6 pt-2">
       <div className="w-full mb-8 px-4">
         <Link href={SITE_URL} className="pl-8">
           <div className="w-44">
@@ -177,7 +177,7 @@ export default function SideBar({
             )}
             <Link
               href="/dashboard/configuracion/perfil"
-              className="text-sm font-medium truncate"
+              className="text-xs font-medium truncate"
             >
               {session.user?.name}
             </Link>
