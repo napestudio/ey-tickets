@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createQuickSaleOrder } from "@/lib/actions";
+import { generateTicketsPdf } from "@/lib/pdf-utils";
 import { isBefore } from "date-fns";
 import { CheckCircle, Download, RefreshCw, Zap } from "lucide-react";
 import Image from "next/image";
@@ -115,100 +116,17 @@ export default function QuickSaleForm({
 
   async function handleDownloadPdf() {
     if (!saleResult) return;
-
-    const { default: jsPDF } = await import("jspdf");
-
-    const MM_WIDTH = 58;
-    const margin = 3;
-    const contentWidth = MM_WIDTH - margin * 2;
-    const qrSize = contentWidth * 0.8;
-    const N = saleResult.ticketIds.length;
-    // Pre-calculate page height to avoid jsPDF page-resize hacks
-    const pageHeight =
-      margin + 25 + N * (4 + qrSize + 8) + (N - 1) * 3 + margin;
-
-    const doc = new jsPDF({
-      unit: "mm",
-      format: [MM_WIDTH, pageHeight],
-      orientation: "portrait",
-    });
-
-    let y = margin;
-
     const generatedDate = new Date(saleResult.generatedAt);
     const formattedDate = format(generatedDate, "dd/MM/yyyy HH:mm", {
       locale: es,
     });
-
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    const titleLines = doc.splitTextToSize(eventTitle, contentWidth);
-    doc.text(titleLines, MM_WIDTH / 2, y, { align: "center" });
-    y += titleLines.length * 4 + 1;
-
-    doc.setFontSize(7);
-    doc.setFont("helvetica", "normal");
-    const ticketTypeLines = doc.splitTextToSize(
-      selectedTicketTitle,
-      contentWidth,
-    );
-    doc.text(ticketTypeLines, MM_WIDTH / 2, y, { align: "center" });
-    y += ticketTypeLines.length * 3.5 + 1;
-
-    doc.setFontSize(6);
-    doc.text(`Generado: ${formattedDate}`, MM_WIDTH / 2, y, {
-      align: "center",
+    await generateTicketsPdf({
+      ticketIds: saleResult.ticketIds,
+      eventTitle,
+      ticketTypeTitle: selectedTicketTitle,
+      generatedAt: saleResult.generatedAt,
+      filename: `venta-rapida-${formattedDate.replace(/[/:]/g, "-")}.pdf`,
     });
-    y += 5;
-
-    for (let idx = 0; idx < saleResult.ticketIds.length; idx++) {
-      const ticketId = saleResult.ticketIds[idx];
-
-      if (idx > 0) {
-        doc.setDrawColor(180, 180, 180);
-        doc.line(margin, y, MM_WIDTH - margin, y);
-        y += 3;
-      }
-
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "bold");
-      doc.text(
-        `Entrada ${idx + 1} de ${saleResult.ticketIds.length}`,
-        MM_WIDTH / 2,
-        y,
-        { align: "center" },
-      );
-      y += 4;
-
-      try {
-        const qrUrl = `/api/tickets/qr/${ticketId}`;
-        const response = await fetch(qrUrl);
-        const blob = await response.blob();
-        const qrDataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-        const qrX = (MM_WIDTH - qrSize) / 2;
-        doc.addImage(qrDataUrl, "PNG", qrX, y, qrSize, qrSize);
-        y += qrSize + 2;
-      } catch {
-        doc.setFontSize(6);
-        doc.setFont("helvetica", "normal");
-        doc.text("[QR no disponible]", MM_WIDTH / 2, y + 5, {
-          align: "center",
-        });
-        y += 10;
-      }
-
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Venta Puerta`, MM_WIDTH / 2, y, { align: "center" });
-      y += 8;
-    }
-
-    doc.save(`venta-rapida-${formattedDate.replace(/[/:]/g, "-")}.pdf`);
   }
 
   if (saleResult) {

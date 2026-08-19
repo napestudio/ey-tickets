@@ -629,9 +629,10 @@ export async function createQuickSaleOrder(input: {
         date: new Date(dateObj.date),
         orderId: result.id,
         eventId: result.eventId,
-        status: "NOT_VALIDATED",
+        status: "VALIDATED",
         ticketTypeId: result.ticketTypeId,
         isInvitation: false,
+        validatedAt: generatedAt,
       });
     }
   });
