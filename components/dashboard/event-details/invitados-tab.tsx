@@ -45,6 +45,7 @@ export default function InvitadosTab({
             eventAddress={evento.address}
             initialOnlyInvitations={true}
             showInvitationsToggle={false}
+            excludeCanceled={true}
             emptyMessage="No hay invitados."
           />
         ) : (

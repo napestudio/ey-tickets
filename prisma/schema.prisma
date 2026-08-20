@@ -84,6 +84,7 @@ model User {
   createdTicketTypes     TicketType[]            @relation("CreatedTicketTypes")
   stockMovements         TicketStockMovement[]   @relation("StockMovements")
   featuredEvents         FeaturedEvent[]         @relation("FeaturedEventCreatedBy")
+  canceledTicketOrders   CanceledTicketOrder[]
 }
 
 model UserConfiguration {
@@ -425,9 +426,25 @@ model TicketOrder {
   ticketType       TicketType?       @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
   validatorSession ValidatorSession? @relation(fields: [validatedBy], references: [id], onDelete: SetNull)
   validationEvents ValidationEvent[]
+  cancelation      CanceledTicketOrder?
 
   @@index([eventId, status])
   @@map("ticket_orders")
+}
+
+model CanceledTicketOrder {
+  id            String      @id @default(cuid())
+  ticketOrderId String      @unique
+  orderId       String
+  reason        String
+  details       String?
+  refunded      Boolean     @default(false)
+  canceledAt    DateTime    @default(now())
+  canceledById  String
+  ticketOrder   TicketOrder @relation(fields: [ticketOrderId], references: [id], onDelete: Cascade)
+  canceledBy    User        @relation(fields: [canceledById], references: [id])
+
+  @@map("canceled_ticket_orders")
 }
 
 // ─────────────────────────────────────────────
@@ -659,6 +676,7 @@ enum OrderStatus {
 enum TicketOrderStatus {
   VALIDATED
   NOT_VALIDATED
+  CANCELED
 }
 
 enum PromotionType {

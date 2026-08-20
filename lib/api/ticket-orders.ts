@@ -84,11 +84,52 @@ export async function getOrderTicketsByEvent(eventId: string) {
   });
 }
 
+export async function cancelTicketOrder(
+  ticketOrderId: string,
+  canceledById: string,
+  reason: string,
+  details?: string,
+  refunded: boolean = false,
+): Promise<{ success: boolean; error?: string }> {
+  return await prisma.$transaction(async (tx) => {
+    const ticket = await tx.ticketOrder.findUnique({
+      where: { id: ticketOrderId },
+      select: { id: true, status: true, orderId: true },
+    });
+
+    if (!ticket) {
+      return { success: false, error: "Ticket no encontrado." };
+    }
+
+    if (ticket.status === "CANCELED") {
+      return { success: false, error: "El ticket ya fue cancelado." };
+    }
+
+    await tx.ticketOrder.update({
+      where: { id: ticketOrderId },
+      data: { status: "CANCELED" },
+    });
+
+    await tx.canceledTicketOrder.create({
+      data: {
+        ticketOrderId,
+        orderId: ticket.orderId,
+        reason,
+        details: details ?? null,
+        refunded,
+        canceledById,
+      },
+    });
+
+    return { success: true };
+  });
+}
+
 export async function atomicValidateTicket(
   ticketId: string,
   eventId: string,
   sessionId: string
-): Promise<{ success: boolean; alreadyValidated: boolean }> {
+): Promise<{ success: boolean; alreadyValidated: boolean; canceled: boolean }> {
   return await prisma.$transaction(async (tx) => {
     const result = await tx.ticketOrder.updateMany({
       where: {
@@ -111,6 +152,7 @@ export async function atomicValidateTicket(
       return {
         success: false,
         alreadyValidated: ticket?.status === "VALIDATED",
+        canceled: ticket?.status === "CANCELED",
       };
     }
 
@@ -128,7 +170,7 @@ export async function atomicValidateTicket(
       data: { lastActivityAt: new Date() },
     });
 
-    return { success: true, alreadyValidated: false };
+    return { success: true, alreadyValidated: false, canceled: false };
   });
 }
 
@@ -300,10 +342,12 @@ export async function getSoldTicketsPaginated(
     search?: string;
     onlyInvitations?: boolean;
     excludeInvitations?: boolean;
+    excludeCanceled?: boolean;
+    onlyCanceled?: boolean;
     validatedBySessionId?: string;
   },
 ) {
-  const { page, pageSize, search, onlyInvitations, excludeInvitations, validatedBySessionId } = options;
+  const { page, pageSize, search, onlyInvitations, excludeInvitations, excludeCanceled, onlyCanceled, validatedBySessionId } = options;
   const skip = (page - 1) * pageSize;
 
   const sessionValidationMap = validatedBySessionId
@@ -324,6 +368,8 @@ export async function getSoldTicketsPaginated(
     ...(validatedTicketIds ? { id: { in: validatedTicketIds } } : {}),
     ...(onlyInvitations ? { isInvitation: true } : {}),
     ...(excludeInvitations ? { isInvitation: false } : {}),
+    ...(excludeCanceled ? { status: { not: "CANCELED" as const } } : {}),
+    ...(onlyCanceled ? { status: "CANCELED" as const } : {}),
     ...(search
       ? {
           OR: [
