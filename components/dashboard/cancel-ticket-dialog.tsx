@@ -26,7 +26,10 @@ type TicketSummary = {
   dni?: string | null;
   createdAt: Date;
   ticketType?: { title?: string | null } | null;
-  order?: { email?: string | null; ticketType?: { title?: string | null } | null } | null;
+  order?: {
+    email?: string | null;
+    ticketType?: { title?: string | null } | null;
+  } | null;
 };
 
 interface CancelTicketDialogProps {
@@ -59,14 +62,20 @@ export function CancelTicketDialog({
     setLoading(mode);
 
     try {
-      await cancelTicketOrderAction(ticket.id, reason.trim(), undefined, refunded);
+      await cancelTicketOrderAction(
+        ticket.id,
+        reason.trim(),
+        undefined,
+        refunded,
+      );
       toast({ title: "Entrada cancelada correctamente." });
       setReason("");
       onSuccess();
       onClose();
     } catch (err) {
       toast({
-        title: err instanceof Error ? err.message : "Error al cancelar la entrada.",
+        title:
+          err instanceof Error ? err.message : "Error al cancelar la entrada.",
         variant: "destructive",
       });
     } finally {
@@ -84,12 +93,18 @@ export function CancelTicketDialog({
   const email = ticket?.email ?? ticket?.order?.email ?? "—";
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleClose();
+      }}
+    >
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Cancelar entrada</DialogTitle>
           <DialogDescription>
-            Esta acción marcará la entrada como cancelada. El QR dejará de ser válido.
+            Esta acción marcará la entrada como cancelada. El QR dejará de ser
+            válido. La devolución del dinero corre por cuenta de la Productora.
           </DialogDescription>
         </DialogHeader>
 
@@ -99,7 +114,9 @@ export function CancelTicketDialog({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">N.°</span>
                 <span className="font-medium">
-                  {ticket.code != null ? String(ticket.code).padStart(5, "0") : "—"}
+                  {ticket.code != null
+                    ? String(ticket.code).padStart(5, "0")
+                    : "—"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -108,7 +125,9 @@ export function CancelTicketDialog({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Email</span>
-                <span className="font-medium truncate max-w-[60%] text-right">{email}</span>
+                <span className="font-medium truncate max-w-[60%] text-right">
+                  {email}
+                </span>
               </div>
               {ticket.dni && (
                 <div className="flex justify-between">
@@ -130,7 +149,8 @@ export function CancelTicketDialog({
 
             <div className="space-y-2">
               <Label htmlFor="cancel-reason">
-                Motivo de cancelación <span className="text-destructive">*</span>
+                Motivo de cancelación{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="cancel-reason"
@@ -141,7 +161,6 @@ export function CancelTicketDialog({
                 disabled={!!loading}
               />
             </div>
-
           </div>
         )}
 
@@ -154,13 +173,13 @@ export function CancelTicketDialog({
           >
             Cerrar
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             onClick={() => handleSubmit(true)}
             disabled={!!loading || !reason.trim()}
           >
             {loading === "refund" ? "Cancelando..." : "Cancelar y reembolsar"}
-          </Button>
+          </Button> */}
           <Button
             variant="destructive"
             onClick={() => handleSubmit(false)}
