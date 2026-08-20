@@ -12,7 +12,7 @@ type TicketOrderType = {
   orderId: string;
   eventId: string;
   ticketTypeId: string;
-  status: "NOT_VALIDATED" | "VALIDATED";
+  status: "NOT_VALIDATED" | "VALIDATED" | "CANCELED";
   isInvitation?: boolean;
 };
 
