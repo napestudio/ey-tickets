@@ -56,13 +56,24 @@ export type TicketOrderType = {
   orderId: string;
   eventId: string;
   ticketTypeId: string;
-  status: "NOT_VALIDATED" | "VALIDATED";
+  status: "NOT_VALIDATED" | "VALIDATED" | "CANCELED";
   isInvitation?: boolean;
   code?: number;
   validatedAt?: Date | null;
   validatedBy?: string | null;
   event?: Evento;
   ticketType?: Partial<TicketType>;
+};
+
+export type CanceledTicketOrder = {
+  id: string;
+  ticketOrderId: string;
+  orderId: string;
+  reason: string;
+  details?: string | null;
+  refunded: boolean;
+  canceledAt: Date;
+  canceledById: string;
 };
 
 export type TicketOrderTableProps = {
@@ -76,7 +87,7 @@ export type TicketOrderTableProps = {
   orderId: string;
   eventId: string;
   ticketTypeId?: string;
-  status: "NOT_VALIDATED" | "VALIDATED";
+  status: "NOT_VALIDATED" | "VALIDATED" | "CANCELED";
   ticketType?: Partial<TicketType> | undefined;
   createdAt?: Date | undefined;
   isInvitation?: boolean | undefined;

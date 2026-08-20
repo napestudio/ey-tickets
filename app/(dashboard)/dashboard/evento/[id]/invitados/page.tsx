@@ -8,7 +8,7 @@ import { getEventById, getSoldTicketCountsByTypeAction } from "@/lib/actions";
 import { getSoldTicketsPaginated } from "@/lib/api/ticket-orders";
 import { can } from "@/lib/permissions";
 import { Evento, EventoWithTicketsType } from "@/types/event";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft, User, XCircle } from "lucide-react";
 import { AddInvitationDialog } from "@/components/dashboard/add-invitation-dialog";
 
 export default async function InvitadosPage({
@@ -34,6 +34,7 @@ export default async function InvitadosPage({
           page: 1,
           pageSize: 10,
           onlyInvitations: true,
+          excludeCanceled: true,
         })
       : Promise.resolve(null),
   ]);
@@ -44,13 +45,22 @@ export default async function InvitadosPage({
         title="Invitaciones"
         subtitle={`Gestión de invitaciones para ${evento.title}`}
       />
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/dashboard/evento/${id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al evento
-          </Link>
-        </Button>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/evento/${id}`}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver al evento
+            </Link>
+          </Button>
+
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/evento/${id}/canceladas`}>
+              <XCircle className="mr-2 h-4 w-4" />
+              Ver canceladas
+            </Link>
+          </Button>
+        </div>
 
         <AddInvitationDialog
           evento={evento as unknown as Evento}
@@ -58,7 +68,6 @@ export default async function InvitadosPage({
           isEventOwner={isEventOwner}
         >
           <Button
-            variant="outline"
             size="sm"
             disabled={evento.status === "CANCELED"}
           >

@@ -8,7 +8,7 @@ export default function Footer() {
     return;
   return (
     <footer>
-      <div className="w-full  bg-black py-4">
+      <div className="w-full  bg-black py-2">
         <div className="container">
           <div className="text-neutral-500 flex justify-between items-center">
             <p className="text-sm">

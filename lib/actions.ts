@@ -402,6 +402,31 @@ export async function getTicketStockMovements(ticketTypeId: string) {
   return TicketTypes.getStockMovementsByTicketType(ticketTypeId);
 }
 
+export async function cancelTicketOrderAction(
+  ticketOrderId: string,
+  reason: string,
+  details?: string,
+  refunded: boolean = false,
+) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+
+  const result = await TicketOrders.cancelTicketOrder(
+    ticketOrderId,
+    session.user.id,
+    reason,
+    details,
+    refunded,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error ?? "Error al cancelar el ticket.");
+  }
+
+  revalidatePath("/dashboard");
+  return result;
+}
+
 export type CreateOrderType = {
   ticketTypeId: string;
   status: string;
@@ -1844,6 +1869,8 @@ export async function getSoldTicketsPaginatedAction(
   search?: string,
   onlyInvitations?: boolean,
   excludeInvitations?: boolean,
+  excludeCanceled?: boolean,
+  onlyCanceled?: boolean,
 ) {
   return serialize(
     await TicketOrders.getSoldTicketsPaginated(eventId, {
@@ -1852,6 +1879,8 @@ export async function getSoldTicketsPaginatedAction(
       search,
       onlyInvitations,
       excludeInvitations,
+      excludeCanceled,
+      onlyCanceled,
     }),
   );
 }
