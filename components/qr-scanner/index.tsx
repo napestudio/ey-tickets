@@ -6,7 +6,7 @@ import { QrCode, WifiOff } from "lucide-react";
 import { validateTicketById } from "@/lib/actions";
 import { toast } from "../ui/use-toast";
 
-type ScanResult = "VALIDATED" | "ALREADY_VALIDATED" | "ERROR" | null;
+type ScanResult = "VALIDATED" | "ALREADY_VALIDATED" | "CANCELED" | "ERROR" | null;
 
 export default function QrScannerComponent({
   eventId,
@@ -53,6 +53,12 @@ export default function QrScannerComponent({
                 setScanResult("ALREADY_VALIDATED");
                 toast({
                   title: "El ticket ya fue validado con anterioridad",
+                  variant: "destructive",
+                });
+              } else if (r.canceled) {
+                setScanResult("CANCELED");
+                toast({
+                  title: "Esta entrada ha sido cancelada",
                   variant: "destructive",
                 });
               } else {
@@ -102,18 +108,22 @@ export default function QrScannerComponent({
       ? "bg-green-400"
       : scanResult === "ALREADY_VALIDATED"
         ? "bg-red-400"
-        : scanResult === "ERROR"
-          ? "bg-yellow-400"
-          : "";
+        : scanResult === "CANCELED"
+          ? "bg-orange-400"
+          : scanResult === "ERROR"
+            ? "bg-yellow-400"
+            : "";
 
   const scanResultText =
     scanResult === "VALIDATED"
       ? "Validado"
       : scanResult === "ALREADY_VALIDATED"
         ? "Ya validado"
-        : scanResult === "ERROR"
-          ? "Error"
-          : "Validando...";
+        : scanResult === "CANCELED"
+          ? "Entrada cancelada"
+          : scanResult === "ERROR"
+            ? "Error"
+            : "Validando...";
 
   return (
     <>

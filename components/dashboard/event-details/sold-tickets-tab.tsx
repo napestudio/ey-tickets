@@ -11,7 +11,7 @@ import { getSoldTicketsPaginated } from "@/lib/api/ticket-orders";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Ticket } from "lucide-react";
+import { Ticket, XCircle } from "lucide-react";
 
 export default async function SoldTicketsTab({
   evento,
@@ -22,6 +22,7 @@ export default async function SoldTicketsTab({
     page: 1,
     pageSize: 10,
     excludeInvitations: true,
+    excludeCanceled: true,
   });
 
   return (
@@ -31,21 +32,29 @@ export default async function SoldTicketsTab({
           <CardTitle>Vendidas</CardTitle>
           <CardDescription>Listado de entradas vendidas</CardDescription>
         </div>
-        <Button
-          asChild
-          size="sm"
-          disabled={evento.status === "CANCELED"}
-        >
-          <Link
-            href={`/dashboard/evento/${evento.id}/vender-entrada`}
-            className={cn(
-              evento.status === "CANCELED" && "opacity-50 pointer-events-none",
-            )}
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/dashboard/evento/${evento.id}/canceladas`}>
+              <XCircle className="mr-2 h-4 w-4" />
+              Ver canceladas
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            disabled={evento.status === "CANCELED"}
           >
-            <Ticket className="mr-2 h-4 w-4" />
-            Vender entrada
-          </Link>
-        </Button>
+            <Link
+              href={`/dashboard/evento/${evento.id}/vender-entrada`}
+              className={cn(
+                evento.status === "CANCELED" && "opacity-50 pointer-events-none",
+              )}
+            >
+              <Ticket className="mr-2 h-4 w-4" />
+              Vender entrada
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <SoldTicketsTable
@@ -55,6 +64,7 @@ export default async function SoldTicketsTab({
           eventTitle={evento.title}
           eventAddress={evento.address}
           excludeInvitations={true}
+          excludeCanceled={true}
           showInvitationsToggle={false}
         />
       </CardContent>

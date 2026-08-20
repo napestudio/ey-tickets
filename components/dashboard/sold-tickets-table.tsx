@@ -1,6 +1,7 @@
 "use client";
-import { Eye, MoreHorizontal, Copy, Check } from "lucide-react";
+import { Eye, MoreHorizontal, Copy, Check, X } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { CancelTicketDialog } from "./cancel-ticket-dialog";
 
 import {
   Table,
@@ -66,6 +67,8 @@ interface SoldTicketsTableProps {
   initialOnlyInvitations?: boolean;
   showInvitationsToggle?: boolean;
   excludeInvitations?: boolean;
+  excludeCanceled?: boolean;
+  onlyCanceled?: boolean;
   emptyMessage?: string;
 }
 
@@ -78,6 +81,8 @@ export default function SoldTicketsTable({
   initialOnlyInvitations,
   showInvitationsToggle = true,
   excludeInvitations,
+  excludeCanceled,
+  onlyCanceled,
   emptyMessage = "No hay entradas vendidas.",
 }: SoldTicketsTableProps) {
   const [tickets, setTickets] = useState<PageTicket[]>(initialTickets);
@@ -91,6 +96,7 @@ export default function SoldTicketsTable({
   const [loading, setLoading] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [detailTicket, setDetailTicket] = useState<PageTicket | null>(null);
+  const [cancelTicket, setCancelTicket] = useState<PageTicket | null>(null);
   const isFirstRender = useRef(true);
 
   const totalPages = Math.ceil(total / itemsPerPage);
@@ -110,6 +116,8 @@ export default function SoldTicketsTable({
         search || undefined,
         onlyInvitations || undefined,
         excludeInvitations || undefined,
+        excludeCanceled || undefined,
+        onlyCanceled || undefined,
       );
       setTickets(result.tickets);
       setTotal(result.total);
@@ -258,6 +266,11 @@ export default function SoldTicketsTable({
                       <div className="text-xs">
                         {ticket.email || ticket.order?.email || "—"}
                       </div>
+                      {ticket.status === "CANCELED" && (
+                        <Badge variant="destructive" className="text-xs">
+                          Cancelada
+                        </Badge>
+                      )}
                       {ticket.isInvitation &&
                         ticket.order?.customizationToken && (
                           <Badge
@@ -330,6 +343,18 @@ export default function SoldTicketsTable({
                           >
                             <Eye className="h-4 w-4" />
                             Mostrar detalle
+                          </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full inline-flex gap-1 items-center justify-start whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent h-9 rounded-md cursor-pointer text-destructive hover:text-destructive"
+                            onClick={() => setCancelTicket(ticket)}
+                            disabled={ticket.status === "CANCELED"}
+                          >
+                            <X className="h-4 w-4" />
+                            {ticket.status === "CANCELED" ? "Cancelada" : "Cancelar entrada"}
                           </Button>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
@@ -541,6 +566,14 @@ export default function SoldTicketsTable({
           )}
         </DialogContent>
       </Dialog>
+
+      <CancelTicketDialog
+        ticket={cancelTicket}
+        onClose={() => setCancelTicket(null)}
+        onSuccess={() =>
+          fetchPage(currentPage, itemsPerPage, searchQuery, showOnlyInvitations)
+        }
+      />
     </div>
   );
 }
