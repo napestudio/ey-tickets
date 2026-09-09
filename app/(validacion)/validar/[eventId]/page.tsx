@@ -5,7 +5,7 @@ import ValidatorsNavbar from "./validators-navbar";
 
 export const metadata: Metadata = {
   title: "Panel de validación",
-  description: "Plataforma de venta de entradas online",
+  description: "Plataforma de gestión de eventos online",
 };
 
 export default async function ValidatorPage({

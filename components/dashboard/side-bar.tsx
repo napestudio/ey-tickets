@@ -24,6 +24,7 @@ import { useState } from "react";
 import Logo from "../ui/Logo";
 import { NavItem } from "@/app/(dashboard)/dashboard/lib/config/dashboard-navigation";
 import { ProducerStockWidget } from "./producer-stock-widget";
+import { VenueMapIcon } from "./ui/VenueMapIcon";
 
 const ICON_MAP: Record<string, JSX.Element> = {
   dashboard: <LayoutDashboard className="mr-2 h-4 w-4" />,
@@ -33,6 +34,7 @@ const ICON_MAP: Record<string, JSX.Element> = {
   users: <Users className="mr-2 h-4 w-4" />,
   chart: <TrendingUp className="mr-2 h-4 w-4" />,
   settings: <Settings className="mr-2 h-4 w-4" />,
+  map: <VenueMapIcon className="mr-1 h-5 w-5" />,
 };
 
 interface DashboardNavProps {

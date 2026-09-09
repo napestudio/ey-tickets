@@ -12,6 +12,8 @@ import * as ValidatorToken from "@/lib/api/validators-token";
 import * as UserInvitation from "@/lib/api/user-invitations";
 import * as PaymentMethod from "@/lib/api/payment-methods";
 import * as TicketStock from "@/lib/api/ticket-stock";
+import * as Venues from "@/lib/api/venues";
+import * as Seats from "@/lib/api/seats";
 import { createStockPurchasePreference } from "@/lib/api/eytickets-mercadopago";
 import { getActiveFeaturedEventsForCarousel } from "@/lib/api/superadmin/featured-events";
 import { getUnitPriceForQuantity } from "@/lib/ticket-stock-catalog";
@@ -21,6 +23,7 @@ import {
 } from "@/lib/api/producers";
 
 import { EventCategory, EventStatus, EventType } from "@/types/event";
+import { VenueElement, VenueSector } from "@/types/venue";
 import { Product } from "@/types/product";
 import { DatesType, TicketOrderType, TicketType } from "@/types/tickets";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -444,6 +447,7 @@ export type CreateOrderType = {
   phone?: string;
   dni?: string;
   paymentMethodId?: string;
+  seatId?: string;
 };
 
 export async function createOrder(data: CreateOrderType) {
@@ -467,9 +471,38 @@ export type CreateSecureOrderInput = {
   eventId: string;
   discountCode?: string;
   paymentMethodId?: string;
+  seatId?: string;
 };
 
 export async function createSecureOrder(input: CreateSecureOrderInput) {
+  // For seat purchases, validate the seat and determine effective quantity
+  let effectiveQuantity = input.quantity;
+  if (input.seatId) {
+    const seat = await prisma.seat.findUnique({
+      where: { id: input.seatId },
+      select: { status: true, tableCapacity: true, venueSectorId: true, eventVenueId: true },
+    });
+    if (!seat) throw new Error("Asiento no encontrado.");
+    if (seat.status !== "HELD") throw new Error("El asiento no está reservado. Volvé a seleccionarlo.");
+
+    // Verify the ticketTypeId matches the sector mapping — prevents price manipulation
+    const sectorMapping = await prisma.eventSectorMapping.findUnique({
+      where: {
+        eventVenueId_venueSectorId: {
+          eventVenueId: seat.eventVenueId,
+          venueSectorId: seat.venueSectorId,
+        },
+      },
+      select: { ticketTypeId: true },
+    });
+    if (!sectorMapping || sectorMapping.ticketTypeId !== input.ticketTypeId) {
+      throw new Error("El tipo de ticket no corresponde al sector de este asiento.");
+    }
+
+    // TABLE: quantity = tableCapacity (whole table = N tickets); ROW: 1
+    effectiveQuantity = seat.tableCapacity ?? 1;
+  }
+
   const [ticketType, discountCodeRecord, event] = await Promise.all([
     prisma.ticketType.findUnique({
       where: { id: input.ticketTypeId },
@@ -509,9 +542,12 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
   if (ticketType.endDate && ticketType.endDate < new Date())
     throw new Error("Este tipo de ticket ha expirado.");
 
-  const maxQty = ticketType.limitPerSale ?? 10;
-  if (input.quantity < 1 || input.quantity > maxQty)
-    throw new Error(`La cantidad debe ser entre 1 y ${maxQty}.`);
+  // Only enforce limitPerSale for non-seat orders; seat quantity is determined by the seat itself
+  if (!input.seatId) {
+    const maxQty = ticketType.limitPerSale ?? 10;
+    if (input.quantity < 1 || input.quantity > maxQty)
+      throw new Error(`La cantidad debe ser entre 1 y ${maxQty}.`);
+  }
 
   let discountPercent = 0;
   let appliedCodeId: string | undefined;
@@ -528,7 +564,7 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
     event?.producer?.configuration?.serviceCharge ?? 0;
 
   const unitPrice = Number(ticketType.price);
-  const baseSubtotal = unitPrice * input.quantity;
+  const baseSubtotal = unitPrice * effectiveQuantity;
   const discountAmount = discountPercent
     ? (baseSubtotal * discountPercent) / 100
     : 0;
@@ -541,7 +577,7 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
   const orderData: CreateOrderType = {
     ticketTypeId: input.ticketTypeId,
     status: "PENDING",
-    quantity: input.quantity,
+    quantity: effectiveQuantity,
     eventId: input.eventId,
     hasCode: discountPercent > 0,
     discountCode: appliedCodeId,
@@ -550,6 +586,7 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
     discountAmount,
     serviceChargeAmount,
     paymentMethodId: input.paymentMethodId,
+    seatId: input.seatId,
   };
 
   let orderId: string | null = null;
@@ -1015,6 +1052,17 @@ export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
     });
 
     await createTicketOrder(ticketsData);
+
+    // If this was a seat purchase, mark the seat as sold and link to the first ticket
+    if (order.seatId) {
+      const firstTicketOrder = await prisma.ticketOrder.findFirst({
+        where: { orderId },
+        select: { id: true },
+      });
+      if (firstTicketOrder) {
+        await Seats.sellSeat(order.seatId, firstTicketOrder.id);
+      }
+    }
   } catch (error) {
     throw new Error("Error creando free ticket");
   }
@@ -1939,4 +1987,214 @@ export async function getProducerStockSummaryAction() {
 
 export async function getActiveFeaturedEvents() {
   return getActiveFeaturedEventsForCarousel();
+}
+
+// ─────────────────────────────────────────────
+// VENUE ACTIONS
+// ─────────────────────────────────────────────
+
+export async function getVenuesForProducer() {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  return serialize(
+    await Venues.getVenuesByProducerId(session.user.producerId)
+  );
+}
+
+export async function getVenueByIdAction(venueId: string) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.getVenueById(venueId);
+  if (!venue || venue.producerId !== session.user.producerId) {
+    throw new Error("Venue no encontrado o sin acceso.");
+  }
+  return serialize(venue);
+}
+
+export async function createVenueAction(data: {
+  name: string;
+  description?: string;
+  widthCells?: number;
+  heightCells?: number;
+}) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.createVenue({
+    ...data,
+    producerId: session.user.producerId,
+  });
+  revalidatePath("/dashboard/venues");
+  return serialize(venue);
+}
+
+export async function updateVenueAction(
+  venueId: string,
+  data: Partial<{
+    name: string;
+    description: string;
+    widthCells: number;
+    heightCells: number;
+  }>
+) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.getVenueById(venueId);
+  if (!venue || venue.producerId !== session.user.producerId) {
+    throw new Error("Venue no encontrado o sin acceso.");
+  }
+  const updated = await Venues.updateVenue(venueId, data);
+  revalidatePath("/dashboard/venues");
+  revalidatePath(`/dashboard/venues/${venueId}/edit`);
+  return serialize(updated);
+}
+
+export async function saveVenueMapAction(
+  venueId: string,
+  sectors: VenueSector[],
+  elements: VenueElement[]
+) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.getVenueById(venueId);
+  if (!venue || venue.producerId !== session.user.producerId) {
+    throw new Error("Venue no encontrado o sin acceso.");
+  }
+  await Venues.saveVenueMap(venueId, sectors, elements);
+  revalidatePath(`/dashboard/venues/${venueId}/edit`);
+}
+
+export async function deleteVenueAction(venueId: string) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.getVenueById(venueId);
+  if (!venue || venue.producerId !== session.user.producerId) {
+    throw new Error("Venue no encontrado o sin acceso.");
+  }
+  await Venues.deleteVenue(venueId);
+  revalidatePath("/dashboard/venues");
+}
+
+// ─────────────────────────────────────────────
+// EVENT-VENUE ACTIONS
+// ─────────────────────────────────────────────
+
+export async function getEventVenueAction(eventId: string) {
+  const result = await Venues.getEventVenue(eventId);
+  return result ? serialize(result) : null;
+}
+
+export async function assignVenueToEventAction(
+  eventId: string,
+  venueId: string
+) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  const venue = await Venues.getVenueById(venueId);
+  if (!venue || venue.producerId !== session.user.producerId) {
+    throw new Error("Venue no encontrado o sin acceso.");
+  }
+  const eventVenue = await Venues.assignVenueToEvent(eventId, venueId);
+  // Mark event as using a seating map — changes the purchase flow
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { hasVenueMap: true },
+  });
+  revalidatePath(`/dashboard/evento/${eventId}/mapa`);
+  revalidatePath(`/dashboard/evento/${eventId}`);
+  return serialize(eventVenue);
+}
+
+export async function updateEventSectorMappingsAction(
+  eventVenueId: string,
+  eventId: string,
+  mappings: Array<{ venueSectorId: string; ticketTypeId: string }>
+) {
+  await Venues.updateEventSectorMappings(eventVenueId, mappings);
+  revalidatePath(`/dashboard/evento/${eventId}/mapa`);
+}
+
+export async function removeVenueFromEventAction(
+  eventVenueId: string,
+  eventId: string
+) {
+  await Venues.removeVenueFromEvent(eventVenueId);
+  // Revert the flag — event returns to traditional purchase flow
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { hasVenueMap: false },
+  });
+  revalidatePath(`/dashboard/evento/${eventId}/mapa`);
+  revalidatePath(`/dashboard/evento/${eventId}`);
+}
+
+// ─────────────────────────────────────────────
+// SEAT ACTIONS
+// ─────────────────────────────────────────────
+
+export async function generateSeatsAction(
+  eventVenueId: string,
+  eventId: string
+) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+
+  await Seats.releaseExpiredHolds();
+  const result = await Seats.generateSeatsForEventVenue(eventVenueId);
+
+  // Auto-sync TicketType.quantity for each mapped sector (already done inside generateSeatsForEventVenue)
+  void eventId; // used for revalidatePath below
+
+  revalidatePath(`/dashboard/evento/${eventId}/mapa`);
+  return result;
+}
+
+export async function regenerateSeatsAction(
+  eventVenueId: string,
+  eventId: string
+) {
+  const session = await getSession();
+  if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
+  await Seats.deleteSeatsByEventVenue(eventVenueId);
+  return generateSeatsAction(eventVenueId, eventId);
+}
+
+export async function getSeatsForPublicMap(eventId: string) {
+  const eventVenue = await Venues.getEventVenue(eventId);
+  if (!eventVenue) return null;
+  await Seats.releaseExpiredHolds();
+  return serialize(
+    await Seats.getSeatsByEventVenueGrouped(eventVenue.id)
+  );
+}
+
+export async function holdSeatAction(seatId: string) {
+  await Seats.releaseExpiredHolds();
+  const seat = await Seats.holdSeat(seatId);
+
+  // Resolve ticketTypeId from the sector mapping for this seat
+  const mapping = await prisma.eventSectorMapping.findUnique({
+    where: {
+      eventVenueId_venueSectorId: {
+        eventVenueId: seat.eventVenueId,
+        venueSectorId: seat.venueSectorId,
+      },
+    },
+    select: { ticketTypeId: true },
+  });
+
+  return serialize({ ...seat, ticketTypeId: mapping?.ticketTypeId ?? null });
+}
+
+export async function releaseSeatAction(seatId: string) {
+  await Seats.releaseSeat(seatId);
+}
+
+export async function blockSeatAction(seatId: string) {
+  const seat = await Seats.blockSeat(seatId);
+  return serialize(seat);
+}
+
+export async function unblockSeatAction(seatId: string) {
+  const seat = await Seats.unblockSeat(seatId);
+  return serialize(seat);
 }

@@ -60,6 +60,7 @@ export interface Evento {
   venue?: string | null;
   ageRestriction?: number | null;
   website?: string | null;
+  hasVenueMap?: boolean;
 }
 export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
   MUSIC: "Música",
@@ -107,4 +108,5 @@ export interface EventoWithTicketsType {
   venue?: string | null;
   ageRestriction?: number | null;
   website?: string | null;
+  hasVenueMap?: boolean;
 }

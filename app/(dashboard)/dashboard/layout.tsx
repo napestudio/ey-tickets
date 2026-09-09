@@ -13,7 +13,7 @@ import { ProducerStockInitializer } from "@/components/dashboard/producer-stock-
 
 export const metadata: Metadata = {
   title: "Eytickets | Administración",
-  description: "Plataforma de venta de entradas online",
+  description: "Plataforma de gestión de eventos online",
 };
 
 export default async function DashboardLayout({

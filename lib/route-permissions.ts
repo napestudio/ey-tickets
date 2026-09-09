@@ -15,6 +15,7 @@ export type Permission =
   | "reports:view"
   | "discount-codes:view"
   | "promotions:view"
+  | "venues:manage"
   | "settings:view"
   | "settings:producer"
   | "settings:mercadopago";
@@ -34,6 +35,7 @@ const ALL_PERMISSIONS: Permission[] = [
   "reports:view",
   "discount-codes:view",
   "promotions:view",
+  "venues:manage",
   "settings:view",
   "settings:producer",
   "settings:mercadopago",
@@ -51,6 +53,7 @@ const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     "events:sell",
     "events:validators",
     "reports:view",
+    "venues:manage",
     "settings:view",
   ],
   SELLER: [
@@ -79,7 +82,8 @@ export const DASHBOARD_ROUTE_RULES: RouteRule[] = [
   // Nuevo evento
   { pattern: /^\/dashboard\/nuevo-evento$/, requires: "events:create" },
   // Sub-rutas de evento — específicas antes que la raíz del evento
-  { pattern: /^\/dashboard\/evento\/[^/]+\/edit(\/.*)?$/, requires: "events:edit" },
+  { pattern: /^\/dashboard\/evento\/[^/]+\/editar(\/.*)?$/, requires: "events:edit" },
+  { pattern: /^\/dashboard\/evento\/[^/]+\/mapa(\/.*)?$/, requires: "events:edit" },
   { pattern: /^\/dashboard\/evento\/[^/]+\/vender-entrada(\/.*)?$/, requires: "events:sell" },
   { pattern: /^\/dashboard\/evento\/[^/]+\/validadores(\/.*)?$/, requires: "events:validators" },
   { pattern: /^\/dashboard\/evento(\/.*)?$/, requires: "events:view" },
@@ -93,6 +97,8 @@ export const DASHBOARD_ROUTE_RULES: RouteRule[] = [
   { pattern: /^\/dashboard\/codigos(\/.*)?$/, requires: "discount-codes:view" },
   { pattern: /^\/dashboard\/nuevo-codigo(\/.*)?$/, requires: "discount-codes:view" },
   { pattern: /^\/dashboard\/promociones(\/.*)?$/, requires: "promotions:view" },
+  // Salas (venues)
+  { pattern: /^\/dashboard\/venues(\/.*)?$/, requires: "venues:manage" },
   // Catch-all: /dashboard y cualquier sub-ruta no listada arriba
   { pattern: /^\/dashboard(\/.*)?$/, requires: "dashboard:view" },
 ];
