@@ -11,11 +11,8 @@ interface StepDefinition {
 
 const STEPS: StepDefinition[] = [
   { label: "Datos", description: "Información del evento" },
-  { label: "Tipo", description: "Categoría y acceso" },
   { label: "Fechas", description: "Fechas del evento" },
   { label: "Lugar", description: "Ubicación del evento" },
-  { label: "Imagen", description: "Foto del evento" },
-  { label: "Estado", description: "Estado del evento" },
 ];
 
 interface EditWizardStepperProps {

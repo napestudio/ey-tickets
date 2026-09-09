@@ -48,6 +48,7 @@ import { Label } from "@/components/ui/label";
 import Box from "@/components/dashboard/box";
 import { es } from "date-fns/locale";
 import { useRouter } from "next/navigation";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 
 export default function TycketTypeForm({
   evento,
@@ -130,6 +131,7 @@ export default function TycketTypeForm({
       await createTicketType(data);
       form.reset();
       setHasDiscount(false);
+      refreshProducerStockSummary();
       toast({
         title: "Tipo de ticket creado!",
       });

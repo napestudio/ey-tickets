@@ -7,7 +7,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { removeMemberAllocationAction } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
 import AssignMemberDialog from "./assign-member-dialog";
-import { useProducerStockStore } from "@/store/producer-stock-store";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 
 interface MemberOption {
   id: string;
@@ -43,7 +43,6 @@ export default function MemberAllocationsTable({
   const [editTarget, setEditTarget] = useState<AllocationWithUser | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const refreshStock = useProducerStockStore((s) => s.refresh);
 
   function handleEdit(allocation: AllocationWithUser) {
     setEditTarget(allocation);
@@ -63,7 +62,7 @@ export default function MemberAllocationsTable({
           title: "Cupo eliminado",
           description: `Se quitó el cupo de tickets de "${userName ?? userId}".`,
         });
-        refreshStock();
+        refreshProducerStockSummary();
       } catch {
         toast({
           variant: "destructive",

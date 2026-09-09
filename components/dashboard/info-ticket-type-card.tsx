@@ -23,6 +23,7 @@ import Link from "next/link";
 
 import { useCallback, useEffect, useState } from "react";
 import { getStats, updateTicketType } from "@/lib/actions";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 import UpdateTicketTypeStatus from "./uptdate-status-ticketType-alert";
 import { toast } from "../ui/use-toast";
 import { cn, formatPrice } from "@/lib/utils";
@@ -85,7 +86,9 @@ export default function InfoTicketTypeCard({ ticket }: { ticket: TicketType }) {
         break;
     }
     try {
-      updateTicketType(data, ticket.id as string);
+      updateTicketType(data, ticket.id as string).then(() =>
+        refreshProducerStockSummary()
+      );
       toast({
         title: msg,
       });

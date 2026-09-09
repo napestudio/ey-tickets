@@ -1,6 +1,7 @@
 import { prisma } from "../prisma";
 import { SeatPattern, SeatOrder } from "@/types/venue";
 import { Prisma } from "@prisma/client";
+import { adjustTicketTypeStock } from "./ticket-types";
 
 function generateSeatNumbers(
   start: number,
@@ -22,7 +23,9 @@ function generateSeatNumbers(
 }
 
 export async function generateSeatsForEventVenue(
-  eventVenueId: string
+  eventVenueId: string,
+  performedById: string,
+  producerId: string
 ): Promise<{ created: number }> {
   const existing = await prisma.seat.count({ where: { eventVenueId } });
   if (existing > 0) {
@@ -112,10 +115,20 @@ export async function generateSeatsForEventVenue(
     const count = await prisma.seat.count({
       where: { eventVenueId, venueSectorId: sectorId },
     });
-    await prisma.ticketType.update({
+    const current = await prisma.ticketType.findUniqueOrThrow({
       where: { id: ticketTypeId },
-      data: { quantity: count },
+      select: { quantity: true },
     });
+    const delta = count - current.quantity;
+    if (delta !== 0) {
+      await adjustTicketTypeStock(
+        ticketTypeId,
+        delta,
+        performedById,
+        producerId,
+        "Generación de mapa de asientos"
+      );
+    }
   }
 
   return { created: seatData.length };

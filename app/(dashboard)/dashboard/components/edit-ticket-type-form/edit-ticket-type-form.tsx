@@ -62,7 +62,7 @@ import { es } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import Box from "@/components/dashboard/box";
 import StockMovementLog from "@/app/(dashboard)/dashboard/components/stock-movement-log/stock-movement-log";
-import { useProducerStockStore } from "@/store/producer-stock-store";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 
 type MovementType = "INCREASE" | "DECREASE";
 
@@ -102,7 +102,6 @@ export default function EditTycketTypeForm({
 
   const { toast } = useToast();
   const router = useRouter();
-  const refreshStock = useProducerStockStore((s) => s.refresh);
   const backHref = `/dashboard/evento/ticket-types/${eventId}`;
   const parsedEventDates = JSON.parse(evento.dates as string);
   const isSingleDate = parsedEventDates.length === 1;
@@ -158,6 +157,7 @@ export default function EditTycketTypeForm({
     const data: Partial<TicketType> = { status: "DELETED" };
     try {
       await updateTicketType(data, ticket.id as string);
+      refreshProducerStockSummary();
       toast({ title: "Tipo de ticket eliminado!" });
       router.push(backHref);
     } catch (error) {
@@ -183,7 +183,7 @@ export default function EditTycketTypeForm({
       setStockAmount(0);
       setStockReason("");
       router.refresh();
-      refreshStock();
+      refreshProducerStockSummary();
     } catch (error) {
       toast({
         variant: "destructive",

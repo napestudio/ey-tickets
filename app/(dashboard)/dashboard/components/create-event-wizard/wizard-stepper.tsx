@@ -16,7 +16,6 @@ const STEPS: StepDefinition[] = [
   { label: "Lugar", description: "Ubicación del evento" },
   { label: "Imagen", description: "Foto del evento" },
   { label: "Pagos", description: "Métodos de pago" },
-  { label: "Entradas", description: "Tipo de ticket" },
 ];
 
 interface WizardStepperProps {

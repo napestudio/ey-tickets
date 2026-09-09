@@ -2139,7 +2139,11 @@ export async function generateSeatsAction(
   if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
 
   await Seats.releaseExpiredHolds();
-  const result = await Seats.generateSeatsForEventVenue(eventVenueId);
+  const result = await Seats.generateSeatsForEventVenue(
+    eventVenueId,
+    session.user.id,
+    session.user.producerId
+  );
 
   // Auto-sync TicketType.quantity for each mapped sector (already done inside generateSeatsForEventVenue)
   void eventId; // used for revalidatePath below
