@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Plus, Ticket } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default async function TicketTypePage({
   const { eventId } = await params;
   const evento = await getEventById(eventId);
 
-  if (!evento) return null;
+  if (!evento) notFound();
 
   const [rawTicketTypes] = await Promise.all([
     getTicketTypesWithStatsByEventId(eventId),

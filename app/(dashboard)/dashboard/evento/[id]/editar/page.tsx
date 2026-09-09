@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { getSession } from "@/lib/auth/get-session";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
@@ -21,7 +22,8 @@ export default async function EditarEventoPage({
     getSession(),
   ]);
 
-  if (!evento || !session) return null;
+  if (!session) return null;
+  if (!evento) notFound();
 
   if (!can(session.user, "events:edit")) return null;
 

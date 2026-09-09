@@ -16,6 +16,7 @@ export default async function NewEvent() {
         <div>
           <CreateEventWizard
             producerId={producerId}
+            creatorId={session.user.id}
             producerState={producer?.state ?? undefined}
             producerCity={producer?.city ?? undefined}
           />

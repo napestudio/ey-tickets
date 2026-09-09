@@ -5,26 +5,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { updateEvent } from "@/lib/actions";
 import { EditWizardStepper } from "./edit-wizard-stepper";
 import { EditStep1Datos } from "./edit-step-1-datos";
-import { EditStep2Tipo } from "./edit-step-2-tipo";
 import { EditStep3Fechas } from "./edit-step-3-fechas";
 import { EditStep4Lugar } from "./edit-step-4-lugar";
-import { EditStep5Image } from "./edit-step-5-image";
-import { EditStep6Status } from "./edit-step-6-status";
 import { EditWizardStep } from "./types";
 import {
   WizardStep1Data,
-  WizardStep2Data,
   WizardStep3Data,
   WizardStep4Data,
 } from "../create-event-wizard/types";
-import { Evento, EventStatus } from "@/types/event";
+import { Evento } from "@/types/event";
 
 type WizardEventState = {
   step1: WizardStep1Data;
-  step2: WizardStep2Data;
   step3: WizardStep3Data;
   step4: WizardStep4Data;
-  step6: { status: EventStatus };
 };
 
 function initState(evento: Evento): WizardEventState {
@@ -38,7 +32,6 @@ function initState(evento: Evento): WizardEventState {
       restrictions: evento.restrictions ?? [],
       ageRestriction: evento.ageRestriction ?? null,
     },
-    step2: { eventType: evento.eventType ?? "PUBLIC" },
     step3: {
       dateTimeSelections: JSON.parse(evento.dates),
       saleEndDate: evento.saleEndDate ? new Date(evento.saleEndDate) : new Date(),
@@ -49,7 +42,6 @@ function initState(evento: Evento): WizardEventState {
       address: evento.address,
       venue: evento.venue ?? "",
     },
-    step6: { status: evento.status ?? "ACTIVE" },
   };
 }
 
@@ -92,18 +84,6 @@ export function EditEventWizard({ evento, producerState, producerCity }: EditEve
     }
   }
 
-  async function handleSaveStep2(data: WizardStep2Data) {
-    try {
-      await updateEvent({ eventType: data.eventType }, evento.id);
-      setState((prev) => ({ ...prev, step2: data }));
-      markSaved(2);
-      toast({ title: "Cambios guardados" });
-    } catch {
-      toast({ variant: "destructive", title: "Error guardando los cambios" });
-      throw new Error("Save failed");
-    }
-  }
-
   async function handleSaveStep3(data: WizardStep3Data) {
     try {
       await updateEvent(
@@ -114,7 +94,7 @@ export function EditEventWizard({ evento, producerState, producerCity }: EditEve
         evento.id
       );
       setState((prev) => ({ ...prev, step3: data }));
-      markSaved(3);
+      markSaved(2);
       toast({ title: "Cambios guardados" });
     } catch {
       toast({ variant: "destructive", title: "Error guardando los cambios" });
@@ -134,19 +114,7 @@ export function EditEventWizard({ evento, producerState, producerCity }: EditEve
         evento.id
       );
       setState((prev) => ({ ...prev, step4: data }));
-      markSaved(4);
-      toast({ title: "Cambios guardados" });
-    } catch {
-      toast({ variant: "destructive", title: "Error guardando los cambios" });
-      throw new Error("Save failed");
-    }
-  }
-
-  async function handleSaveStep6(data: { status: EventStatus }) {
-    try {
-      await updateEvent({ status: data.status }, evento.id);
-      setState((prev) => ({ ...prev, step6: data }));
-      markSaved(6);
+      markSaved(3);
       toast({ title: "Cambios guardados" });
     } catch {
       toast({ variant: "destructive", title: "Error guardando los cambios" });
@@ -166,31 +134,15 @@ export function EditEventWizard({ evento, producerState, producerCity }: EditEve
         <EditStep1Datos initialData={state.step1} onSave={handleSaveStep1} />
       )}
       {currentStep === 2 && (
-        <EditStep2Tipo initialData={state.step2} onSave={handleSaveStep2} />
-      )}
-      {currentStep === 3 && (
         <EditStep3Fechas initialData={state.step3} onSave={handleSaveStep3} />
       )}
-      {currentStep === 4 && (
+      {currentStep === 3 && (
         <EditStep4Lugar
           initialData={state.step4}
           onSave={handleSaveStep4}
           producerState={producerState}
           producerCity={producerCity}
         />
-      )}
-      {currentStep === 5 && (
-        <EditStep5Image
-          eventId={evento.id}
-          eventTitle={evento.title}
-          eventImage={evento.image || null}
-          eventImagePublicId={evento.imagePublicId ?? null}
-          thumbnailImage={evento.thumbnailImage ?? null}
-          thumbnailImagePublicId={evento.thumbnailImagePublicId ?? null}
-        />
-      )}
-      {currentStep === 6 && (
-        <EditStep6Status initialData={state.step6} onSave={handleSaveStep6} />
       )}
     </div>
   );

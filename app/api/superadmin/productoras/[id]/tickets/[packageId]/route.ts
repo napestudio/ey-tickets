@@ -22,7 +22,14 @@ export async function PATCH(
     }
 
     return NextResponse.json({ package: pkg });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      typeof (error as Error & { status?: number }).status === "number"
+    ) {
+      const statusCode = (error as Error & { status: number }).status;
+      return NextResponse.json({ error: error.message }, { status: statusCode });
+    }
     console.error(
       "[superadmin/productoras/[id]/tickets/[packageId]] PATCH",
       error

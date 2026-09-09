@@ -22,7 +22,10 @@ export default async function PaymentMethodsPage() {
             pagos y comenzar a vender entradas.
           </div>
         ) : (
-          <AddPaymentMethodDialog session={session} />
+          <AddPaymentMethodDialog
+            producerId={session.user.producerId}
+            creatorId={session.user.id}
+          />
         )}
         <div className="max-w-[95vw]">
           <PaymentMethodsLoader

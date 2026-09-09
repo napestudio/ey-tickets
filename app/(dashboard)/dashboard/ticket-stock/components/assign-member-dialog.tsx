@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { assignMemberAllocationAction } from "@/lib/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
-import { useProducerStockStore } from "@/store/producer-stock-store";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 
 interface MemberOption {
   id: string;
@@ -64,7 +64,6 @@ export default function AssignMemberDialog({
 }: AssignMemberDialogProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const refreshStock = useProducerStockStore((s) => s.refresh);
 
   const maxAllowed = availableStock + (existingAllocation?.quantity ?? 0);
 
@@ -94,7 +93,7 @@ export default function AssignMemberDialog({
           title: "Cupo asignado",
           description: `Se asignaron ${values.quantity} tickets al miembro.`,
         });
-        refreshStock();
+        refreshProducerStockSummary();
         form.reset();
         onOpenChange(false);
       } catch (err) {

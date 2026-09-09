@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProducerStockStore } from "@/store/producer-stock-store";
+import { useProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 import { useRef, useState } from "react";
 import { gsap } from "@/lib/gsap";
 import useIsomorphicLayoutEffect from "@/hooks/useIsometricLayoutEffect";
@@ -13,7 +13,7 @@ const FLASH_GREEN = "#4ade80";
 const TRANSLATE_Y = 45;
 
 export function ProducerStockWidget() {
-  const { summary, isLoading } = useProducerStockStore();
+  const { summary, isLoading } = useProducerStockSummary();
   const [displayValue, setDisplayValue] = useState<number | null>(null);
 
   const available = summary?.available ?? null;

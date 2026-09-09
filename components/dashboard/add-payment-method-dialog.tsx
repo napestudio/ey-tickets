@@ -39,9 +39,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Session } from "next-auth";
 import { createPaymentMethod } from "@/lib/actions";
 import { PaymentType } from "@prisma/client";
+import { toast } from "@/components/ui/use-toast";
 
 const paymentMethodSchema = z.object({
   type: z.enum(["mercadopago", "transfer"], {
@@ -67,11 +67,17 @@ const paymentMethodSchema = z.object({
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
 
 interface AddPaymentMethodDialogProps {
-  session: Session;
+  producerId: string;
+  creatorId: string;
+  trigger?: React.ReactNode;
+  onCreated?: (method: Awaited<ReturnType<typeof createPaymentMethod>>) => void;
 }
 
 export function AddPaymentMethodDialog({
-  session,
+  producerId,
+  creatorId,
+  trigger,
+  onCreated,
 }: AddPaymentMethodDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,25 +109,31 @@ export function AddPaymentMethodDialog({
           data.type === "mercadopago"
             ? ("DIGITAL" as PaymentType)
             : ("TRANSFER" as PaymentType),
-        producerId: session.user.producerId!,
+        producerId,
         apiKey: data.type === "mercadopago" ? data.apiKey : null,
         cbu: data.type === "transfer" ? data.cbu || null : null,
         alias: data.type === "transfer" ? data.alias || null : null,
         transferEmail:
           data.type === "transfer" ? data.transferEmail || null : null,
         enabled: data.enabled,
-        creatorId: session.user.id,
+        creatorId,
         commissionPercentage: data.commissionPercentage ?? null,
       };
 
-      await createPaymentMethod(payload);
+      const method = await createPaymentMethod(payload);
+      toast({ title: "Método de pago creado" });
+      form.reset();
+      setOpen(false);
+      onCreated?.(method);
     } catch (error) {
-      console.error("Error creando método de pago", error);
+      toast({
+        variant: "destructive",
+        title: "Error creando método de pago",
+        description: (error as Error).message,
+      });
     } finally {
       setIsSubmitting(false);
     }
-    form.reset();
-    setOpen(false);
   };
 
   const paymentOptions = [
@@ -142,10 +154,12 @@ export function AddPaymentMethodDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          Método de pago
-        </Button>
+        {trigger ?? (
+          <Button size="sm">
+            <Plus className="mr-2 h-4 w-4" />
+            Método de pago
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-hidden flex flex-col">
         <Form {...form}>

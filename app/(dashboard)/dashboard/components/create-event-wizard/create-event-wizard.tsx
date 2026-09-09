@@ -11,7 +11,6 @@ import { Step2EventType } from "./step-2-event-type";
 import { Step2Dates } from "./step-2-dates";
 import { Step4Location } from "./step-4-location";
 import { Step3EventImage } from "./step-3-event-image";
-import { Step4TicketType } from "./step-7-ticket-type";
 import { Step7PaymentMethods } from "./step-7-payment-methods";
 import {
   Dialog,
@@ -32,11 +31,12 @@ import {
 
 interface CreateEventWizardProps {
   producerId: string;
+  creatorId: string;
   producerState?: string;
   producerCity?: string;
 }
 
-export function CreateEventWizard({ producerId, producerState, producerCity }: CreateEventWizardProps) {
+export function CreateEventWizard({ producerId, creatorId, producerState, producerCity }: CreateEventWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isCompletingRef = useRef(false);
@@ -185,23 +185,14 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
     }
   }
 
-  function handleContinueToTickets() {
-    setShowSuccessDialog(false);
-    setCurrentStep(7);
+  function goToTicketTypes() {
+    isCompletingRef.current = true;
+    router.push(`/dashboard/evento/${wizardState.createdEventId}/ticket-types/new`);
   }
 
-  function finish() {
+  function goToEvent() {
     isCompletingRef.current = true;
     router.push(`/dashboard/evento/${wizardState.createdEventId}`);
-  }
-
-  function handleStep7Complete() {
-    setCompletedSteps((prev) => new Set([...prev, 7 as WizardStep]));
-    finish();
-  }
-
-  function handleStep7Skip() {
-    finish();
   }
 
   function handleBack() {
@@ -263,18 +254,10 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
       {currentStep === 6 && (
         <Step7PaymentMethods
           producerId={producerId}
+          creatorId={creatorId}
           isLoading={isTransitioning}
           onComplete={handleStep6Complete}
           onBack={handleBack}
-        />
-      )}
-      {currentStep === 7 && wizardState.createdEventId && (
-        <Step4TicketType
-          eventId={wizardState.createdEventId}
-          producerId={producerId}
-          eventDates={wizardState.step3!.dateTimeSelections}
-          onComplete={handleStep7Complete}
-          onSkip={handleStep7Skip}
         />
       )}
 
@@ -295,12 +278,17 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
             <div className="space-y-1">
               <h2 className="text-xl font-bold">¡Evento creado!</h2>
               <p className="text-sm text-muted-foreground">
-                Tu evento fue creado con éxito. Ahora podés agregar las entradas.
+                Tu evento fue creado con éxito. ¿Querés crear un tipo de entrada ahora?
               </p>
             </div>
-            <Button onClick={handleContinueToTickets} className="w-full">
-              Continuar a la creación de entradas
-            </Button>
+            <div className="flex flex-col gap-2 w-full">
+              <Button onClick={goToTicketTypes} className="w-full">
+                Crear tipo de entrada
+              </Button>
+              <Button onClick={goToEvent} variant="outline" className="w-full">
+                Ir al evento
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

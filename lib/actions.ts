@@ -331,7 +331,8 @@ export async function getUsedInvitesByProducer(producerId: string) {
 
 export async function createTicketType(data: TicketType) {
   const session = await getSession();
-  const createdById = session?.user?.id ?? null;
+  if (!session?.user?.id) throw new Error("No autorizado.");
+  const createdById = session.user.id;
 
   const dataWithCreator = { ...data, createdById };
 
@@ -340,10 +341,13 @@ export async function createTicketType(data: TicketType) {
     if (!event?.producerId) {
       throw new Error("El evento no tiene una productora asignada.");
     }
+    if (session.user.producerId !== event.producerId) {
+      throw new Error("No autorizado.");
+    }
     await TicketTypes.createTicketTypeWithLimit(
       dataWithCreator,
       event.producerId,
-      createdById ?? undefined,
+      createdById,
     );
   } catch (error) {
     throw new Error(
@@ -358,7 +362,18 @@ export async function updateTicketType(
   data: Partial<TicketType>,
   ticketId: string,
 ) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+
   try {
+    const current = await prisma.ticketType.findUniqueOrThrow({
+      where: { id: ticketId },
+      select: { event: { select: { producerId: true } } },
+    });
+    if (session.user.producerId !== current.event.producerId) {
+      throw new Error("No autorizado.");
+    }
+
     await TicketTypes.updateTicketTypeWithLimit(ticketId, data);
     revalidatePath(`/dashboard/evento/${data.eventId}`);
   } catch (error) {
@@ -1898,6 +1913,19 @@ export async function assignMemberAllocationAction(
   userId: string,
   quantity: number,
 ) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+  if (session.user.producerId !== producerId) {
+    throw new Error("No autorizado.");
+  }
+
+  const member = await prisma.producerMember.findFirst({
+    where: { userId, producerId },
+  });
+  if (!member) {
+    throw new Error("El usuario no pertenece a esta productora.");
+  }
+
   await TicketStock.upsertMemberTicketAllocation({
     producerId,
     userId,
@@ -1975,6 +2003,14 @@ export async function getAllTicketsForExportValidatorAction(
 }
 
 export async function removeMemberAllocationAction(userId: string) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+
+  const existing = await TicketStock.getMemberTicketAllocation(userId);
+  if (!existing || existing.producerId !== session.user.producerId) {
+    throw new Error("No autorizado.");
+  }
+
   await TicketStock.removeMemberTicketAllocation(userId);
   revalidatePath("/dashboard/ticket-stock");
 }
@@ -2139,7 +2175,11 @@ export async function generateSeatsAction(
   if (!session?.user?.producerId) throw new Error("Sin productora asignada.");
 
   await Seats.releaseExpiredHolds();
-  const result = await Seats.generateSeatsForEventVenue(eventVenueId);
+  const result = await Seats.generateSeatsForEventVenue(
+    eventVenueId,
+    session.user.id,
+    session.user.producerId
+  );
 
   // Auto-sync TicketType.quantity for each mapped sector (already done inside generateSeatsForEventVenue)
   void eventId; // used for revalidatePath below

@@ -12,7 +12,7 @@ import { getUserEventRole } from "@/lib/api/event-members";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getSession } from "@/lib/auth/get-session";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Evento } from "@/types/event";
 import { TicketType } from "@/types/tickets";
 import { Metadata } from "next";
@@ -32,7 +32,7 @@ export default async function EditTicketTypePage({
   const session = await getSession();
   if (!session) return;
   const evento = await getEventById(id);
-  if (!evento) return;
+  if (!evento) notFound();
 
   const { role, id: userId } = session.user;
 

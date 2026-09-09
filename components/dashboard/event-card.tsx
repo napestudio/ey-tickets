@@ -90,7 +90,7 @@ export default function EventCard({
           {!isInactive && !isSeller && isEventOwner && (
             <Button>
               <Link
-                href={`/dashboard/evento/${evento.id}/edit?tab=tickets`}
+                href={`/dashboard/evento/ticket-types/${evento.id}`}
                 className="flex items-center gap-2"
               >
                 <TicketIcon className="w-6 h-6" /> Tickets
