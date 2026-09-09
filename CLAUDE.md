@@ -74,6 +74,7 @@ Cada movimiento almacena:
 - No se puede reducir el stock por debajo de los tickets vendidos (`PAID`, no invitaciones).
 - No se puede agregar stock que supere el pool disponible de la productora.
 - El stock no puede ser negativo.
+- `cancelTicketPackage` (`lib/api/superadmin/tickets.ts`) también valida contra el stock comprometido antes de cancelar un paquete — ver skill `ticket-stock-flow` para el detalle completo de validaciones, los gaps de autorización ya corregidos, y el diseño pendiente para cerrar condiciones de carrera entre mutaciones concurrentes del pool.
 
 ### Frescura del widget "Disponibles" (sidebar)
 

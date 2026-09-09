@@ -82,6 +82,21 @@ export async function cancelTicketPackage(
 
   if (!existing) return null;
 
+  if (existing.status === "ACTIVE" && existing.paymentStatus === "PAID") {
+    const summary = await getProducerStockSummary(producerId);
+    const committed = summary.usedByTicketTypes + summary.allocatedToMembers;
+    const newPool = summary.totalPool - existing.quantity;
+
+    if (newPool < committed) {
+      throw Object.assign(
+        new Error(
+          `No se puede cancelar: el pool quedaría en ${newPool}, por debajo del stock comprometido (${committed}).`
+        ),
+        { status: 422 }
+      );
+    }
+  }
+
   const pkg = await prisma.ticketPackage.update({
     where: { id: packageId },
     data: { status: TicketPackageStatus.CANCELED },

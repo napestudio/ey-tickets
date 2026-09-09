@@ -73,7 +73,9 @@ export function FileUploader({
         onClick={() => !imageUrl && inputRef.current?.click()}
         className="flex-center border bg-dark-3 flex cursor-pointer flex-col overflow-hidden rounded-xl bg-grey-50"
       >
-        <div className={`flex-center text-center flex-col py-5 text-grey-500 relative ${square ? "aspect-square" : "min-h-61.25"}`}>
+        <div
+          className={`flex-center text-center flex-col py-5 text-grey-500 relative ${square ? "aspect-square" : "min-h-61.25"}`}
+        >
           {imageUrl ? (
             <>
               <Image
@@ -81,7 +83,7 @@ export function FileUploader({
                 alt="image"
                 fill
                 priority
-                className="object-cover aspect-square"
+                className="object-contain aspect-square"
               />
               <Button
                 variant="secondary"
