@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Loader2, Landmark, CreditCard, Banknote, Plus } from "lucide-react";
 import Box from "@/components/dashboard/box";
 import { useToast } from "@/components/ui/use-toast";
 import { getPaymentMethodsByProducerId } from "@/lib/actions";
+import { AddPaymentMethodDialog } from "@/components/dashboard/add-payment-method-dialog";
 
 type PaymentType = "CASH" | "DIGITAL" | "TRANSFER";
 
@@ -57,6 +57,7 @@ function PaymentMethodIcon({ type }: { type: PaymentType }) {
 
 interface Step7PaymentMethodsProps {
   producerId: string;
+  creatorId: string;
   isLoading: boolean;
   onComplete: (selectedMethodIds: string[]) => void;
   onBack: () => void;
@@ -64,6 +65,7 @@ interface Step7PaymentMethodsProps {
 
 export function Step7PaymentMethods({
   producerId,
+  creatorId,
   isLoading,
   onComplete,
   onBack,
@@ -99,6 +101,11 @@ export function Step7PaymentMethods({
     });
   }
 
+  function handleMethodCreated(method: PaymentMethod) {
+    setMethods((prev) => [...prev, method]);
+    setSelectedIds((prev) => new Set(prev).add(method.id));
+  }
+
   return (
     <div className="space-y-5">
       <Box>
@@ -119,15 +126,17 @@ export function Step7PaymentMethods({
               <p className="text-sm text-muted-foreground">
                 No tenés métodos de pago configurados.
               </p>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard/configuracion/metodos-de-pago" target="_blank">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Agregar método de pago
-                </Link>
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Se abrirá en una nueva pestaña. Volvé aquí una vez que lo hayas configurado.
-              </p>
+              <AddPaymentMethodDialog
+                producerId={producerId}
+                creatorId={creatorId}
+                onCreated={handleMethodCreated}
+                trigger={
+                  <Button type="button" variant="outline" size="sm" disabled={isLoading}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Crear método de pago
+                  </Button>
+                }
+              />
             </div>
           ) : (
             <div className="space-y-2">
@@ -167,6 +176,17 @@ export function Step7PaymentMethods({
                   </button>
                 );
               })}
+              <AddPaymentMethodDialog
+                producerId={producerId}
+                creatorId={creatorId}
+                onCreated={handleMethodCreated}
+                trigger={
+                  <Button type="button" variant="ghost" size="sm" disabled={isLoading}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Agregar otro método de pago
+                  </Button>
+                }
+              />
             </div>
           )}
         </div>

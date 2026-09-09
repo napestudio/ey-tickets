@@ -45,6 +45,14 @@ interface Step2DatesProps {
   onBack: () => void;
 }
 
+function getLastEventDate(selections: DateTimeSelection[]): Date | undefined {
+  const dates = selections
+    .map((s) => new Date(s.date))
+    .filter((d) => !isNaN(d.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime());
+  return dates[0];
+}
+
 export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps) {
   const [dateTimeSelections, setDateTimeSelections] = useState<DateTimeSelection[]>(
     initialData?.dateTimeSelections ?? [
@@ -55,13 +63,31 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
   const form = useForm<Step2Schema>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      saleEndDate: initialData?.saleEndDate ?? (() => {
-        const date = new Date();
-        date.setHours(20, 0, 0, 0);
-        return date;
-      })(),
+      saleEndDate:
+        initialData?.saleEndDate ??
+        (() => {
+          const last = getLastEventDate(
+            initialData?.dateTimeSelections ?? [
+              { id: 0, date: `${new Date().toISOString().slice(0, 10)}T20:00` },
+            ]
+          );
+          const date = last ? new Date(last) : new Date();
+          date.setHours(20, 0, 0, 0);
+          return date;
+        })(),
     },
   });
+
+  const lastEventDate = getLastEventDate(dateTimeSelections);
+
+  const syncSaleEndDateToLast = (selections: DateTimeSelection[]) => {
+    if (form.formState.dirtyFields.saleEndDate) return;
+    const last = getLastEventDate(selections);
+    if (!last) return;
+    const updated = new Date(last);
+    updated.setHours(20, 0, 0, 0);
+    form.setValue("saleEndDate", updated, { shouldDirty: false });
+  };
 
   const handleAddDateTime = () => {
     const lastDate = dateTimeSelections[dateTimeSelections.length - 1];
@@ -77,19 +103,23 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
       dateTimeSelections.length > 0
         ? Math.max(...dateTimeSelections.map((s) => s.id)) + 1
         : 0;
-    setDateTimeSelections([
+    const updatedSelections = [
       ...dateTimeSelections,
       {
         id: newId,
         date: nextDatePart ? `${nextDatePart}T${timePart}` : `T${timePart}`,
       },
-    ]);
+    ];
+    setDateTimeSelections(updatedSelections);
+    syncSaleEndDateToLast(updatedSelections);
   };
 
   const handleRemoveDateTime = (id: number) => {
-    setDateTimeSelections(
-      dateTimeSelections.filter((selection) => selection.id !== id)
+    const updatedSelections = dateTimeSelections.filter(
+      (selection) => selection.id !== id
     );
+    setDateTimeSelections(updatedSelections);
+    syncSaleEndDateToLast(updatedSelections);
   };
 
   const handleDateChange = (date: string, id: number) => {
@@ -100,22 +130,11 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
       return selection;
     });
     setDateTimeSelections(updatedSelections);
-
-    const isFirstDate = id === dateTimeSelections[0]?.id;
-    if (isFirstDate && !form.formState.dirtyFields.saleEndDate) {
-      const datePart = date.split("T")[0];
-      if (datePart) {
-        const newEndDate = new Date(`${datePart}T20:00:00`);
-        form.setValue("saleEndDate", newEndDate, { shouldDirty: false });
-      }
-    }
+    syncSaleEndDateToLast(updatedSelections);
   };
 
   function onSubmit(values: Step2Schema) {
-    const lastEventDate = dateTimeSelections
-      .map((s) => new Date(s.date))
-      .filter((d) => !isNaN(d.getTime()))
-      .sort((a, b) => b.getTime() - a.getTime())[0];
+    const lastEventDate = getLastEventDate(dateTimeSelections);
 
     if (lastEventDate && values.saleEndDate > lastEventDate) {
       form.setError("saleEndDate", {
@@ -196,6 +215,14 @@ export function Step2Dates({ initialData, onComplete, onBack }: Step2DatesProps)
                               current.getMinutes()
                             );
                             field.onChange(updated);
+                          }}
+                          disabled={(date) => {
+                            if (!lastEventDate) return false;
+                            const day = new Date(date);
+                            day.setHours(0, 0, 0, 0);
+                            const lastDay = new Date(lastEventDate);
+                            lastDay.setHours(0, 0, 0, 0);
+                            return day > lastDay;
                           }}
                           initialFocus
                         />

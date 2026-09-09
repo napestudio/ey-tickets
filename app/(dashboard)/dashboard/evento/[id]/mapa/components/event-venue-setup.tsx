@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, MapPin, Unlink } from "lucide-react";
 import Link from "next/link";
+import { refreshProducerStockSummary } from "@/hooks/use-producer-stock-summary";
 
 interface TicketTypeOption {
   id: string;
@@ -120,6 +121,7 @@ export function EventVenueSetup({
         toast({
           title: `${result.created} asientos generados correctamente.`,
         });
+        refreshProducerStockSummary();
         router.refresh();
       } catch (e) {
         toast({
@@ -137,6 +139,7 @@ export function EventVenueSetup({
       try {
         const result = await regenerateSeatsAction(eventVenue.id, eventId);
         toast({ title: `${result.created} asientos regenerados.` });
+        refreshProducerStockSummary();
         router.refresh();
       } catch (e) {
         toast({

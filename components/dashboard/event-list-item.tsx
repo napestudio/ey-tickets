@@ -92,14 +92,13 @@ export default function EventListItem({ evento }: { evento: Evento }) {
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/evento/${evento.id}`}>Ver detalles</Link>
             </DropdownMenuItem>
-            {evento.status === "ACTIVE" ||
-              (evento.status === "DRAFT" && (
-                <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/evento/${evento.id}/edit`}>
-                    Editar evento
-                  </Link>
-                </DropdownMenuItem>
-              ))}
+            {(evento.status === "ACTIVE" || evento.status === "DRAFT") && (
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/evento/${evento.id}/editar`}>
+                  Editar evento
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/evento/ticket-types/${evento.id}`}>
                 Tickets

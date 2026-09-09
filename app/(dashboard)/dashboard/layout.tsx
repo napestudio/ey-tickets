@@ -9,7 +9,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { getSidebarNav } from "./lib/config/dashboard-navigation";
 import { getProducerById } from "@/lib/api/producers";
 import UserVerificationToast from "./components/user-verification-toast/user-verification-toast";
-import { ProducerStockInitializer } from "@/components/dashboard/producer-stock-initializer";
 
 export const metadata: Metadata = {
   title: "Eytickets | Administración",
@@ -35,7 +34,6 @@ export default async function DashboardLayout({
   return (
     <>
       <SessionProvider session={session}>
-        <ProducerStockInitializer />
         <MobileSidebar
           items={sidebarNav}
           session={session}
