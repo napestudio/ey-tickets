@@ -12,10 +12,10 @@ export default function WebsiteHero() {
     <div className="min-h-screen pt-24 md:pt-42 pb-24 bg-linear-to-b from-ey-dark to-ey-turquoise-darker to-80% relative flex items-center">
       <div className="bg-ey-dark absolute inset-0">
         <Image
-          src="https://res.cloudinary.com/dkgnaegp9/image/upload/v1780428893/DSC03295_nkpicy.jpg"
+          src="https://res.cloudinary.com/dztzomvin/image/upload/v1788297585/FONDO-EY.jpg_sehy4x.jpg"
           width="1400"
           height="933"
-          className="w-full h-full object-cover object-bottom grayscale opacity-80"
+          className="w-full h-full object-cover object-top grayscale opacity-80"
           alt=""
         />
       </div>

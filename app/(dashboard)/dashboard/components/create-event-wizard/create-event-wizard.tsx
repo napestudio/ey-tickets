@@ -30,61 +30,6 @@ import {
   WizardStep5Data,
 } from "./types";
 
-const STORAGE_KEY = "ey_wizard_state";
-
-type PersistedState = {
-  step1: WizardStep1Data | null;
-  step2: WizardStep2Data | null;
-  step3: WizardStep3Data | null;
-  step4: WizardStep4Data | null;
-  createdEventId: string | null;
-  currentStep: WizardStep;
-  completedSteps: number[];
-};
-
-function loadPersistedState(): PersistedState | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PersistedState;
-    if (parsed.step3?.saleEndDate) {
-      parsed.step3.saleEndDate = new Date(parsed.step3.saleEndDate);
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function persistState(
-  state: WizardState,
-  currentStep: WizardStep,
-  completedSteps: Set<WizardStep>
-) {
-  try {
-    const toSave: PersistedState = {
-      step1: state.step1,
-      step2: state.step2,
-      step3: state.step3,
-      step4: state.step4,
-      createdEventId: state.createdEventId,
-      currentStep,
-      completedSteps: Array.from(completedSteps),
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-  } catch {
-    // sessionStorage not available (private browsing, storage full)
-  }
-}
-
-function clearPersistedState() {
-  try {
-    sessionStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
-}
-
 interface CreateEventWizardProps {
   producerId: string;
   producerState?: string;
@@ -96,24 +41,20 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
   const { toast } = useToast();
   const isCompletingRef = useRef(false);
 
-  const saved = loadPersistedState();
-
-  const [currentStep, setCurrentStep] = useState<WizardStep>(
-    saved?.currentStep ?? 1
-  );
+  const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(
-    new Set((saved?.completedSteps ?? []) as WizardStep[])
+    new Set()
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const [wizardState, setWizardState] = useState<WizardState>({
-    step1: saved?.step1 ?? null,
-    step2: saved?.step2 ?? null,
-    step3: saved?.step3 ?? null,
-    step4: saved?.step4 ?? null,
+    step1: null,
+    step2: null,
+    step3: null,
+    step4: null,
     step5: null,
-    createdEventId: saved?.createdEventId ?? null,
+    createdEventId: null,
   });
 
   // beforeunload warning while wizard has unsaved data
@@ -135,7 +76,6 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
     const newCompleted = new Set([...completedSteps, completedStep]);
     setCompletedSteps(newCompleted);
     setCurrentStep(nextStep);
-    persistState(newState, nextStep, newCompleted);
   }
 
   function handleStep1Complete(data: WizardStep1Data) {
@@ -233,7 +173,6 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
       setWizardState(newState);
       const newCompleted = new Set([...completedSteps, 6 as WizardStep]);
       setCompletedSteps(newCompleted);
-      persistState(newState, 7, newCompleted);
       setShowSuccessDialog(true);
     } catch {
       toast({
@@ -253,7 +192,6 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
 
   function finish() {
     isCompletingRef.current = true;
-    clearPersistedState();
     router.push(`/dashboard/evento/${wizardState.createdEventId}`);
   }
 
@@ -270,13 +208,11 @@ export function CreateEventWizard({ producerId, producerState, producerCity }: C
     if (currentStep > 1) {
       const prev = (currentStep - 1) as WizardStep;
       setCurrentStep(prev);
-      persistState(wizardState, prev, completedSteps);
     }
   }
 
   function handleStepClick(step: WizardStep) {
     setCurrentStep(step);
-    persistState(wizardState, step, completedSteps);
   }
 
   return (

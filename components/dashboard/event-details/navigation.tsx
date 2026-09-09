@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Evento } from "@/types/event";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, Map } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 import { SITE_URL } from "@/lib/constants";
@@ -37,7 +37,15 @@ export default function Navigation({ evento, isEventOwner }: NavigationProps) {
           {isEventOwner && (
             <>
               {evento.status !== "CANCELED" && (
-                <CancelEventButton id={evento.id} />
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/dashboard/evento/${evento.id}/mapa`} className="flex items-center">
+                      <Map className="md:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Mapa de sala</span>
+                    </Link>
+                  </Button>
+                  <CancelEventButton id={evento.id} />
+                </>
               )}
             </>
           )}
