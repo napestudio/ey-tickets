@@ -128,6 +128,7 @@ model Producer {
   invitations             Invitation[]
   ticketPackages          TicketPackage[]
   memberTicketAllocations MemberTicketAllocation[]
+  venues                  Venue[]
 
   @@map("producers")
 }
@@ -261,6 +262,7 @@ model Event {
   venue                 String?
   ageRestriction        Int?
   website               String?
+  hasVenueMap           Boolean        @default(false)
   producerId            String
   createdById           String?
   createdAt             DateTime       @default(now())
@@ -280,6 +282,7 @@ model Event {
   featuredSlots     FeaturedEvent[]
   validatorSessions ValidatorSession[]
   validationEvents  ValidationEvent[]
+  eventVenue        EventVenue?
 
   @@index([producerId])
   @@map("events")
@@ -332,6 +335,7 @@ model TicketType {
   promotion      Promotion[]
   ticketOrder    TicketOrder[]
   stockMovements TicketStockMovement[]
+  sectorMappings EventSectorMapping[]
   event          Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
   createdBy      User?                 @relation("CreatedTicketTypes", fields: [createdById], references: [id])
 
@@ -384,6 +388,7 @@ model Order {
   eventId             String
   quantity            Int
   isInvitation        Boolean        @default(false)
+  seatId              String?        // venue map seat for this order
   customizationToken  String?        @unique
   customizedAt        DateTime?
   paymentMethodId     String?
@@ -427,6 +432,7 @@ model TicketOrder {
   validatorSession ValidatorSession? @relation(fields: [validatedBy], references: [id], onDelete: SetNull)
   validationEvents ValidationEvent[]
   cancelation      CanceledTicketOrder?
+  seat             Seat?
 
   @@index([eventId, status])
   @@map("ticket_orders")
@@ -619,6 +625,142 @@ model FeaturedEvent {
 }
 
 // ─────────────────────────────────────────────
+// VENUE MAP SYSTEM
+// ─────────────────────────────────────────────
+
+model Venue {
+  id          String      @id @default(cuid())
+  name        String
+  producerId  String
+  description String?
+  widthCells  Int         @default(40)
+  heightCells Int         @default(30)
+  status      VenueStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  producer    Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  sectors     VenueSector[]
+  elements    VenueElement[]
+  eventVenues EventVenue[]
+
+  @@index([producerId])
+  @@map("venues")
+}
+
+// Logical sector (name + color). Canvas elements (ROW, TABLE) are assigned to a sector.
+model VenueSector {
+  id        String   @id @default(cuid())
+  venueId   String
+  name      String
+  color     String   @default("#3b82f6")
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  venue    Venue                @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  elements VenueElement[]
+  mappings EventSectorMapping[]
+  seats    Seat[]
+
+  @@index([venueId])
+  @@map("venue_sectors")
+}
+
+// Canvas element. ROW = fila de butacas (stores row config inline).
+// TABLE, STAGE, ENTRANCE, EXIT, TEXT = other visual elements.
+model VenueElement {
+  id             String           @id @default(cuid())
+  venueId        String
+  type           VenueElementType
+  label          String?
+  x              Int
+  y              Int
+  width          Int
+  height         Int
+  color          String?
+  rotation       Float?           @default(0)
+  sectorId       String?
+  // ROW-specific configuration (null for other types)
+  rowLabel       String?
+  startNumber    Int?             @default(1)
+  seatCount      Int?
+  seatPattern    SeatPattern?     @default(ALL)
+  orderDirection SeatOrder?       @default(ASC)
+  seatSpacing    Int?             @default(28)
+  // TABLE-specific configuration (null for other types)
+  tableCapacity  Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  venue   Venue        @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  sector  VenueSector? @relation(fields: [sectorId], references: [id], onDelete: SetNull)
+  seats   Seat[]
+
+  @@index([venueId])
+  @@index([sectorId])
+  @@map("venue_elements")
+}
+
+model EventVenue {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  venueId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event    Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  venue    Venue                @relation(fields: [venueId], references: [id], onDelete: Restrict)
+  mappings EventSectorMapping[]
+  seats    Seat[]
+
+  @@index([venueId])
+  @@map("event_venues")
+}
+
+// Maps a logical VenueSector to a TicketType for a specific event.
+model EventSectorMapping {
+  id            String @id @default(cuid())
+  eventVenueId  String
+  venueSectorId String
+  ticketTypeId  String
+
+  eventVenue  EventVenue  @relation(fields: [eventVenueId], references: [id], onDelete: Cascade)
+  venueSector VenueSector @relation(fields: [venueSectorId], references: [id], onDelete: Cascade)
+  ticketType  TicketType  @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([eventVenueId, venueSectorId])
+  @@unique([eventVenueId, ticketTypeId])
+  @@index([eventVenueId])
+  @@map("event_sector_mappings")
+}
+
+model Seat {
+  id            String     @id @default(cuid())
+  eventVenueId  String
+  venueSectorId String
+  rowElementId  String
+  rowLabel      String
+  seatNumber    Int
+  seatCode      String
+  tableCapacity Int?       // null for ROW seats; N for TABLE seats (whole table sells N tickets)
+  status        SeatStatus @default(AVAILABLE)
+  heldUntil     DateTime?
+  ticketOrderId String?    @unique
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  eventVenue  EventVenue   @relation(fields: [eventVenueId], references: [id], onDelete: Cascade)
+  venueSector VenueSector  @relation(fields: [venueSectorId], references: [id], onDelete: Restrict)
+  rowElement  VenueElement @relation(fields: [rowElementId], references: [id], onDelete: Restrict)
+  ticketOrder TicketOrder? @relation(fields: [ticketOrderId], references: [id], onDelete: SetNull)
+
+  @@unique([eventVenueId, rowElementId, seatNumber])
+  @@index([eventVenueId, status])
+  @@index([eventVenueId, venueSectorId])
+  @@map("seats")
+}
+
+// ─────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────
 
@@ -764,4 +906,36 @@ enum FeaturedEventStatus {
   ACTIVE
   INACTIVE
   EXPIRED
+}
+
+enum VenueStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum VenueElementType {
+  ROW
+  STAGE
+  TABLE
+  TEXT
+  ENTRANCE
+  EXIT
+}
+
+enum SeatPattern {
+  ALL
+  ODD
+  EVEN
+}
+
+enum SeatOrder {
+  ASC
+  DESC
+}
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  SOLD
+  BLOCKED
 }

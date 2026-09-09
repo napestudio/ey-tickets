@@ -46,6 +46,12 @@ const ALL_NAV_ITEMS: RawNavItem[] = [
     requires: "ticket-stock:view",
   },
   {
+    title: "Mapas",
+    href: "/dashboard/venues",
+    icon: "map",
+    requires: "venues:manage",
+  },
+  {
     title: "Reportes",
     href: "/dashboard/reportes",
     icon: "chart",

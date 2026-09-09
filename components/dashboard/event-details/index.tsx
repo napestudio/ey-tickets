@@ -67,7 +67,7 @@ export default async function EventDetails({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-5xl">
+        <h1 className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-3xl">
           {evento.title}
         </h1>
         <p className="text-sm text-muted-foreground">

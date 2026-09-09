@@ -101,7 +101,7 @@ const nebulica = localFont({
 });
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | Entradas online`,
+  title: `${SITE_NAME} | Gestión de eventos online`,
   description: `${SITE_DESCRIPTION}`,
   // openGraph: { images: { url: "/og.jpg" } },
 };
