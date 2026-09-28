@@ -7,11 +7,13 @@ import {
 } from "@/lib/api/reportes";
 import { redirect } from "next/navigation";
 import EventDetailHeader from "./components/event-detail-header";
-import EventStatsSummary from "./components/event-stats-summary";
+import EventStatsTable from "@/app/(dashboard)/dashboard/evento/[id]/reportes/components/event-stats-table";
 import TicketTypeBreakdownChart from "./components/ticket-type-breakdown-chart";
 import DailySalesChart from "./components/daily-sales-chart";
 import HourlySalesChart from "./components/hourly-sales-chart";
 import WeekdaySalesChart from "./components/weekday-sales-chart";
+import ValidationHourlyChart from "./components/validation-hourly-chart";
+import ValidatorTokenChart from "./components/validator-token-chart";
 import ExportCsvButton from "./components/export-csv-button";
 
 interface EventReportPageProps {
@@ -51,7 +53,7 @@ export default async function EventReportPage({ params }: EventReportPageProps) 
         <ExportCsvButton stats={stats} />
       </div>
 
-      <EventStatsSummary stats={stats} />
+      <EventStatsTable stats={stats} />
 
       {stats.ticketTypeBreakdown.length > 0 && (
         <TicketTypeBreakdownChart data={stats.ticketTypeBreakdown} />
@@ -67,6 +69,15 @@ export default async function EventReportPage({ params }: EventReportPageProps) 
         )}
         {stats.weekdaySales.some((d) => d.ticketsSold > 0) && (
           <WeekdaySalesChart data={stats.weekdaySales} />
+        )}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {stats.validationHourly.length > 0 && (
+          <ValidationHourlyChart data={stats.validationHourly} />
+        )}
+        {stats.validationByToken.length > 0 && (
+          <ValidatorTokenChart data={stats.validationByToken} />
         )}
       </div>
 

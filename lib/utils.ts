@@ -57,3 +57,10 @@ export function formatPrice(value: number): string {
     maximumFractionDigits: 0,
   })}`;
 }
+
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}

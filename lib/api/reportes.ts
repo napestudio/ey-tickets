@@ -8,6 +8,8 @@ import type {
   DailySalesPoint,
   WeekdaySalesPoint,
   PaymentMethodInfo,
+  ValidationHourlyPoint,
+  ValidatorTokenBreakdown,
 } from "@/types/reportes";
 
 const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -38,6 +40,11 @@ type WeekdayRawRow = {
   tickets_sold: bigint;
 };
 
+type ValidationHourlyRawRow = {
+  hour: number;
+  validated_count: bigint;
+};
+
 export const getEventDetailedStats = cache(
   async (
     eventId: string,
@@ -50,18 +57,22 @@ export const getEventDetailedStats = cache(
       totalOrders,
       ordersByTicketType,
       validatedTickets,
+      ticketOrdersIssued,
       discountedOrders,
+      invitationTicketOrdersIssued,
       hourlyRaw,
       dailyRaw,
       weekdayRaw,
       eventPayments,
       revenueByPaymentMethodRaw,
       financialTotals,
+      validationHourlyRaw,
+      validatedWithSession,
     ] = await Promise.all([
       // 1. Event metadata + access guard (producerId ensures ownership)
       prisma.event.findUnique({
         where: { id: eventId, producerId },
-        select: { id: true, title: true, status: true },
+        select: { id: true, title: true, status: true, dates: true },
       }),
       // 2. Ticket packages → WAC calculation (same pattern as getProfitReport)
       prisma.ticketPackage.groupBy({
@@ -74,9 +85,11 @@ export const getEventDetailedStats = cache(
         _sum: { totalPrice: true, quantity: true },
         where: { eventId, status: "PAID", isInvitation: false },
       }),
-      // 4. Total number of orders
+      // 4. Total number of orders. The system creates an Order for every
+      // ticket issued — sold or invited — so this counts both (per business
+      // rule: "Órdenes totales son todas las órdenes completadas").
       prisma.order.count({
-        where: { eventId, status: "PAID", isInvitation: false },
+        where: { eventId, status: "PAID" },
       }),
       // 5. Sales grouped by ticket type
       prisma.order.groupBy({
@@ -84,11 +97,24 @@ export const getEventDetailedStats = cache(
         _sum: { totalPrice: true, quantity: true },
         where: { eventId, status: "PAID", isInvitation: false },
       }),
-      // 6. Validated tickets (attended)
+      // 6. Validated tickets (attended). Counts every scanned QR regardless
+      // of whether the order was sold or invited — validators at the door
+      // don't distinguish, so this must include invitations too.
       prisma.ticketOrder.count({
         where: {
           eventId,
           status: "VALIDATED",
+          order: { status: "PAID" },
+        },
+      }),
+      // 6b. Physical (paid, non-invitation) tickets issued — one TicketOrder
+      // per event date per unit purchased, so an event with 2 dates yields 2
+      // TicketOrders per unit sold. This is what "Tickets vendidos" means in
+      // this report: every QR that was paid for, not the purchase-order
+      // quantity (an order with 3 entradas across 2 dates issues 6 QRs).
+      prisma.ticketOrder.count({
+        where: {
+          eventId,
           order: { status: "PAID", isInvitation: false },
         },
       }),
@@ -99,6 +125,16 @@ export const getEventDetailedStats = cache(
           status: "PAID",
           isInvitation: false,
           OR: [{ hasCode: true }, { hasPromo: true }],
+        },
+      }),
+      // 7b. Physical QRs issued for invitations (same one-per-date-per-unit
+      // rule as 6b). This — not a sum of Order.quantity — is what
+      // "Invitaciones" means in this report: every QR issued from
+      // add-invitation-dialog.
+      prisma.ticketOrder.count({
+        where: {
+          eventId,
+          order: { status: "PAID", isInvitation: true },
         },
       }),
       // 8. Sales by hour of day (Argentina timezone)
@@ -174,9 +210,50 @@ export const getEventDetailedStats = cache(
         _sum: { discountAmount: true, serviceChargeAmount: true },
         where: { eventId, status: "PAID", isInvitation: false },
       }),
+      // 14. Validations grouped by hour of day (Argentina timezone) — when
+      // people actually walked in, as opposed to when they bought.
+      prisma.$queryRaw<ValidationHourlyRawRow[]>`
+        SELECT
+          EXTRACT(HOUR FROM t."validatedAt" AT TIME ZONE ${DEFAULT_TIMEZONE})::int AS hour,
+          COUNT(*) AS validated_count
+        FROM ticket_orders t
+        JOIN orders o ON o.id = t."orderId"
+        WHERE t."eventId" = ${eventId}
+          AND t.status = 'VALIDATED'
+          AND t."validatedAt" IS NOT NULL
+          AND o.status = 'PAID'
+        GROUP BY hour
+        ORDER BY hour
+      `,
+      // 15. Validated tickets with their validator session/token, to group
+      // attendance by door/device (which ValidatorToken scanned them).
+      prisma.ticketOrder.findMany({
+        where: {
+          eventId,
+          status: "VALIDATED",
+          order: { status: "PAID" },
+        },
+        select: {
+          validatorSession: {
+            select: {
+              validatorToken: { select: { id: true, notes: true, token: true } },
+            },
+          },
+        },
+      }),
     ]);
 
     if (!event) return null;
+
+    let eventDatesCount = 1;
+    try {
+      const parsedDates = event.dates ? JSON.parse(event.dates) : null;
+      if (Array.isArray(parsedDates) && parsedDates.length > 0) {
+        eventDatesCount = parsedDates.length;
+      }
+    } catch {
+      eventDatesCount = 1;
+    }
 
     // ── WAC calculation ──────────────────────────────────────────────────────
     let wacNumerator = 0;
@@ -210,9 +287,19 @@ export const getEventDetailedStats = cache(
     const ticketProfit = netTicketRevenue - estimatedCost;
     const averageTicketPrice =
       totalTicketsSold > 0 ? totalRevenue / totalTicketsSold : 0;
+    // Invitaciones: physical QRs issued from add-invitation-dialog, not a
+    // sum of Order.quantity — one QR per event date per unit invited.
+    const invitationTickets = invitationTicketOrdersIssued;
+    // Entradas emitidas: 100% of physical QRs for the event (sold +
+    // invited), one per event date per unit — not a sum of purchase units
+    // (ticketOrdersIssued/totalTicketsSold only match this when the event
+    // has a single date).
+    const totalTicketsIssued = ticketOrdersIssued + invitationTicketOrdersIssued;
+    // Attendance is measured against every QR issued, sold or invited —
+    // validators scan both the same way at the door.
     const attendanceRate =
-      totalTicketsSold > 0
-        ? (validatedTickets / totalTicketsSold) * 100
+      totalTicketsIssued > 0
+        ? (validatedTickets / totalTicketsIssued) * 100
         : null;
 
     // ── Ticket type breakdown ────────────────────────────────────────────────
@@ -284,6 +371,50 @@ export const getEventDetailedStats = cache(
       }
     );
 
+    // ── Validation hourly (when people walked in, not when they bought) ─────
+    const validationHourly: ValidationHourlyPoint[] = validationHourlyRaw.map(
+      (row) => ({
+        hour: Number(row.hour),
+        validatedCount: Number(row.validated_count),
+      })
+    );
+
+    // ── Validation by token/door (query 15) ──────────────────────────────────
+    const tokenCounts = new Map<string, { label: string; count: number }>();
+    let validatedWithoutSession = 0;
+    for (const t of validatedWithSession) {
+      const token = t.validatorSession?.validatorToken;
+      if (!token) {
+        validatedWithoutSession++;
+        continue;
+      }
+      const existing = tokenCounts.get(token.id);
+      if (existing) {
+        existing.count++;
+      } else {
+        tokenCounts.set(token.id, {
+          label: token.notes || `Token ${token.token.slice(0, 8)}`,
+          count: 1,
+        });
+      }
+    }
+    const validationByToken: ValidatorTokenBreakdown[] = Array.from(
+      tokenCounts.entries()
+    )
+      .map(([tokenId, { label, count }]) => ({
+        tokenId,
+        label,
+        validatedCount: count,
+      }))
+      .sort((a, b) => b.validatedCount - a.validatedCount);
+    if (validatedWithoutSession > 0) {
+      validationByToken.push({
+        tokenId: "none",
+        label: "Sin validador asignado",
+        validatedCount: validatedWithoutSession,
+      });
+    }
+
     // ── Actual revenue per payment method (from query 12) ────────────────────
     const revenueByPmMap = new Map<string | null, { revenue: number; orders: number }>();
     for (const row of revenueByPaymentMethodRaw) {
@@ -338,11 +469,15 @@ export const getEventDetailedStats = cache(
       eventId: event.id,
       eventTitle: event.title,
       eventStatus: event.status,
+      eventDatesCount,
       totalOrders,
       totalTicketsSold,
       averageTicketPrice,
       validatedTickets,
+      ticketOrdersIssued,
       attendanceRate,
+      invitationTickets,
+      totalTicketsIssued,
       discountedOrders,
       totalRevenue,
       estimatedCost,
@@ -357,6 +492,8 @@ export const getEventDetailedStats = cache(
       hourlySales,
       dailySales,
       weekdaySales,
+      validationHourly,
+      validationByToken,
       paymentMethods,
       revenueUntracked,
       ordersUntracked,
