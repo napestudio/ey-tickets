@@ -9,6 +9,9 @@ import { getActiveFeaturedEvents } from "@/lib/actions";
 import { Evento } from "@/types/event";
 import { Title } from "@radix-ui/react-toast";
 import { Metadata } from "next/types";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -25,10 +28,21 @@ export default async function EventosPage() {
 
   if (!eventos.length) {
     return (
-      <section className="mt-10 h-[75vh]">
-        <p className="text-xl text-white font-bold">
-          No hay eventos disponibles
-        </p>
+      <section className="min-h-svh py-24 bg-linear-to-t to-black from-ey-turquoise-darker to-80%">
+        <div className="container">
+          <div className="max-w-[90svw] md:w-lg mx-auto mb-15">
+            <Logo />
+          </div>
+          <p className="text-2xl text-neutral-300 text-center font-bold">
+            No hay eventos disponibles en este momento
+          </p>
+          <Link
+            href="/"
+            className="mt-2 text-xs flex gap-1 items-center text-neutral-400/50 text-center font-bold mx-auto w-max"
+          >
+            <ArrowLeft width={15} height={15} /> Ir al inicio
+          </Link>
+        </div>
       </section>
     );
   }
