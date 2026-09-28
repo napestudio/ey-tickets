@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart2 } from "lucide-react";
-import EventStatsSummary from "@/app/(dashboard)/dashboard/reportes/[eventId]/components/event-stats-summary";
+import EventStatsTable from "./components/event-stats-table";
 import ExportCsvButton from "@/app/(dashboard)/dashboard/reportes/[eventId]/components/export-csv-button";
 
 interface EventSimpleReportPageProps {
@@ -59,7 +59,7 @@ export default async function EventSimpleReportPage({
         </div>
       </div>
 
-      <EventStatsSummary stats={stats} />
+      <EventStatsTable stats={stats} />
 
     </div>
   );

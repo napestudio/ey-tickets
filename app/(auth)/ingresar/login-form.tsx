@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { inputClass } from "@/components/website/Contactform";
 
@@ -36,9 +35,7 @@ const responseTxt: {
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [errorMessageShown, setErrorMessageShown] = useState<boolean>(false);
-  const [urlError, setUrlError] = useState<string | null>(null);
-  const { toast } = useToast();
+  const [formError, setFormError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,41 +48,27 @@ export default function LoginForm() {
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
-    if (!urlError && errorParam) {
-      setUrlError(errorParam);
+    if (errorParam) {
+      setFormError(
+        responseTxt[errorParam] ?? "No se pudo iniciar sesión. Intentá de nuevo."
+      );
     }
-  }, [searchParams, urlError]);
-
-  useEffect(() => {
-    if (urlError && !errorMessageShown) {
-      setErrorMessageShown(true);
-      toast({
-        variant: "destructive",
-        title: responseTxt[urlError],
-      });
-    }
-  }, [urlError, errorMessageShown]);
+  }, [searchParams]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    setFormError(null);
 
     try {
-      const resp = await signIn("credentials", {
+      await signIn("credentials", {
         email: values.email,
         password: values.password,
         redirect: true,
       });
-
-      if (resp?.ok === false) {
-        setIsLoading(false);
-        return toast({
-          variant: "destructive",
-          title: "Password o email son incorrectos.",
-        });
-      }
-      setIsLoading(false);
     } catch (error) {
       console.log(error);
+      setFormError("No se pudo iniciar sesión. Intentá de nuevo.");
+      setIsLoading(false);
     }
   }
   return (
@@ -138,6 +121,11 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
+        {formError && (
+          <p className="text-sm font-medium text-red-400" role="alert">
+            {formError}
+          </p>
+        )}
         <div className="flex items-center gap-2">
           <Button
             type="submit"

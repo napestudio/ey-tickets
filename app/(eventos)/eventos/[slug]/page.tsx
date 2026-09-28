@@ -1,5 +1,5 @@
 import { getSingleEventBySlug, getSoldTicketsByType } from "@/lib/actions";
-import { datesFormater } from "@/lib/utils";
+import { datesFormater, stripHtml } from "@/lib/utils";
 import TicketTypePickerV2 from "@/components/ticket-type-picker/ticket-type-picker-v2";
 import { TicketTypeForPicker } from "@/components/ticket-type-picker/ticket-type-picker-form";
 import EventHeader from "@/components/event-header/event-header";
@@ -28,14 +28,17 @@ export async function generateMetadata(
   }
 
   const { evento } = eventData;
+  const plainDescription = evento.description
+    ? stripHtml(evento.description)
+    : undefined;
 
   return {
     metadataBase: new URL(SITE_URL),
     title: `${SITE_NAME} | ${evento.title} | Entradas`,
-    description: evento.description?.slice(0, 160),
+    description: plainDescription?.slice(0, 160),
     openGraph: {
       title: evento.title,
-      description: evento.description,
+      description: plainDescription,
       images: [
         {
           url: evento.image || "/placeholder.svg",
@@ -48,7 +51,7 @@ export async function generateMetadata(
     twitter: {
       card: "summary_large_image",
       title: evento.title,
-      description: evento.description,
+      description: plainDescription,
       images: [evento.image || "/placeholder.svg"],
     },
   };

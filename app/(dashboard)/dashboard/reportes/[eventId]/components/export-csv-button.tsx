@@ -21,38 +21,14 @@ function buildCsv(stats: EventDetailedStats): string {
 
   // ── Resumen financiero ───────────────────────────────────────────────────
   lines.push(row("RESUMEN FINANCIERO"));
-  lines.push(row("Campo", "Valor"));
   lines.push(row("Evento", stats.eventTitle));
-  lines.push(row("Estado", stats.eventStatus));
-  lines.push(row("Tickets vendidos", stats.totalTicketsSold));
-  lines.push(row("Órdenes pagadas", stats.totalOrders));
-  lines.push(row("Precio promedio por ticket", stats.averageTicketPrice.toFixed(2)));
-  lines.push(row("Tickets validados", stats.validatedTickets));
-  lines.push(
-    row(
-      "Tasa de asistencia (%)",
-      stats.attendanceRate !== null ? stats.attendanceRate.toFixed(1) : "N/A"
-    )
-  );
+  lines.push(row("Entradas emitidas (físicas, incl. invitaciones)", stats.totalTicketsIssued));
+  lines.push(row("Tickets vendidos", stats.ticketOrdersIssued));
+  lines.push(row("Invitaciones", stats.invitationTickets));
+  lines.push(row("Órdenes totales", stats.totalOrders));
   lines.push(row("Órdenes con descuento/promo", stats.discountedOrders));
-  lines.push(row("Descuentos otorgados ($)", stats.totalDiscountsGiven.toFixed(2)));
-  lines.push(row("Ingresos totales ($)", stats.totalRevenue.toFixed(2)));
-  lines.push(row("Cargo de servicio cobrado ($)", stats.totalServiceCharges.toFixed(2)));
-  lines.push(row("Ingresos netos de tickets ($)", stats.netTicketRevenue.toFixed(2)));
-  lines.push(row("CPP / WAC por ticket ($)", stats.wac.toFixed(2)));
-  lines.push(row("Costo estimado ($)", stats.estimatedCost.toFixed(2)));
-  lines.push(row("Ganancia bruta ($)", stats.profit.toFixed(2)));
-  lines.push(
-    row(
-      "Margen bruto (%)",
-      stats.margin !== null ? stats.margin.toFixed(1) : "N/A"
-    )
-  );
-  lines.push(
-    row("Ganancia s/cargo de servicio ($)", stats.ticketProfit.toFixed(2))
-  );
-  lines.push(row("Ingresos sin método de pago ($)", stats.revenueUntracked.toFixed(2)));
-  lines.push(row("Órdenes sin método de pago", stats.ordersUntracked));
+  lines.push(row("Ingresos totales ($)", stats.totalRevenue.toLocaleString("es-AR", { maximumFractionDigits: 0 })));
+  lines.push(row("Tickets validados", stats.validatedTickets));
   lines.push(row("Primer venta", stats.dateRange.earliest ?? "N/A"));
   lines.push(row("Última venta", stats.dateRange.latest ?? "N/A"));
 
@@ -72,69 +48,6 @@ function buildCsv(stats: EventDetailedStats): string {
         tt.sharePercent.toFixed(1)
       )
     );
-  }
-
-  // ── Ventas diarias ───────────────────────────────────────────────────────
-  if (stats.dailySales.length > 0) {
-    lines.push("");
-    lines.push(row("VENTAS DIARIAS"));
-    lines.push(row("Fecha", "Órdenes", "Tickets vendidos", "Ingresos ($)"));
-    for (const d of stats.dailySales) {
-      lines.push(row(d.date, d.orderCount, d.ticketsSold, d.revenue.toFixed(2)));
-    }
-  }
-
-  // ── Ventas por hora ──────────────────────────────────────────────────────
-  if (stats.hourlySales.length > 0) {
-    lines.push("");
-    lines.push(row("VENTAS POR HORA"));
-    lines.push(row("Hora", "Órdenes", "Tickets vendidos", "Ingresos ($)"));
-    for (const h of stats.hourlySales) {
-      lines.push(
-        row(`${String(h.hour).padStart(2, "0")}:00`, h.orderCount, h.ticketsSold, h.revenue.toFixed(2))
-      );
-    }
-  }
-
-  // ── Ventas por día de la semana ──────────────────────────────────────────
-  const weekdayWithSales = stats.weekdaySales.filter((d) => d.ticketsSold > 0);
-  if (weekdayWithSales.length > 0) {
-    lines.push("");
-    lines.push(row("VENTAS POR DÍA DE LA SEMANA"));
-    lines.push(row("Día", "Órdenes", "Tickets vendidos"));
-    for (const w of stats.weekdaySales) {
-      lines.push(row(w.label, w.orderCount, w.ticketsSold));
-    }
-  }
-
-  // ── Métodos de pago ──────────────────────────────────────────────────────
-  if (stats.paymentMethods.length > 0) {
-    lines.push("");
-    lines.push(row("MÉTODOS DE PAGO"));
-    lines.push(
-      row(
-        "Método",
-        "Tipo",
-        "Comisión (%)",
-        "Ingresos rastreados ($)",
-        "Órdenes rastreadas",
-        "Comisión real ($)",
-        "Ganancia neta estimada ($)"
-      )
-    );
-    for (const pm of stats.paymentMethods) {
-      lines.push(
-        row(
-          pm.name ?? pm.paymentMethodId,
-          pm.type,
-          pm.commissionPercentage !== null ? pm.commissionPercentage.toFixed(2) : "N/A",
-          pm.revenueTracked.toFixed(2),
-          pm.ordersTracked,
-          pm.commissionActual.toFixed(2),
-          pm.netProfitIfAll.toFixed(2)
-        )
-      );
-    }
   }
 
   return lines.join("\n");

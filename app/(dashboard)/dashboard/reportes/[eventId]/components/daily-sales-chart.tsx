@@ -26,7 +26,6 @@ interface TooltipPayload {
 interface CustomTooltipProps {
   active?: boolean;
   payload?: TooltipPayload[];
-  label?: string;
 }
 
 function formatDisplayDate(dateStr: string): string {
@@ -35,12 +34,12 @@ function formatDisplayDate(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   const row = payload[0].payload;
   return (
     <div className="bg-background border rounded-lg p-3 shadow-md text-sm">
-      <p className="font-medium mb-1">{label ? formatDisplayDate(label) : ""}</p>
+      <p className="font-medium mb-1">{formatDisplayDate(row.date)}</p>
       <p>Tickets vendidos: <span className="font-semibold">{row.ticketsSold.toLocaleString("es-AR")}</span></p>
       <p>Órdenes: <span className="font-semibold">{row.orderCount.toLocaleString("es-AR")}</span></p>
       <p>Ingresos: <span className="font-semibold">{formatPrice(row.revenue)}</span></p>
@@ -68,8 +67,8 @@ export default function DailySalesChart({ data }: DailySalesChartProps) {
           >
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                <stop offset="5%" stopColor="var(--color-ey-turquoise-dark)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="var(--color-ey-turquoise-dark)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -89,7 +88,7 @@ export default function DailySalesChart({ data }: DailySalesChartProps) {
               type="monotone"
               dataKey="ticketsSold"
               name="Tickets vendidos"
-              stroke="hsl(var(--primary))"
+              stroke="var(--color-ey-turquoise-dark)"
               fill="url(#colorSales)"
               strokeWidth={2}
             />

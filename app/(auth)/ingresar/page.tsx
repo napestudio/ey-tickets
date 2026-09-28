@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/get-session";
 import SignInButton from "@/app/(dashboard)/dashboard/components/sign-in-button/sign-in-button";
 import { redirect } from "next/navigation";
 import LoginForm from "./login-form";
+import InstallAppButton from "./install-app-button";
 import Link from "next/link";
 import Image from "next/image";
 import { Title } from "@/components/website/ui/Title";
@@ -24,6 +25,7 @@ export default async function Ingresar() {
           Ingresar
         </Title>
         <LoginForm />
+        <InstallAppButton />
         <hr className="mx-auto w-4/5 border-black" />
         {/* <div className="flex items-center flex-col justify-center gap-2 w-3/4 mx-auto">
             <h4 className="font-bold">O ingresar con</h4>

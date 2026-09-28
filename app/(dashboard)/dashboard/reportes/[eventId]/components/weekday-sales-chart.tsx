@@ -85,7 +85,7 @@ export default function WeekdaySalesChart({ data }: WeekdaySalesChartProps) {
             <Bar
               dataKey="ticketsSold"
               name="Tickets vendidos"
-              fill="hsl(var(--primary))"
+              fill="var(--color-ey-turquoise-dark)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

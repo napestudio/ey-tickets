@@ -138,10 +138,12 @@ export default function EventActionGrid({
         <Link
           key={href(eventId)}
           href={href(eventId)}
-          className="flex flex-col items-center gap-3 rounded-xl bg-linear-to-tl from-neutral-950 to-ey-dark/75 text-neutral-50 border-ey-turquoise hover:from-neutral-800 hover:text-neutral-50 border-2 p-3 text-center shadow-sm transition-colors"
+          className="flex items-center gap-3 rounded-xl bg-linear-to-tl from-neutral-50 to-ey-dark/5 text-neutral-950 border-ey-turquoise hover:from-ey-turquoise hover:to-ey-turquoise hover:text-ey-turquoise-darker border-2 p-3 text-center shadow-sm transition-colors group"
         >
-          <Icon className="h-6 w-6" strokeWidth={1.5} />
-          <div>
+          <div className="p-3 rounded-full bg-ey-turquoise group-hover:scale-110 group-hover:shadow-md group-hover:bg-[#37edca] transition-all">
+            <Icon className="h-6 w-6 text-neutral-950" strokeWidth={1.5} />
+          </div>
+          <div className="text-left">
             <p className="font-semibold text-sm">{label}</p>
             <p className="text-xs">{description}</p>
           </div>

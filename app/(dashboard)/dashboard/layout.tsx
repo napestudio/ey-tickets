@@ -13,6 +13,7 @@ import UserVerificationToast from "./components/user-verification-toast/user-ver
 export const metadata: Metadata = {
   title: "Eytickets | Administración",
   description: "Plataforma de gestión de eventos online",
+  manifest: "/manifest.webmanifest",
 };
 
 export default async function DashboardLayout({
