@@ -1,4 +1,16 @@
-import { EventPayment, TicketOrder, ValidatorToken } from "@prisma/client";
+import {
+  EventPayment,
+  PaymentMethod,
+  TicketOrder,
+  ValidatorToken,
+} from "@prisma/client";
+
+export type EventPaymentWithMethod = EventPayment & {
+  paymentMethod: Pick<
+    PaymentMethod,
+    "id" | "type" | "name" | "cbu" | "alias" | "transferEmail" | "instructions"
+  >;
+};
 import { DiscountCode } from "./discount-code";
 import { TicketOrderType, TicketType } from "./tickets";
 

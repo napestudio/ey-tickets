@@ -5,7 +5,7 @@ import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
 import { getEventById } from "@/lib/actions";
 import { EventoWithTicketsType } from "@/types/event";
-import { ArrowLeft, XCircle } from "lucide-react";
+import { ArrowLeft, Landmark, XCircle } from "lucide-react";
 
 export default async function VentasPage({
   params,
@@ -34,6 +34,12 @@ export default async function VentasPage({
           <Link href={`/dashboard/evento/${id}/canceladas`}>
             <XCircle className="mr-2 h-4 w-4" />
             Ver canceladas
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/dashboard/evento/${id}/transferencias`}>
+            <Landmark className="mr-2 h-4 w-4" />
+            Transferencias pendientes
           </Link>
         </Button>
       </div>

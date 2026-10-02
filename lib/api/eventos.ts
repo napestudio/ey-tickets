@@ -167,10 +167,18 @@ export const getSingleEventBySlug = cache(async (slug: string) => {
         },
       },
       eventPayments: {
-        where: { paymentMethod: { type: "DIGITAL" } },
+        where: { paymentMethod: { type: { in: ["DIGITAL", "TRANSFER"] } } },
         include: {
           paymentMethod: {
-            select: { type: true },
+            select: {
+              id: true,
+              type: true,
+              name: true,
+              cbu: true,
+              alias: true,
+              transferEmail: true,
+              instructions: true,
+            },
           },
         },
       },

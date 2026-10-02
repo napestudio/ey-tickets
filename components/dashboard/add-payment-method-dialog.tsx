@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -56,6 +57,7 @@ const paymentMethodSchema = z.object({
     .email("Ingresá un email válido")
     .optional()
     .or(z.literal("")),
+  instructions: z.string().optional(),
   enabled: z.boolean().default(true),
   commissionPercentage: z.coerce
     .number()
@@ -91,6 +93,7 @@ export function AddPaymentMethodDialog({
       cbu: "",
       alias: "",
       transferEmail: "",
+      instructions: "",
       enabled: true,
       commissionPercentage: undefined,
     },
@@ -115,6 +118,8 @@ export function AddPaymentMethodDialog({
         alias: data.type === "transfer" ? data.alias || null : null,
         transferEmail:
           data.type === "transfer" ? data.transferEmail || null : null,
+        instructions:
+          data.type === "transfer" ? data.instructions || null : null,
         enabled: data.enabled,
         creatorId,
         commissionPercentage: data.commissionPercentage ?? null,
@@ -324,11 +329,31 @@ export function AddPaymentMethodDialog({
                           name="transferEmail"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email</FormLabel>
+                              <FormLabel>Email para el comprobante</FormLabel>
                               <FormControl>
                                 <Input
                                   type="email"
                                   placeholder="Ingresa el email"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                El comprador va a enviar el comprobante de la
+                                transferencia a este email.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="instructions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Instrucciones adicionales (opcional)</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Ej: la acreditación puede demorar 24-48hs, etc."
                                   {...field}
                                 />
                               </FormControl>

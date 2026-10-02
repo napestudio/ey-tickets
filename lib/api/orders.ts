@@ -25,6 +25,22 @@ export async function getOrderById(orderId: string) {
       event: {
         include: {
           discountCode: true,
+          eventPayments: {
+            where: { paymentMethod: { type: { in: ["DIGITAL", "TRANSFER"] } } },
+            include: {
+              paymentMethod: {
+                select: {
+                  id: true,
+                  type: true,
+                  name: true,
+                  cbu: true,
+                  alias: true,
+                  transferEmail: true,
+                  instructions: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -103,6 +119,34 @@ export async function getOrderByCustomizationToken(token: string) {
       event: true,
       ticketType: true,
     },
+  });
+}
+
+export async function markOrderAwaitingTransfer(
+  orderId: string,
+  data: {
+    name: string;
+    lastName: string;
+    dni: string;
+    email: string;
+    phone: string;
+    paymentMethodId: string;
+  },
+) {
+  return await prisma.order.updateMany({
+    where: { id: orderId, status: "PENDING" },
+    data: { ...data, status: "AWAITING_TRANSFER" },
+  });
+}
+
+export async function getPendingTransferOrdersByEvent(eventId: string) {
+  return await prisma.order.findMany({
+    where: { eventId, status: "AWAITING_TRANSFER" },
+    include: {
+      ticketType: true,
+      paymentMethod: true,
+    },
+    orderBy: { createdAt: "asc" },
   });
 }
 

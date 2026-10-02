@@ -5,6 +5,7 @@ import { PasswordResetEmail } from "./password-reset";
 import { UserInvitationEmail } from "./user-invitation";
 import { AccountVerificationEmail } from "./account-verification";
 import { EventInvitationEmail } from "./event-invitation";
+import { TransferInstructionsEmail } from "./transfer-instructions";
 
 export type { QrTicketEmailData } from "./ticket-confirmation";
 
@@ -134,6 +135,39 @@ export async function sendEventInvitationEmail(
 
   if (error) {
     throw new Error(`Error sending event invitation email: ${error.message}`);
+  }
+}
+
+export type TransferInstructionsEmailPayload = {
+  recipientEmail: string;
+  eventTitle: string;
+  orderId: string;
+  ticketTitle: string;
+  quantity: number;
+  totalPrice: number;
+  cbu?: string | null;
+  alias?: string | null;
+  transferEmail?: string | null;
+  instructions?: string | null;
+};
+
+export async function sendTransferInstructionsEmail(
+  payload: TransferInstructionsEmailPayload
+): Promise<void> {
+  const { recipientEmail, orderId, ...rest } = payload;
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: [recipientEmail],
+    subject: `Instrucciones de pago por transferencia — ${rest.eventTitle}`,
+    react: TransferInstructionsEmail({
+      ...rest,
+      orderReference: orderId.slice(-8).toUpperCase(),
+    }),
+  });
+
+  if (error) {
+    throw new Error(`Error sending transfer instructions email: ${error.message}`);
   }
 }
 
