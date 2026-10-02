@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 
-import { createFreeTicket, updateOrder } from "@/lib/actions";
+import { createFreeTicket, createTransferOrder, updateOrder } from "@/lib/actions";
 import { Order } from "@/types/order";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createMercadoPagoOrder } from "@/lib/mercadopago";
 import { inputClass } from "@/components/website/Contactform";
 
@@ -31,6 +32,7 @@ const formSchema = z
 type FormValues = z.infer<typeof formSchema>;
 
 export default function UserDataForm({ order }: { order: Order }) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
@@ -38,6 +40,15 @@ export default function UserDataForm({ order }: { order: Order }) {
 
   const orderId = order?.id;
   const producerId = order?.event!?.producerId;
+
+  const transferPayment = order.event?.eventPayments?.find(
+    (ep) => ep.paymentMethod.type === "TRANSFER"
+  );
+  const hasDigital = Boolean(
+    order.event?.eventPayments?.some((ep) => ep.paymentMethod.type === "DIGITAL")
+  );
+  // El mapa de asientos todavía no soporta esperas largas de transferencia (el hold expira rápido)
+  const hasTransfer = !order.seatId && Boolean(transferPayment);
 
   const totalWithDiscount = hasDiscount
     ? order.ticketType!.price - order.ticketType!.price * (discountPercent! / 100)
@@ -70,15 +81,26 @@ export default function UserDataForm({ order }: { order: Order }) {
     },
   });
 
-  async function onSubmit(values: FormValues) {
-    setIsLoading(true);
-    const orderData = {
+  function buildOrderData(values: FormValues) {
+    return {
       name: values.name,
       lastName: values.lastName,
       phone: values.phone,
       dni: values.dni,
       email: values.email,
     };
+  }
+
+  const isTicketFree = Boolean(order.ticketType!.isFree || isFree);
+
+  async function onSubmitMp(values: FormValues) {
+    setIsLoading(true);
+    const orderData = buildOrderData(values);
+
+    if (isTicketFree) {
+      await createFreeTicket(orderData, orderId!, producerId);
+      return;
+    }
 
     const product = {
       title: order.ticketType!.title,
@@ -87,17 +109,28 @@ export default function UserDataForm({ order }: { order: Order }) {
       eventId: order.eventId,
     };
 
-    try {
-      if (order.ticketType!.isFree || isFree) {
-        await createFreeTicket(orderData, orderId!, producerId);
-        return;
-      }
-    } catch {
-      throw new Error("Error free ticket");
-    }
-
     await createMercadoPagoOrder(product, orderData, orderId!, producerId);
   }
+
+  async function onSubmitTransfer(values: FormValues) {
+    setIsLoading(true);
+    const orderData = buildOrderData(values);
+
+    if (isTicketFree) {
+      await createFreeTicket(orderData, orderId!, producerId);
+      return;
+    }
+
+    try {
+      await createTransferOrder(orderData, orderId!, transferPayment!.paymentMethod.id);
+      router.refresh();
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Botón "submit" por defecto: si no hay MercadoPago, la transferencia es la acción principal
+  const onSubmit = hasDigital ? onSubmitMp : onSubmitTransfer;
 
   return (
     <form
@@ -191,20 +224,39 @@ export default function UserDataForm({ order }: { order: Order }) {
         )}
       </div>
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full font-bold bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed py-3"
-      >
-        {isLoading ? (
-          <span className="inline-flex items-center justify-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Procesando...
-          </span>
-        ) : (
-          "Pagar"
+      <div className="flex flex-col gap-3">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full font-bold bg-ey-turquoise text-ey-dark rounded-2xl hover:bg-ey-turquoise-dark transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed py-3"
+        >
+          {isLoading ? (
+            <span className="inline-flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Procesando...
+            </span>
+          ) : isTicketFree ? (
+            "Confirmar"
+          ) : hasDigital && hasTransfer ? (
+            "Pagar con MercadoPago"
+          ) : hasTransfer ? (
+            "Pagar por transferencia"
+          ) : (
+            "Pagar"
+          )}
+        </button>
+
+        {!isTicketFree && hasDigital && hasTransfer && (
+          <button
+            type="button"
+            disabled={isLoading}
+            onClick={handleSubmit(onSubmitTransfer)}
+            className="w-full font-bold bg-white/10 text-white rounded-2xl hover:bg-white/20 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed py-3"
+          >
+            Pagar por transferencia
+          </button>
         )}
-      </button>
+      </div>
     </form>
   );
 }

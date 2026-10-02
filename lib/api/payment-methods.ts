@@ -62,20 +62,23 @@ export async function assignPaymentMethodsToEvent({
   const existingIds = new Set(existingLinks.map((e) => e.paymentMethodId));
   const newMethods = methods.filter((m) => !existingIds.has(m.id));
 
-  const existingDigital = await prisma.eventPayment.findFirst({
-    where: { eventId, paymentMethod: { type: "DIGITAL" } },
-  });
+  // Solo se permite un método DIGITAL y un método TRANSFER por evento (CASH no tiene este límite)
+  const singleInstanceTypes = ["DIGITAL", "TRANSFER"] as const;
+  for (const type of singleInstanceTypes) {
+    const existing = await prisma.eventPayment.findFirst({
+      where: { eventId, paymentMethod: { type } },
+    });
 
-  const newDigitalCount = newMethods.filter((m) => m.type === "DIGITAL").length;
+    const newCount = newMethods.filter((m) => m.type === type).length;
+    const label = type === "DIGITAL" ? "DIGITAL" : "de transferencia";
 
-  if (existingDigital && newDigitalCount > 0) {
-    throw new Error("Ya hay un método DIGITAL asignado a este evento");
-  }
+    if (existing && newCount > 0) {
+      throw new Error(`Ya hay un método ${label} asignado a este evento`);
+    }
 
-  if (!existingDigital && newDigitalCount > 1) {
-    throw new Error(
-      "Solo se puede asignar un método de pago DIGITAL por evento"
-    );
+    if (!existing && newCount > 1) {
+      throw new Error(`Solo se puede asignar un método de pago ${label} por evento`);
+    }
   }
 
   await prisma.eventPayment.createMany({

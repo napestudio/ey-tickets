@@ -5,6 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Short, human-friendly order reference shown to the buyer (email/order page)
+ * and to the producer (pending-transfers table) so a comprobante mentioning
+ * it can be matched to the right order — a buyer's DNI/email alone isn't
+ * unique across their own multiple purchases.
+ */
+export function getOrderReference(orderId: string): string {
+  return orderId.slice(-8).toUpperCase();
+}
+
 export const groupDatesByMonth = (dates: { id: number; date: string }[]) => {
   const months: { [key: string]: number[] } = {};
   dates.forEach((d) => {

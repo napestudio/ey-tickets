@@ -1,5 +1,6 @@
 import UserDataForm from "@/components/client-data-form/client-data-form";
 import OrderTimeOut from "@/components/order-time-out/order-time-out";
+import ScrollToTopOnce from "@/components/order-time-out/scroll-to-top-once";
 import OrderTotal from "@/components/order-total/order-total";
 import EventsMarquee from "@/components/website/events/EventsMarquee";
 import { getOrderById, getServiceCharge } from "@/lib/actions";
@@ -61,9 +62,73 @@ export default async function OrderPage({
 
   const { title, dates, city, state } = evento ?? {};
 
+  if (order?.status === "AWAITING_TRANSFER") {
+    const transferMethods = (evento?.eventPayments ?? []).filter(
+      (ep) => ep.paymentMethod.type === "TRANSFER"
+    );
+    return (
+      <>
+        <ScrollToTopOnce />
+        {title && (
+          <EventsMarquee
+            events={Array(6).fill({ title, dates, city, state })}
+          />
+        )}
+        <div className="min-h-svh bg-linear-to-t to-black from-ey-turquoise-darker to-80% text-white">
+          <div className="w-200 max-w-[90vw] mx-auto px-6 md:px-10 py-16 space-y-6">
+            <h2 className="text-3xl font-bold tracking-tight text-ey-turquoise">
+              Orden pendiente de confirmación
+            </h2>
+            <p className="text-sm text-white/70">
+              Te enviamos las instrucciones de transferencia a {order.email}.
+              Una vez que el organizador confirme tu pago vas a recibir tus
+              entradas por email.
+            </p>
+            {transferMethods.map((ep) => (
+              <div
+                key={ep.id}
+                className="bg-white/5 border border-white/10 p-6 space-y-1 text-sm"
+              >
+                {ep.paymentMethod.cbu && (
+                  <p>
+                    CBU/CVU: <strong>{ep.paymentMethod.cbu}</strong>
+                  </p>
+                )}
+                {ep.paymentMethod.alias && (
+                  <p>
+                    Alias: <strong>{ep.paymentMethod.alias}</strong>
+                  </p>
+                )}
+                {ep.paymentMethod.transferEmail && (
+                  <p>
+                    Enviar el comprobante a:{" "}
+                    <strong>{ep.paymentMethod.transferEmail}</strong>
+                  </p>
+                )}
+                {ep.paymentMethod.instructions && (
+                  <p className="text-white/60">{ep.paymentMethod.instructions}</p>
+                )}
+              </div>
+            ))}
+            {evento?.slug && (
+              <Link
+                href={`/eventos/${evento.slug}`}
+                className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver al evento
+              </Link>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (order?.status === "EXPIRED" || order?.status === "PAID") {
     return (
       <>
+        <ScrollToTopOnce />
         {title && (
           <EventsMarquee
             events={Array(6).fill({ title, dates, city, state })}

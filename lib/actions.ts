@@ -36,6 +36,7 @@ import {
   sendTicketConfirmationEmail,
   sendPasswordResetEmail,
   sendEventInvitationEmail,
+  sendTransferInstructionsEmail,
   type QrTicketEmailData,
 } from "@/emails/send";
 import { generatePasswordResetToken } from "./tokens";
@@ -59,6 +60,7 @@ import { serialize } from "@/lib/serialize";
 import { jsPDF } from "jspdf";
 import { getSession } from "@/lib/auth/get-session";
 import { SITE_URL } from "@/lib/constants";
+import { getOrderReference } from "@/lib/utils";
 
 // Type temporal
 export type Evento = {
@@ -1021,10 +1023,11 @@ type MpPaymentData = {
 
 export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
   try {
-    // Atomic check-and-update: only proceeds if order is currently PENDING.
-    // Prevents duplicate ticket creation from concurrent webhook retries.
+    // Atomic check-and-update: only proceeds if order is currently PENDING or
+    // AWAITING_TRANSFER. Prevents duplicate ticket creation from concurrent
+    // webhook retries or a double-click on "confirmar transferencia".
     const updated = await prisma.order.updateMany({
-      where: { id: orderId, status: "PENDING" },
+      where: { id: orderId, status: { in: ["PENDING", "AWAITING_TRANSFER"] } },
       data: {
         status: "PAID",
         ...(mpData && {
@@ -1094,6 +1097,105 @@ export async function createFreeTicket(
   } catch (error) {
     throw new Error("Error creando free ticket");
   }
+}
+
+export async function createTransferOrder(
+  orderData: {
+    name: string;
+    lastName: string;
+    dni: string;
+    email: string;
+    phone: string;
+  },
+  orderId: string,
+  paymentMethodId: string,
+) {
+  const updated = await Orders.markOrderAwaitingTransfer(orderId, {
+    ...orderData,
+    paymentMethodId,
+  });
+  if (updated.count === 0) return; // orden ya procesada/expirada, no-op
+
+  const order = await Orders.getOrderById(orderId);
+  if (!order || !order.email) return;
+
+  const paymentMethod = await prisma.paymentMethod.findUnique({
+    where: { id: paymentMethodId },
+    select: { cbu: true, alias: true, transferEmail: true, instructions: true },
+  });
+  if (!paymentMethod) return;
+
+  await sendTransferInstructionsEmail({
+    recipientEmail: order.email,
+    eventTitle: order.event?.title ?? "",
+    orderId: order.id,
+    ticketTitle: order.ticketType?.title ?? "",
+    quantity: order.quantity,
+    totalPrice: Number(order.totalPrice ?? 0),
+    cbu: paymentMethod.cbu,
+    alias: paymentMethod.alias,
+    transferEmail: paymentMethod.transferEmail,
+    instructions: paymentMethod.instructions,
+  });
+
+  revalidatePath(`/orders/${orderId}`);
+}
+
+// ─────────────────────────────────────────────
+// TRANSFER ORDER CONFIRMATION (producer dashboard)
+// ─────────────────────────────────────────────
+
+export async function getPendingTransferOrdersAction(eventId: string) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+  const event = await Eventos.getEventById(eventId);
+  if (!event || event.producerId !== session.user.producerId) {
+    throw new Error("No autorizado.");
+  }
+  const orders = await Orders.getPendingTransferOrdersByEvent(eventId);
+  return orders.map((order) => ({
+    id: order.id,
+    reference: getOrderReference(order.id),
+    name: order.name,
+    lastName: order.lastName,
+    email: order.email,
+    quantity: order.quantity,
+    totalPrice: order.totalPrice !== null ? Number(order.totalPrice) : null,
+    createdAt: order.createdAt,
+    ticketType: order.ticketType ? { title: order.ticketType.title } : null,
+  }));
+}
+
+export async function confirmTransferOrderAction(orderId: string, eventId: string) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+  const event = await Eventos.getEventById(eventId);
+  if (!event || event.producerId !== session.user.producerId) {
+    throw new Error("No autorizado.");
+  }
+
+  await prisma.order.updateMany({
+    where: { id: orderId, eventId, status: "AWAITING_TRANSFER" },
+    data: { confirmedAt: new Date(), confirmedById: session.user.id },
+  });
+
+  await payOrderHandler(orderId);
+  revalidatePath(`/dashboard/evento/${eventId}/transferencias`);
+}
+
+export async function cancelTransferOrderAction(orderId: string, eventId: string) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("No autorizado.");
+  const event = await Eventos.getEventById(eventId);
+  if (!event || event.producerId !== session.user.producerId) {
+    throw new Error("No autorizado.");
+  }
+
+  await prisma.order.updateMany({
+    where: { id: orderId, eventId, status: "AWAITING_TRANSFER" },
+    data: { status: "EXPIRED" },
+  });
+  revalidatePath(`/dashboard/evento/${eventId}/transferencias`);
 }
 
 export async function createTicketOrder(tickets: TicketOrderType[]) {

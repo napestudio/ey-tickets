@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Card,
@@ -62,6 +63,7 @@ const paymentMethodSchema = z.object({
     .email("Ingresá un email válido")
     .optional()
     .or(z.literal("")),
+  instructions: z.string().optional(),
   enabled: z.boolean().default(true),
   seller: z.string(),
   commissionPercentage: z.coerce
@@ -99,6 +101,9 @@ export function EditPaymentMethodDialog({
       transferEmail:
         (paymentMethod as PaymentMethod & { transferEmail?: string })
           .transferEmail || "",
+      instructions:
+        (paymentMethod as PaymentMethod & { instructions?: string })
+          .instructions || "",
       enabled: paymentMethod.enabled,
       seller: paymentMethod.userId || "",
       commissionPercentage:
@@ -123,6 +128,8 @@ export function EditPaymentMethodDialog({
         alias: data.type === "TRANSFER" ? data.alias || null : null,
         transferEmail:
           data.type === "TRANSFER" ? data.transferEmail || null : null,
+        instructions:
+          data.type === "TRANSFER" ? data.instructions || null : null,
         enabled: data.enabled,
         creatorId: paymentMethod.creatorId,
         commissionPercentage: data.commissionPercentage ?? null,
@@ -292,11 +299,31 @@ export function EditPaymentMethodDialog({
                           name="transferEmail"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email</FormLabel>
+                              <FormLabel>Email para el comprobante</FormLabel>
                               <FormControl>
                                 <Input
                                   type="email"
                                   placeholder="Ingresa el email"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                El comprador va a enviar el comprobante de la
+                                transferencia a este email.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="instructions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Instrucciones adicionales (opcional)</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Ej: la acreditación puede demorar 24-48hs, etc."
                                   {...field}
                                 />
                               </FormControl>
