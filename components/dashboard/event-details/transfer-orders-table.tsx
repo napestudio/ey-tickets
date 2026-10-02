@@ -27,6 +27,7 @@ import { Loader2 } from "lucide-react";
 
 export type PendingTransferOrder = {
   id: string;
+  reference: string;
   name: string | null;
   lastName: string | null;
   email: string | null;
@@ -92,6 +93,7 @@ export default function TransferOrdersTable({
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Referencia</TableHead>
           <TableHead>Comprador</TableHead>
           <TableHead>Tipo de entrada</TableHead>
           <TableHead>Cantidad</TableHead>
@@ -105,6 +107,11 @@ export default function TransferOrdersTable({
           const isRowPending = isPending && activeOrderId === order.id;
           return (
             <TableRow key={order.id}>
+              <TableCell>
+                <span className="font-mono text-xs font-semibold tracking-wide bg-muted px-2 py-1 rounded">
+                  {order.reference}
+                </span>
+              </TableCell>
               <TableCell>
                 <div className="font-medium">
                   {order.name} {order.lastName}

@@ -60,6 +60,7 @@ import { serialize } from "@/lib/serialize";
 import { jsPDF } from "jspdf";
 import { getSession } from "@/lib/auth/get-session";
 import { SITE_URL } from "@/lib/constants";
+import { getOrderReference } from "@/lib/utils";
 
 // Type temporal
 export type Evento = {
@@ -1154,6 +1155,7 @@ export async function getPendingTransferOrdersAction(eventId: string) {
   const orders = await Orders.getPendingTransferOrdersByEvent(eventId);
   return orders.map((order) => ({
     id: order.id,
+    reference: getOrderReference(order.id),
     name: order.name,
     lastName: order.lastName,
     email: order.email,

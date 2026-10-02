@@ -6,6 +6,7 @@ import { UserInvitationEmail } from "./user-invitation";
 import { AccountVerificationEmail } from "./account-verification";
 import { EventInvitationEmail } from "./event-invitation";
 import { TransferInstructionsEmail } from "./transfer-instructions";
+import { getOrderReference } from "@/lib/utils";
 
 export type { QrTicketEmailData } from "./ticket-confirmation";
 
@@ -162,7 +163,7 @@ export async function sendTransferInstructionsEmail(
     subject: `Instrucciones de pago por transferencia — ${rest.eventTitle}`,
     react: TransferInstructionsEmail({
       ...rest,
-      orderReference: orderId.slice(-8).toUpperCase(),
+      orderReference: getOrderReference(orderId),
     }),
   });
 
