@@ -1,3 +1,4 @@
+import CopyButton from "@/components/copy-button/copy-button";
 import UserDataForm from "@/components/client-data-form/client-data-form";
 import OrderTimeOut from "@/components/order-time-out/order-time-out";
 import ScrollToTopOnce from "@/components/order-time-out/scroll-to-top-once";
@@ -90,13 +91,15 @@ export default async function OrderPage({
                 className="bg-white/5 border border-white/10 p-6 space-y-1 text-sm"
               >
                 {ep.paymentMethod.cbu && (
-                  <p>
+                  <p className="flex items-center gap-2">
                     CBU/CVU: <strong>{ep.paymentMethod.cbu}</strong>
+                    <CopyButton value={ep.paymentMethod.cbu} label="CBU/CVU" />
                   </p>
                 )}
                 {ep.paymentMethod.alias && (
-                  <p>
+                  <p className="flex items-center gap-2">
                     Alias: <strong>{ep.paymentMethod.alias}</strong>
+                    <CopyButton value={ep.paymentMethod.alias} label="Alias" />
                   </p>
                 )}
                 {ep.paymentMethod.transferEmail && (
