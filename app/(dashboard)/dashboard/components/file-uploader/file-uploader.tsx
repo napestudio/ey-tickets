@@ -3,13 +3,15 @@
 import {
   useCallback,
   useRef,
+  useState,
   Dispatch,
   SetStateAction,
   DragEvent,
 } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { compressImageFile } from "@/lib/client-image-compress";
 
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
@@ -33,13 +35,20 @@ export function FileUploader({
   square = false,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!ACCEPTED_TYPES.includes(file.type)) return;
-      setFileUpdated(true);
-      setFiles([file]);
-      onFieldChange(convertFileToUrl(file));
+      setIsProcessing(true);
+      try {
+        const compressed = await compressImageFile(file);
+        setFileUpdated(true);
+        setFiles([compressed]);
+        onFieldChange(convertFileToUrl(compressed));
+      } finally {
+        setIsProcessing(false);
+      }
     },
     [setFiles, onFieldChange, setFileUpdated],
   );
@@ -76,7 +85,12 @@ export function FileUploader({
         <div
           className={`flex-center text-center flex-col py-5 text-grey-500 relative ${square ? "aspect-square" : "min-h-61.25"}`}
         >
-          {imageUrl ? (
+          {isProcessing ? (
+            <>
+              <Loader2 className="m-auto h-10 w-10 animate-spin" />
+              <h3 className="mb-2 mt-2">Optimizando imagen...</h3>
+            </>
+          ) : imageUrl ? (
             <>
               <Image
                 src={imageUrl}
@@ -112,8 +126,10 @@ export function FileUploader({
                 strokeWidth={1}
                 absoluteStrokeWidth
               />
-              <h3 className="mb-2 mt-2">Tamaño máximo 900KB</h3>
-              <p className="p-medium-12">PNG, JPG, WEBP</p>
+              <h3 className="mb-2 mt-2">Subí una imagen</h3>
+              <p className="p-medium-12">
+                PNG, JPG, WEBP · se optimiza automáticamente
+              </p>
             </>
           )}
         </div>

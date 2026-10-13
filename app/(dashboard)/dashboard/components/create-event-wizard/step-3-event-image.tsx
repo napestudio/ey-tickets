@@ -44,8 +44,8 @@ export function Step3EventImage({
         <div className="space-y-4">
           <h2 className="font-bold">Imagen del evento</h2>
           <p className="text-sm text-muted-foreground">
-            Subí una imagen para tu evento. Tamaño máximo: 900KB. Formatos
-            aceptados: PNG, JPG, WEBP.
+            Subí una imagen para tu evento. Se optimiza automáticamente.
+            Formatos aceptados: PNG, JPG, WEBP.
           </p>
           <FileUploader
             onFieldChange={(url) => {
