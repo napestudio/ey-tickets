@@ -8,6 +8,13 @@ const nextConfig = {
     GOOGLE_SECRET: process.env.GOOGLE_SECRET,
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
   },
+  experimental: {
+    serverActions: {
+      // Las fotos de celular reales (2-8MB) superan el límite default de 1MB
+      // antes de llegar a la compresión server-side (lib/cloudinary-upload.ts).
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [{
