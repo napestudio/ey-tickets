@@ -39,7 +39,10 @@ export default function Navigation({ evento, isEventOwner }: NavigationProps) {
               {evento.status !== "CANCELED" && (
                 <>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/dashboard/evento/${evento.id}/mapa`} className="flex items-center">
+                    <Link
+                      href={`/dashboard/evento/${evento.id}/mapa`}
+                      className="flex items-center"
+                    >
                       <Map className="md:mr-2 h-4 w-4" />
                       <span className="hidden sm:inline">Mapa de sala</span>
                     </Link>

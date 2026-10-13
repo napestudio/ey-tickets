@@ -1,9 +1,12 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { Evento } from "@/types/event";
 import { SITE_URL } from "@/lib/constants";
 import { datesFormater } from "@/lib/utils";
-import { ArrowLeft, Eye, Lock, MapPin } from "lucide-react";
+import { ArrowLeft, Copy, Eye, Lock, MapPin } from "lucide-react";
 import Link from "next/link";
 import CancelEventButton from "../cancel-event-button";
 
@@ -38,6 +41,14 @@ export default function EventOverviewHeader({
   const statusInfo = evento.status ? STATUS_MAP[evento.status] : null;
   const dates = datesFormater(evento.dates as string);
 
+  const handleCopyLink = () => {
+    const url = `${SITE_URL}/eventos/${evento.slug}`;
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link del evento copiado correctamente",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-start md:items-center justify-between gap-2">
@@ -51,6 +62,17 @@ export default function EventOverviewHeader({
         </Button>
 
         <div className="md:ml-auto flex flex-wrap items-center gap-2">
+          {evento.status !== "CANCELED" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyLink}
+              type="button"
+            >
+              <Copy className="md:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Copiar link</span>
+            </Button>
+          )}
           {evento.status !== "CANCELED" && (
             <Button asChild variant="outline" size="sm">
               <Link
