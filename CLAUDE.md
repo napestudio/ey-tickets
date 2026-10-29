@@ -128,3 +128,8 @@ Convención para un hook SWR nuevo (`hooks/use-<recurso>.ts`):
 - Exportar la key de cache (`export const X_KEY = "..."`) y un helper `refresh<Recurso>()` que envuelva `mutate(X_KEY)` de `swr`, para que los sitios de mutación no necesiten importar `swr` directamente.
 - Configurar `refreshInterval` + `revalidateOnFocus`/`revalidateOnReconnect` cuando el dato puede cambiar desde fuera de la sesión del cliente (webhooks, rutas de superadmin) — esto es una red de seguridad ante sitios de mutación que se olviden de llamar al `refresh`, no un reemplazo de esa llamada (la llamada explícita sigue siendo la que da feedback instantáneo).
 - El cache de SWR vive en memoria del tab del browser, no se persiste a disco — no es el mismo riesgo que la regla de arriba sobre no usar `localStorage`/`sessionStorage` con key fija (esa regla es sobre persistir borradores de usuario entre sesiones/reloads en una compu compartida; esto es cache de datos del servidor que se descarta al cerrar la pestaña).
+
+## Documentación de usuario (`/docs`)
+
+- `app/(website)/docs/` sirve una guía de usuario pública en `/docs` (URL sin el prefijo del route group), con layout propio (sin el `NavBar`/`Footer`/`PreFooter` de marketing) y un sidebar clásico de documentación generado desde `app/(website)/docs/nav-config.ts` (`DOCS_NAV`), no desde el filesystem.
+- Cada guía documenta un flujo real del dashboard (ej. `eventos/crear` documenta el wizard de 6 pasos de arriba). Si cambiás labels, rutas o pasos de un flujo que ya tiene guía, hay que actualizar esa página en el mismo cambio — ver skill `docs-site` para el mapa completo guía↔archivos fuente y para la convención de componentes compartidos (`docs-ui.tsx`).

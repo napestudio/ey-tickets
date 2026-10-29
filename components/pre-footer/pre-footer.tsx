@@ -7,7 +7,11 @@ import { NAV_LINKS } from "@/lib/data/nav-links";
 
 export default function PreFooter() {
   const pathname = usePathname();
-  if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard"))
+  if (
+    pathname.startsWith("/validar") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/docs")
+  )
     return;
   return (
     <div className="pt-24 text-white bg-linear-to-b to-black from-ey-turquoise-darker to-80% overflow-hidden font-nebulica">

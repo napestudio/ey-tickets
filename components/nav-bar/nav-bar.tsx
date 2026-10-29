@@ -70,7 +70,11 @@ export default function NavBar() {
     setIsOpen(false);
   }, [pathname]);
 
-  if (pathname.startsWith("/validar") || pathname.startsWith("/dashboard"))
+  if (
+    pathname.startsWith("/validar") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/docs")
+  )
     return null;
 
   return (
