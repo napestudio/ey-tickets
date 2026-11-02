@@ -99,8 +99,12 @@ export default function QuickSaleForm({
         paymentMethodId: cashPaymentMethodId,
       });
       setSaleResult(result);
-    } catch {
-      setError("Ocurrió un error al generar la venta. Intentá de nuevo.");
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Ocurrió un error al generar la venta. Intentá de nuevo.",
+      );
     } finally {
       setIsLoading(false);
     }

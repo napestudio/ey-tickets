@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createMercadoPagoOrder } from "@/lib/mercadopago";
 import { inputClass } from "@/components/website/Contactform";
+import { toast } from "@/components/ui/use-toast";
 
 const formSchema = z
   .object({
@@ -124,6 +125,13 @@ export default function UserDataForm({ order }: { order: Order }) {
     try {
       await createTransferOrder(orderData, orderId!, transferPayment!.paymentMethod.id);
       router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Ocurrió un error.",
+        description:
+          error instanceof Error ? error.message : "Intentá de nuevo.",
+      });
     } finally {
       setIsLoading(false);
     }

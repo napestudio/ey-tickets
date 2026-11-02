@@ -22,13 +22,12 @@ export default async function TicketTypePage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const evento = await getEventById(eventId);
-
-  if (!evento) notFound();
-
-  const [rawTicketTypes] = await Promise.all([
+  const [evento, rawTicketTypes] = await Promise.all([
+    getEventById(eventId),
     getTicketTypesWithStatsByEventId(eventId),
   ]);
+
+  if (!evento) notFound();
 
   const ticketTypes = rawTicketTypes.map((t) => ({
     id: t.id,

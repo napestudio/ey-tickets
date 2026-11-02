@@ -206,8 +206,11 @@ export async function createTicketTypeWithLimit(
   producerId: string,
   creatorUserId?: string,
 ) {
-  // 1. Validar contra el pool de la productora
-  const summary = await getProducerStockSummary(producerId);
+  // 1. Pool de la productora + 2. asignación del miembro (consultas independientes)
+  const [summary, memberAllocation] = await Promise.all([
+    getProducerStockSummary(producerId),
+    creatorUserId ? getMemberTicketAllocation(creatorUserId) : Promise.resolve(null),
+  ]);
 
   if (ticket.quantity > summary.available) {
     throw new Error(
@@ -215,9 +218,8 @@ export async function createTicketTypeWithLimit(
     );
   }
 
-  // 2. Cupo del miembro (si tiene asignación personal)
+  // Cupo del miembro (si tiene asignación personal)
   if (creatorUserId) {
-    const memberAllocation = await getMemberTicketAllocation(creatorUserId);
     if (memberAllocation) {
       // Sumar tickets en eventos creados por este usuario en la misma productora
       const usedByMember = await prisma.ticketType.aggregate({
@@ -245,6 +247,55 @@ export async function createTicketTypeWithLimit(
   return prisma.ticketType.create({
     data: createData as Prisma.TicketTypeUncheckedCreateInput,
   });
+}
+
+// ─── Capacity check (public sales) ───────────────────────────────────────────
+// Separate from the producer-pool system above (TicketPackage/adjustTicketTypeStock):
+// this guards against selling more units of a TicketType than its own `quantity`
+// allows, counting every PAID order (regular sales + invitations) the same way
+// the producer-pool floor check already does.
+
+export async function getTicketTypeCapacity(
+  tx: Prisma.TransactionClient,
+  ticketTypeId: string,
+): Promise<{ quantity: number; consumed: number; available: number }> {
+  // Lock the row so two concurrent purchases of the same ticket type serialize
+  // against each other instead of both reading a stale "available" count —
+  // TicketType has no per-unit row to compare-and-swap against (unlike Seat),
+  // so a row lock is the only way to make this check-then-insert atomic.
+  await tx.$queryRaw`SELECT id FROM ticket_types WHERE id = ${ticketTypeId} FOR UPDATE`;
+
+  const ticketType = await tx.ticketType.findUniqueOrThrow({
+    where: { id: ticketTypeId },
+    select: { quantity: true },
+  });
+
+  const soldResult = await tx.order.aggregate({
+    _sum: { quantity: true },
+    where: { ticketTypeId, status: "PAID" },
+  });
+  const consumed = soldResult._sum.quantity ?? 0;
+
+  return {
+    quantity: ticketType.quantity,
+    consumed,
+    available: ticketType.quantity - consumed,
+  };
+}
+
+export async function assertTicketTypeCapacity(
+  tx: Prisma.TransactionClient,
+  ticketTypeId: string,
+  requestedQuantity: number,
+): Promise<void> {
+  const { available } = await getTicketTypeCapacity(tx, ticketTypeId);
+  if (requestedQuantity > available) {
+    throw new Error(
+      available > 0
+        ? `Solo quedan ${available} entradas disponibles de este tipo.`
+        : "Ya no quedan entradas disponibles de este tipo.",
+    );
+  }
 }
 
 // ─── Stock movement (delta-based) ────────────────────────────────────────────

@@ -1,8 +1,11 @@
+import { Prisma } from "@prisma/client";
 import {prisma} from "../prisma";
 import { getStats } from "./eventos";
 
-export async function createOrder(data: any) {
-  return await prisma.order.create({
+type DbClient = typeof prisma | Prisma.TransactionClient;
+
+export async function createOrder(data: any, client: DbClient = prisma) {
+  return await client.order.create({
     data,
     include: {
       ticketType: true,
@@ -102,8 +105,8 @@ export async function updateOrder(orderId: string, orderData: any) {
   });
 }
 
-export async function createInvitationOrder(data: any) {
-  return await prisma.order.create({
+export async function createInvitationOrder(data: any, client: DbClient = prisma) {
+  return await client.order.create({
     data,
     include: {
       ticketType: true,
@@ -132,8 +135,9 @@ export async function markOrderAwaitingTransfer(
     phone: string;
     paymentMethodId: string;
   },
+  client: DbClient = prisma,
 ) {
-  return await prisma.order.updateMany({
+  return await client.order.updateMany({
     where: { id: orderId, status: "PENDING" },
     data: { ...data, status: "AWAITING_TRANSFER" },
   });

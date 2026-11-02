@@ -6,6 +6,7 @@ import { UserInvitationEmail } from "./user-invitation";
 import { AccountVerificationEmail } from "./account-verification";
 import { EventInvitationEmail } from "./event-invitation";
 import { TransferInstructionsEmail } from "./transfer-instructions";
+import { OversoldAlertEmail } from "./oversold-alert";
 import { getOrderReference } from "@/lib/utils";
 
 export type { QrTicketEmailData } from "./ticket-confirmation";
@@ -169,6 +170,38 @@ export async function sendTransferInstructionsEmail(
 
   if (error) {
     throw new Error(`Error sending transfer instructions email: ${error.message}`);
+  }
+}
+
+export type OversoldAlertEmailPayload = {
+  recipientEmail: string;
+  eventTitle: string;
+  ticketTitle: string;
+  orderId: string;
+  buyerName: string;
+  buyerEmail: string;
+  quantity: number;
+  ticketTypeQuantity: number;
+  totalPaidQuantity: number;
+};
+
+export async function sendOversoldAlertEmail(
+  payload: OversoldAlertEmailPayload
+): Promise<void> {
+  const { recipientEmail, orderId, ...rest } = payload;
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: [recipientEmail],
+    subject: `Venta por encima del stock — ${rest.eventTitle}`,
+    react: OversoldAlertEmail({
+      ...rest,
+      orderReference: getOrderReference(orderId),
+    }),
+  });
+
+  if (error) {
+    throw new Error(`Error sending oversold alert email: ${error.message}`);
   }
 }
 

@@ -187,6 +187,7 @@ export default function BuyTicketForm({
         toast({
           variant: "destructive",
           title: "Ocurrió un error.",
+          description: error instanceof Error ? error.message : undefined,
         });
         throw new Error("Error creando order");
       });

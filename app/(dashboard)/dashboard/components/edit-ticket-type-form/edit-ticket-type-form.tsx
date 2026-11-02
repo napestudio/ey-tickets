@@ -561,10 +561,12 @@ export default function EditTycketTypeForm({
                   <div className="flex items-center justify-between">
                     <div className="flex gap-8">
                       <div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           Cantidad inicial
                         </p>
-                        <p className="text-2xl font-bold">{initialQuantity}</p>
+                        <p className="text-base font-medium text-muted-foreground">
+                          {initialQuantity}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">

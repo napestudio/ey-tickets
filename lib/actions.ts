@@ -37,6 +37,7 @@ import {
   sendPasswordResetEmail,
   sendEventInvitationEmail,
   sendTransferInstructionsEmail,
+  sendOversoldAlertEmail,
   type QrTicketEmailData,
 } from "@/emails/send";
 import { generatePasswordResetToken } from "./tokens";
@@ -606,11 +607,25 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
     seatId: input.seatId,
   };
 
+  // Seat orders already have their own atomic hold (lib/api/seats.ts holdSeat),
+  // so stock here is just the seat itself — no TicketType capacity to check.
   let orderId: string | null = null;
   try {
-    const result = await Orders.createOrder(orderData);
+    const result = input.seatId
+      ? await Orders.createOrder(orderData)
+      : await prisma.$transaction(async (tx) => {
+          await TicketTypes.assertTicketTypeCapacity(
+            tx,
+            input.ticketTypeId,
+            effectiveQuantity,
+          );
+          return Orders.createOrder(orderData, tx);
+        });
     orderId = result.id;
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("entradas disponibles")) {
+      throw error;
+    }
     throw new Error("Error creando la orden.");
   }
 
@@ -621,7 +636,10 @@ export async function createSecureOrder(input: CreateSecureOrderInput) {
 
 export async function createCashOrder(data: CreateOrderType) {
   try {
-    const result = await Orders.createOrder(data);
+    const result = await prisma.$transaction(async (tx) => {
+      await TicketTypes.assertTicketTypeCapacity(tx, data.ticketTypeId, data.quantity);
+      return Orders.createOrder(data, tx);
+    });
     if (result) {
       const dates = JSON.parse(result.ticketType.dates!);
       const is2x1 = result.ticketType.buyGet === 2;
@@ -648,6 +666,9 @@ export async function createCashOrder(data: CreateOrderType) {
       await createTicketOrder(ticketsData);
     }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("entradas disponibles")) {
+      throw error;
+    }
     throw new Error("Error creando la order");
   }
 }
@@ -686,7 +707,10 @@ export async function createQuickSaleOrder(input: {
     paymentMethodId: input.paymentMethodId,
   };
 
-  const result = await Orders.createOrder(orderData);
+  const result = await prisma.$transaction(async (tx) => {
+    await TicketTypes.assertTicketTypeCapacity(tx, input.ticketTypeId, input.quantity);
+    return Orders.createOrder(orderData, tx);
+  });
   if (!result) {
     throw new Error("Error creando la orden");
   }
@@ -1021,30 +1045,82 @@ type MpPaymentData = {
   mpAuthorizationCode: string | null;
 };
 
+async function notifyOversoldOrder(
+  order: NonNullable<Awaited<ReturnType<typeof getOrderById>>>,
+  capacity: { ticketTypeQuantity: number; totalPaidQuantity: number },
+) {
+  const producer = await prisma.producer.findUnique({
+    where: { id: order.event.producerId },
+    select: { email: true },
+  });
+  if (!producer?.email) return;
+
+  await sendOversoldAlertEmail({
+    recipientEmail: producer.email,
+    eventTitle: order.event.title,
+    ticketTitle: order.ticketType.title,
+    orderId: order.id,
+    buyerName: `${order.name ?? ""} ${order.lastName ?? ""}`.trim() || "—",
+    buyerEmail: order.email ?? "—",
+    quantity: order.quantity,
+    ticketTypeQuantity: capacity.ticketTypeQuantity,
+    totalPaidQuantity: capacity.totalPaidQuantity,
+  });
+}
+
 export async function payOrderHandler(orderId: string, mpData?: MpPaymentData) {
   try {
-    // Atomic check-and-update: only proceeds if order is currently PENDING or
-    // AWAITING_TRANSFER. Prevents duplicate ticket creation from concurrent
-    // webhook retries or a double-click on "confirmar transferencia".
-    const updated = await prisma.order.updateMany({
-      where: { id: orderId, status: { in: ["PENDING", "AWAITING_TRANSFER"] } },
-      data: {
-        status: "PAID",
-        ...(mpData && {
-          mpPaymentId: mpData.mpPaymentId,
-          mpDateApproved: mpData.mpDateApproved,
-          mpPaymentMethodId: mpData.mpPaymentMethodId,
-          mpPaymentTypeId: mpData.mpPaymentTypeId,
-          mpInstallments: mpData.mpInstallments,
-          mpAuthorizationCode: mpData.mpAuthorizationCode,
-        }),
-      },
+    // Atomic check-and-update + capacity re-check, all under the same
+    // TicketType row lock: prevents duplicate ticket creation from concurrent
+    // webhook retries / a double-click on "confirmar transferencia", AND
+    // closes the narrow race where two orders for the same last unit both
+    // get paid almost simultaneously. Money is already captured by MP (or
+    // already transferred) by the time we get here, so a capacity conflict
+    // doesn't block the order — per product decision, the ticket is issued
+    // anyway and the producer gets alerted (see oversold handling below).
+    const capacityResult = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({
+        where: { id: orderId },
+        select: { status: true, ticketTypeId: true, quantity: true },
+      });
+      if (!existing || !["PENDING", "AWAITING_TRANSFER"].includes(existing.status)) {
+        return null; // already processed (retry/dup webhook) or doesn't exist
+      }
+
+      const capacity = await TicketTypes.getTicketTypeCapacity(tx, existing.ticketTypeId);
+
+      await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: "PAID",
+          ...(mpData && {
+            mpPaymentId: mpData.mpPaymentId,
+            mpDateApproved: mpData.mpDateApproved,
+            mpPaymentMethodId: mpData.mpPaymentMethodId,
+            mpPaymentTypeId: mpData.mpPaymentTypeId,
+            mpInstallments: mpData.mpInstallments,
+            mpAuthorizationCode: mpData.mpAuthorizationCode,
+          }),
+        },
+      });
+
+      return {
+        oversold: existing.quantity > capacity.available,
+        ticketTypeQuantity: capacity.quantity,
+        totalPaidQuantity: capacity.consumed + existing.quantity,
+      };
     });
 
-    if (updated.count === 0) return;
+    if (!capacityResult) return;
 
     const order = await getOrderById(orderId);
     if (!order) return;
+
+    if (capacityResult.oversold) {
+      await notifyOversoldOrder(order, capacityResult).catch((err) => {
+        console.error("payOrderHandler: error sending oversold alert email:", err);
+      });
+    }
 
     const dates = JSON.parse(order.ticketType.dates!);
     const is2x1 = order.ticketType.buyGet === 2;
@@ -1110,9 +1186,23 @@ export async function createTransferOrder(
   orderId: string,
   paymentMethodId: string,
 ) {
-  const updated = await Orders.markOrderAwaitingTransfer(orderId, {
-    ...orderData,
-    paymentMethodId,
+  const pendingOrder = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { ticketTypeId: true, quantity: true, status: true },
+  });
+  if (!pendingOrder || pendingOrder.status !== "PENDING") return; // orden ya procesada/expirada, no-op
+
+  const updated = await prisma.$transaction(async (tx) => {
+    await TicketTypes.assertTicketTypeCapacity(
+      tx,
+      pendingOrder.ticketTypeId,
+      pendingOrder.quantity,
+    );
+    return Orders.markOrderAwaitingTransfer(
+      orderId,
+      { ...orderData, paymentMethodId },
+      tx,
+    );
   });
   if (updated.count === 0) return; // orden ya procesada/expirada, no-op
 
@@ -1669,26 +1759,6 @@ export async function inviteUserToEvent(
     const isCustomizable = !hasFullIdentity;
     const customizationToken = isCustomizable ? randomUUID() : undefined;
 
-    // Capacity check: ensure the ticket type has enough remaining slots.
-    // Invitations are no longer deducted from ticketType.quantity; instead they
-    // are counted directly as consumed capacity (like regular sales).
-    const [ticketTypeCapacity, usedCapacity] = await Promise.all([
-      prisma.ticketType.findUniqueOrThrow({
-        where: { id: data.ticketTypeId },
-        select: { quantity: true },
-      }),
-      prisma.order.aggregate({
-        _sum: { quantity: true },
-        where: { ticketTypeId: data.ticketTypeId, status: "PAID" },
-      }),
-    ]);
-    const consumed = usedCapacity._sum.quantity ?? 0;
-    if (ticketTypeCapacity.quantity < consumed + data.quantity) {
-      throw new Error(
-        `Sin capacidad: solo quedan ${ticketTypeCapacity.quantity - consumed} lugares disponibles.`,
-      );
-    }
-
     const orderPayload = {
       quantity: data.quantity,
       // For customizable invitations we still store the recipient email so it
@@ -1706,7 +1776,13 @@ export async function inviteUserToEvent(
       customizationToken: customizationToken ?? null,
     };
 
-    const result = await Orders.createInvitationOrder(orderPayload);
+    // Invitations are not deducted from ticketType.quantity separately — they're
+    // counted directly as consumed capacity (like regular sales), via the same
+    // locked check used for public purchases.
+    const result = await prisma.$transaction(async (tx) => {
+      await TicketTypes.assertTicketTypeCapacity(tx, data.ticketTypeId, data.quantity);
+      return Orders.createInvitationOrder(orderPayload, tx);
+    });
     if (result) {
       const dates = JSON.parse(result.ticketType.dates!);
       const is2x1 = result.ticketType.buyGet === 2;

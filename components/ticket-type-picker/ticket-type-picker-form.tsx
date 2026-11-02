@@ -81,7 +81,19 @@ export default function TicketTypePickerForm({
     : "available";
   const selectedUnavailable = selectedStatus !== "available";
 
-  const effectiveMaxQty = appliedCode ? 1 : (selectedTicket?.limitPerSale ?? 10);
+  // Stock disponible real (independiente del chequeo de "agotado" de arriba,
+  // que compara contra buyGet para la vista de precio) — ver nota en
+  // getTicketDisplayStatus. El servidor vuelve a validar esto en el submit;
+  // esto es solo para no dejar que el comprador pida más de lo que hay.
+  const availableStock = selectedTicket
+    ? Math.max(
+        0,
+        selectedTicket.quantity - (soldTickets?.[selectedTicket.id!]?.count ?? 0)
+      )
+    : 0;
+  const effectiveMaxQty = appliedCode
+    ? 1
+    : Math.min(selectedTicket?.limitPerSale ?? 10, availableStock);
 
   const handleSelect = (ticket: TicketTypeForPicker) => {
     if (getTicketDisplayStatus(ticket, soldTickets, saleEndDate) !== "available") return;
@@ -121,7 +133,11 @@ export default function TicketTypePickerForm({
     : 0;
   const displayTotal = displaySubtotal + displayServiceCharge;
 
-  const canSubmit = !!selectedTicket && !selectedUnavailable && quantity > 0;
+  const canSubmit =
+    !!selectedTicket &&
+    !selectedUnavailable &&
+    quantity > 0 &&
+    quantity <= availableStock;
 
   async function handleSubmit() {
     if (!canSubmit || !selectedTicket?.id) return;
@@ -203,9 +219,16 @@ export default function TicketTypePickerForm({
       {/* Quantity selector */}
       {selectedTicket && !selectedUnavailable && (
         <div className="flex items-center justify-between">
-          <span className="text-white/60 text-sm uppercase tracking-widest">
-            Cantidad
-          </span>
+          <div className="flex flex-col">
+            <span className="text-white/60 text-sm uppercase tracking-widest">
+              Cantidad
+            </span>
+            {availableStock < (selectedTicket.limitPerSale ?? 10) && (
+              <span className="text-xs text-ey-turquoise">
+                Quedan {availableStock} disponibles
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <button
               type="button"
